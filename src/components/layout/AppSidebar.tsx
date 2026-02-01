@@ -1,0 +1,115 @@
+import { 
+  LayoutDashboard, 
+  BookOpen, 
+  Timer, 
+  Target, 
+  PenTool, 
+  Sparkles,
+  Moon,
+  Sun,
+  ChevronLeft
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+
+interface AppSidebarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isDark: boolean;
+  toggleTheme: () => void;
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}
+
+const navItems = [
+  { id: 'dashboard', label: 'Dashboard', labelBn: 'ড্যাশবোর্ড', icon: LayoutDashboard },
+  { id: 'syllabus', label: 'Syllabus', labelBn: 'সিলেবাস', icon: BookOpen },
+  { id: 'pomodoro', label: 'Focus Timer', labelBn: 'ফোকাস টাইমার', icon: Timer },
+  { id: 'goals', label: 'Goals', labelBn: 'লক্ষ্য', icon: Target },
+  { id: 'logger', label: 'Study Log', labelBn: 'স্টাডি লগ', icon: PenTool },
+  { id: 'quotes', label: 'Motivation', labelBn: 'অনুপ্রেরণা', icon: Sparkles },
+];
+
+export function AppSidebar({ 
+  activeTab, 
+  setActiveTab, 
+  isDark, 
+  toggleTheme,
+  isCollapsed,
+  setIsCollapsed
+}: AppSidebarProps) {
+  return (
+    <aside className={cn(
+      "hidden md:flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
+      isCollapsed ? "w-20" : "w-64"
+    )}>
+      {/* Logo */}
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+        {!isCollapsed && (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+              <BookOpen className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg text-sidebar-foreground">StudyFlow</h1>
+              <p className="text-xs text-muted-foreground font-bengali">স্টাডিফ্লো</p>
+            </div>
+          </div>
+        )}
+        {isCollapsed && (
+          <div className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+            <BookOpen className="w-5 h-5 text-primary-foreground" />
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-3 space-y-1">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group",
+              activeTab === item.id 
+                ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" 
+                : "text-sidebar-foreground hover:bg-sidebar-accent"
+            )}
+          >
+            <item.icon className={cn(
+              "w-5 h-5 flex-shrink-0",
+              activeTab === item.id ? "" : "group-hover:text-primary"
+            )} />
+            {!isCollapsed && (
+              <div className="text-left">
+                <span className="block text-sm font-medium">{item.label}</span>
+                <span className="block text-xs opacity-70 font-bengali">{item.labelBn}</span>
+              </div>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      {/* Footer Actions */}
+      <div className="p-3 border-t border-sidebar-border space-y-2">
+        <Button
+          variant="ghost"
+          size={isCollapsed ? "icon" : "default"}
+          onClick={toggleTheme}
+          className={cn("w-full justify-start", isCollapsed && "justify-center")}
+        >
+          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          {!isCollapsed && <span className="ml-2">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-full"
+        >
+          <ChevronLeft className={cn("w-5 h-5 transition-transform", isCollapsed && "rotate-180")} />
+        </Button>
+      </div>
+    </aside>
+  );
+}
