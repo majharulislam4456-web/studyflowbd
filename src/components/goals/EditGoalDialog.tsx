@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -16,69 +16,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
 import type { Goal } from '@/hooks/useSupabaseData';
 
-interface AddGoalDialogProps {
-  onAdd: (goal: Omit<Goal, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+interface EditGoalDialogProps {
+  goal: Goal | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (id: string, updates: Partial<Goal>) => void;
 }
 
-export function AddGoalDialog({ onAdd }: AddGoalDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditGoalDialog({ goal, open, onOpenChange, onSave }: EditGoalDialogProps) {
   const [title, setTitle] = useState('');
   const [titleBn, setTitleBn] = useState('');
   const [type, setType] = useState<'mission' | 'weekly' | 'short'>('weekly');
+  const [progress, setProgress] = useState(0);
+  const [daysRemaining, setDaysRemaining] = useState(7);
 
-  const getDaysForType = (t: string) => {
-    switch (t) {
-      case 'mission': return 30;
-      case 'weekly': return 7;
-      case 'short': return 3;
-      default: return 7;
+  useEffect(() => {
+    if (goal) {
+      setTitle(goal.title);
+      setTitleBn(goal.title_bn || '');
+      setType(goal.type);
+      setProgress(goal.progress);
+      setDaysRemaining(goal.days_remaining);
     }
-  };
+  }, [goal]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!goal || !title.trim()) return;
 
-    const daysTotal = getDaysForType(type);
+    const getDaysForType = (t: string) => {
+      switch (t) {
+        case 'mission': return 30;
+        case 'weekly': return 7;
+        case 'short': return 3;
+        default: return 7;
+      }
+    };
 
-    onAdd({
+    onSave(goal.id, {
       title: title.trim(),
       title_bn: titleBn.trim() || null,
       type,
-      days_total: daysTotal,
-      days_remaining: daysTotal,
-      progress: 0,
-      is_completed: false,
+      days_total: getDaysForType(type),
+      days_remaining: Math.min(daysRemaining, getDaysForType(type)),
+      progress,
+      is_completed: progress >= 100,
     });
 
-    setTitle('');
-    setTitleBn('');
-    setType('weekly');
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="gradient" className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Goal / <span className="font-bengali">লক্ষ্য যোগ করুন</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Create New Goal / <span className="font-bengali">নতুন লক্ষ্য তৈরি করুন</span>
+            Edit Goal / <span className="font-bengali">লক্ষ্য সম্পাদনা</span>
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Goal Title (English)</Label>
+            <Label htmlFor="edit-title">Goal Title (English)</Label>
             <Input
-              id="title"
+              id="edit-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Complete Physics Syllabus"
@@ -86,9 +88,9 @@ export function AddGoalDialog({ onAdd }: AddGoalDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="titleBn" className="font-bengali">লক্ষ্যের শিরোনাম (বাংলা)</Label>
+            <Label htmlFor="edit-titleBn" className="font-bengali">লক্ষ্যের শিরোনাম (বাংলা)</Label>
             <Input
-              id="titleBn"
+              id="edit-titleBn"
               value={titleBn}
               onChange={(e) => setTitleBn(e.target.value)}
               placeholder="যেমন: পদার্থবিজ্ঞান সিলেবাস সম্পূর্ণ করুন"
@@ -114,8 +116,29 @@ export function AddGoalDialog({ onAdd }: AddGoalDialogProps) {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label>Progress: {progress}%</Label>
+            <Slider
+              value={[progress]}
+              onValueChange={(v) => setProgress(v[0])}
+              max={100}
+              step={5}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-days">Days Remaining / <span className="font-bengali">বাকি দিন</span></Label>
+            <Input
+              id="edit-days"
+              type="number"
+              min="0"
+              max={type === 'mission' ? 30 : type === 'weekly' ? 7 : 3}
+              value={daysRemaining}
+              onChange={(e) => setDaysRemaining(parseInt(e.target.value) || 0)}
+              required
+            />
+          </div>
           <Button type="submit" className="w-full" variant="gradient">
-            Create Goal / <span className="font-bengali">লক্ষ্য তৈরি করুন</span>
+            Save Changes / <span className="font-bengali">পরিবর্তন সংরক্ষণ করুন</span>
           </Button>
         </form>
       </DialogContent>

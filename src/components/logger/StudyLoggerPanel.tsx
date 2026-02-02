@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,11 +9,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Clock, BookOpen, Plus } from 'lucide-react';
-import type { Subject, StudySession } from '@/types/study';
+import type { Subject, StudySession } from '@/hooks/useSupabaseData';
+import { useState } from 'react';
 
 interface StudyLoggerPanelProps {
   subjects: Subject[];
-  onAddSession: (session: Omit<StudySession, 'id'>) => void;
+  onAddSession: (session: Omit<StudySession, 'id' | 'user_id' | 'created_at'>) => void;
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
 }
@@ -29,12 +29,13 @@ export function StudyLoggerPanel({
   const [duration, setDuration] = useState('30');
 
   const handleLog = () => {
-    if (!selectedSubject || !duration) return;
+    if (!duration) return;
 
     onAddSession({
-      subjectId: selectedSubject,
+      subject_id: selectedSubject || null,
       duration: parseInt(duration),
-      date: new Date(),
+      session_date: new Date().toISOString(),
+      notes: null,
     });
 
     setDuration('30');
@@ -71,12 +72,13 @@ export function StudyLoggerPanel({
           <Label>Subject / <span className="font-bengali">বিষয়</span></Label>
           <Select value={selectedSubject} onValueChange={setSelectedSubject}>
             <SelectTrigger>
-              <SelectValue placeholder="Select subject" />
+              <SelectValue placeholder="Select subject (optional)" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">General Study</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
-                  {subject.name} {subject.nameBn && `/ ${subject.nameBn}`}
+                  {subject.name} {subject.name_bn && `/ ${subject.name_bn}`}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -114,7 +116,7 @@ export function StudyLoggerPanel({
           onClick={handleLog} 
           variant="gradient" 
           className="w-full gap-2"
-          disabled={!selectedSubject || !duration}
+          disabled={!duration}
         >
           <Plus className="w-4 h-4" />
           Log Session / <span className="font-bengali">লগ করুন</span>

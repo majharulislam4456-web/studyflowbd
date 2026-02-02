@@ -1,26 +1,34 @@
+import { useState } from 'react';
 import { Target, Flag, Calendar, Zap, CheckCircle2 } from 'lucide-react';
 import { GoalCard } from '@/components/goals/GoalCard';
 import { AddGoalDialog } from '@/components/goals/AddGoalDialog';
+import { EditGoalDialog } from '@/components/goals/EditGoalDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Goal } from '@/types/study';
+import type { Goal } from '@/hooks/useSupabaseData';
 
 interface GoalsViewProps {
   goals: Goal[];
-  addGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => void;
-  updateGoalProgress: (id: string, progress: number) => void;
+  addGoal: (goal: Omit<Goal, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
 }
 
 export function GoalsView({
   goals,
   addGoal,
-  updateGoalProgress,
+  updateGoal,
   deleteGoal,
 }: GoalsViewProps) {
-  const missions = goals.filter(g => g.type === 'mission' && !g.isCompleted);
-  const weekly = goals.filter(g => g.type === 'weekly' && !g.isCompleted);
-  const shortTerm = goals.filter(g => g.type === 'short' && !g.isCompleted);
-  const completed = goals.filter(g => g.isCompleted);
+  const [editGoal, setEditGoal] = useState<Goal | null>(null);
+  
+  const missions = goals.filter(g => g.type === 'mission' && !g.is_completed);
+  const weekly = goals.filter(g => g.type === 'weekly' && !g.is_completed);
+  const shortTerm = goals.filter(g => g.type === 'short' && !g.is_completed);
+  const completed = goals.filter(g => g.is_completed);
+
+  const handleUpdateProgress = (id: string, progress: number) => {
+    updateGoal(id, { progress, is_completed: progress >= 100 });
+  };
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -73,12 +81,13 @@ export function GoalsView({
 
         <TabsContent value="all" className="space-y-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {goals.filter(g => !g.isCompleted).map((goal) => (
+            {goals.filter(g => !g.is_completed).map((goal) => (
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                onUpdateProgress={updateGoalProgress}
+                onUpdateProgress={handleUpdateProgress}
                 onDelete={deleteGoal}
+                onEdit={setEditGoal}
               />
             ))}
           </div>
@@ -90,8 +99,9 @@ export function GoalsView({
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                onUpdateProgress={updateGoalProgress}
+                onUpdateProgress={handleUpdateProgress}
                 onDelete={deleteGoal}
+                onEdit={setEditGoal}
               />
             ))}
           </div>
@@ -103,8 +113,9 @@ export function GoalsView({
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                onUpdateProgress={updateGoalProgress}
+                onUpdateProgress={handleUpdateProgress}
                 onDelete={deleteGoal}
+                onEdit={setEditGoal}
               />
             ))}
           </div>
@@ -116,15 +127,16 @@ export function GoalsView({
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                onUpdateProgress={updateGoalProgress}
+                onUpdateProgress={handleUpdateProgress}
                 onDelete={deleteGoal}
+                onEdit={setEditGoal}
               />
             ))}
           </div>
         </TabsContent>
       </Tabs>
 
-      {goals.filter(g => !g.isCompleted).length === 0 && (
+      {goals.filter(g => !g.is_completed).length === 0 && (
         <div className="text-center py-16">
           <Target className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
           <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -135,6 +147,14 @@ export function GoalsView({
           </p>
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <EditGoalDialog
+        goal={editGoal}
+        open={!!editGoal}
+        onOpenChange={(open) => !open && setEditGoal(null)}
+        onSave={updateGoal}
+      />
     </div>
   );
 }

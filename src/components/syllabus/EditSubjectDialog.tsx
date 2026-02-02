@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,13 +7,14 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
 import type { Subject } from '@/hooks/useSupabaseData';
 
-interface AddSubjectDialogProps {
-  onAdd: (subject: Omit<Subject, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+interface EditSubjectDialogProps {
+  subject: Subject | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (id: string, updates: Partial<Subject>) => void;
 }
 
 const colors = [
@@ -25,51 +26,51 @@ const colors = [
   'hsl(340 75% 55%)',
 ];
 
-export function AddSubjectDialog({ onAdd }: AddSubjectDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditSubjectDialog({ subject, open, onOpenChange, onSave }: EditSubjectDialogProps) {
   const [name, setName] = useState('');
   const [nameBn, setNameBn] = useState('');
   const [totalChapters, setTotalChapters] = useState('10');
+  const [completedChapters, setCompletedChapters] = useState('0');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
+
+  useEffect(() => {
+    if (subject) {
+      setName(subject.name);
+      setNameBn(subject.name_bn || '');
+      setTotalChapters(String(subject.total_chapters));
+      setCompletedChapters(String(subject.completed_chapters));
+      setSelectedColor(subject.color);
+    }
+  }, [subject]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !totalChapters) return;
+    if (!subject || !name.trim() || !totalChapters) return;
 
-    onAdd({
+    onSave(subject.id, {
       name: name.trim(),
       name_bn: nameBn.trim() || null,
       total_chapters: parseInt(totalChapters),
-      completed_chapters: 0,
+      completed_chapters: Math.min(parseInt(completedChapters), parseInt(totalChapters)),
       color: selectedColor,
     });
 
-    setName('');
-    setNameBn('');
-    setTotalChapters('10');
-    setSelectedColor(colors[0]);
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="gradient" className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Subject / <span className="font-bengali">বিষয় যোগ করুন</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Add New Subject / <span className="font-bengali">নতুন বিষয় যোগ করুন</span>
+            Edit Subject / <span className="font-bengali">বিষয় সম্পাদনা</span>
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Subject Name (English)</Label>
+            <Label htmlFor="edit-name">Subject Name (English)</Label>
             <Input
-              id="name"
+              id="edit-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Mathematics"
@@ -77,26 +78,40 @@ export function AddSubjectDialog({ onAdd }: AddSubjectDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="nameBn" className="font-bengali">বিষয়ের নাম (বাংলা)</Label>
+            <Label htmlFor="edit-nameBn" className="font-bengali">বিষয়ের নাম (বাংলা)</Label>
             <Input
-              id="nameBn"
+              id="edit-nameBn"
               value={nameBn}
               onChange={(e) => setNameBn(e.target.value)}
               placeholder="যেমন: গণিত"
               className="font-bengali"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="chapters">Total Chapters / <span className="font-bengali">মোট অধ্যায়</span></Label>
-            <Input
-              id="chapters"
-              type="number"
-              min="1"
-              max="100"
-              value={totalChapters}
-              onChange={(e) => setTotalChapters(e.target.value)}
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-total">Total Chapters</Label>
+              <Input
+                id="edit-total"
+                type="number"
+                min="1"
+                max="100"
+                value={totalChapters}
+                onChange={(e) => setTotalChapters(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-completed">Completed</Label>
+              <Input
+                id="edit-completed"
+                type="number"
+                min="0"
+                max={totalChapters}
+                value={completedChapters}
+                onChange={(e) => setCompletedChapters(e.target.value)}
+                required
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label>Color / <span className="font-bengali">রং</span></Label>
@@ -115,7 +130,7 @@ export function AddSubjectDialog({ onAdd }: AddSubjectDialogProps) {
             </div>
           </div>
           <Button type="submit" className="w-full" variant="gradient">
-            Add Subject / <span className="font-bengali">যোগ করুন</span>
+            Save Changes / <span className="font-bengali">পরিবর্তন সংরক্ষণ করুন</span>
           </Button>
         </form>
       </DialogContent>

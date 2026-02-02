@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { BookOpen, Timer, Target, TrendingUp } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
+import { EditSubjectDialog } from '@/components/syllabus/EditSubjectDialog';
 import { GoalCard } from '@/components/goals/GoalCard';
+import { EditGoalDialog } from '@/components/goals/EditGoalDialog';
 import { QuoteCard } from '@/components/quotes/QuoteCard';
-import type { Subject, Goal, Quote } from '@/types/study';
+import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
+import type { Subject, Goal, Quote } from '@/hooks/useSupabaseData';
 
 interface DashboardViewProps {
   subjects: Subject[];
@@ -12,10 +16,11 @@ interface DashboardViewProps {
   quotes: Quote[];
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
-  updateSubjectProgress: (id: string, completed: number) => void;
+  updateSubject: (id: string, updates: Partial<Subject>) => void;
   deleteSubject: (id: string) => void;
-  updateGoalProgress: (id: string, progress: number) => void;
+  updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
+  updateQuote: (id: string, updates: Partial<Quote>) => void;
   deleteQuote: (id: string) => void;
 }
 
@@ -25,21 +30,26 @@ export function DashboardView({
   quotes,
   getTodayStudyTime,
   getWeekStudyTime,
-  updateSubjectProgress,
+  updateSubject,
   deleteSubject,
-  updateGoalProgress,
+  updateGoal,
   deleteGoal,
+  updateQuote,
   deleteQuote,
 }: DashboardViewProps) {
+  const [editSubject, setEditSubject] = useState<Subject | null>(null);
+  const [editGoal, setEditGoal] = useState<Goal | null>(null);
+  const [editQuote, setEditQuote] = useState<Quote | null>(null);
+
   const todayTime = getTodayStudyTime();
   const weekTime = getWeekStudyTime();
   
-  const totalChapters = subjects.reduce((acc, s) => acc + s.totalChapters, 0);
-  const completedChapters = subjects.reduce((acc, s) => acc + s.completedChapters, 0);
+  const totalChapters = subjects.reduce((acc, s) => acc + s.total_chapters, 0);
+  const completedChapters = subjects.reduce((acc, s) => acc + s.completed_chapters, 0);
   const overallProgress = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
 
-  const activeGoals = goals.filter(g => !g.isCompleted);
-  const completedGoals = goals.filter(g => g.isCompleted);
+  const activeGoals = goals.filter(g => !g.is_completed);
+  const completedGoals = goals.filter(g => g.is_completed);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -49,7 +59,7 @@ export function DashboardView({
   };
 
   // Get a random quote for featured display
-  const featuredQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const featuredQuote = quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -122,8 +132,9 @@ export function DashboardView({
               <div key={subject.id} className={`stagger-${index + 1}`}>
                 <SubjectCard
                   subject={subject}
-                  onUpdateProgress={updateSubjectProgress}
+                  onUpdateProgress={(id, completed) => updateSubject(id, { completed_chapters: completed })}
                   onDelete={deleteSubject}
+                  onEdit={setEditSubject}
                 />
               </div>
             ))}
@@ -141,8 +152,9 @@ export function DashboardView({
               <GoalCard
                 key={goal.id}
                 goal={goal}
-                onUpdateProgress={updateGoalProgress}
+                onUpdateProgress={(id, progress) => updateGoal(id, { progress, is_completed: progress >= 100 })}
                 onDelete={deleteGoal}
+                onEdit={setEditGoal}
               />
             ))}
           </div>
@@ -153,11 +165,36 @@ export function DashboardView({
               <h2 className="text-xl font-semibold text-foreground">
                 Daily Motivation / <span className="font-bengali">দৈনিক অনুপ্রেরণা</span>
               </h2>
-              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} featured />
+              <QuoteCard 
+                quote={featuredQuote} 
+                onDelete={deleteQuote} 
+                onEdit={setEditQuote}
+                featured 
+              />
             </div>
           )}
         </div>
       </div>
+
+      {/* Edit Dialogs */}
+      <EditSubjectDialog
+        subject={editSubject}
+        open={!!editSubject}
+        onOpenChange={(open) => !open && setEditSubject(null)}
+        onSave={updateSubject}
+      />
+      <EditGoalDialog
+        goal={editGoal}
+        open={!!editGoal}
+        onOpenChange={(open) => !open && setEditGoal(null)}
+        onSave={updateGoal}
+      />
+      <EditQuoteDialog
+        quote={editQuote}
+        open={!!editQuote}
+        onOpenChange={(open) => !open && setEditQuote(null)}
+        onSave={updateQuote}
+      />
     </div>
   );
 }

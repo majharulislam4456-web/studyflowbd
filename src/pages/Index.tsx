@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
-import { useStudyData } from '@/hooks/useStudyData';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { MobileHeader } from '@/components/layout/MobileHeader';
@@ -10,28 +12,59 @@ import { PomodoroView } from '@/components/views/PomodoroView';
 import { GoalsView } from '@/components/views/GoalsView';
 import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
+import { ProfilePanel } from '@/components/profile/ProfilePanel';
 import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  
   const {
     subjects,
     goals,
     quotes,
-    updateSubjectProgress,
+    profile,
+    loading: dataLoading,
     addSubject,
+    updateSubject,
     deleteSubject,
     addGoal,
-    updateGoalProgress,
+    updateGoal,
     deleteGoal,
     addSession,
     addQuote,
+    updateQuote,
     deleteQuote,
+    updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
-  } = useStudyData();
+  } = useSupabaseData();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [authLoading, user, navigate]);
+
+  if (authLoading || dataLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading... / <span className="font-bengali">লোড হচ্ছে...</span></p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const renderView = () => {
     switch (activeTab) {
@@ -43,10 +76,11 @@ const Index = () => {
             quotes={quotes}
             getTodayStudyTime={getTodayStudyTime}
             getWeekStudyTime={getWeekStudyTime}
-            updateSubjectProgress={updateSubjectProgress}
+            updateSubject={updateSubject}
             deleteSubject={deleteSubject}
-            updateGoalProgress={updateGoalProgress}
+            updateGoal={updateGoal}
             deleteGoal={deleteGoal}
+            updateQuote={updateQuote}
             deleteQuote={deleteQuote}
           />
         );
@@ -55,7 +89,7 @@ const Index = () => {
           <SyllabusView
             subjects={subjects}
             addSubject={addSubject}
-            updateSubjectProgress={updateSubjectProgress}
+            updateSubject={updateSubject}
             deleteSubject={deleteSubject}
           />
         );
@@ -66,7 +100,7 @@ const Index = () => {
           <GoalsView
             goals={goals}
             addGoal={addGoal}
-            updateGoalProgress={updateGoalProgress}
+            updateGoal={updateGoal}
             deleteGoal={deleteGoal}
           />
         );
@@ -84,8 +118,18 @@ const Index = () => {
           <QuotesView
             quotes={quotes}
             addQuote={addQuote}
+            updateQuote={updateQuote}
             deleteQuote={deleteQuote}
           />
+        );
+      case 'profile':
+        return (
+          <div className="max-w-md">
+            <h1 className="text-3xl font-bold text-foreground mb-6">
+              Profile / <span className="font-bengali">প্রোফাইল</span>
+            </h1>
+            <ProfilePanel profile={profile} onUpdateProfile={updateProfile} />
+          </div>
         );
       default:
         return null;
@@ -102,6 +146,7 @@ const Index = () => {
         toggleTheme={toggleTheme}
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
+        profile={profile}
       />
 
       {/* Main Content */}
