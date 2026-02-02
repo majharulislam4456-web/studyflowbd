@@ -1,15 +1,16 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Trash2, Quote } from 'lucide-react';
-import type { Quote as QuoteType } from '@/types/study';
+import { Trash2, Quote, Pencil } from 'lucide-react';
+import type { Quote as QuoteType } from '@/hooks/useSupabaseData';
 
 interface QuoteCardProps {
   quote: QuoteType;
   onDelete: (id: string) => void;
+  onEdit: (quote: QuoteType) => void;
   featured?: boolean;
 }
 
-export function QuoteCard({ quote, onDelete, featured = false }: QuoteCardProps) {
+export function QuoteCard({ quote, onDelete, onEdit, featured = false }: QuoteCardProps) {
   return (
     <div className={cn(
       "glass-card p-6 transition-smooth hover:shadow-lg group animate-fade-in relative overflow-hidden",
@@ -24,7 +25,7 @@ export function QuoteCard({ quote, onDelete, featured = false }: QuoteCardProps)
       <div className="relative">
         <p className={cn(
           "text-lg leading-relaxed",
-          quote.isBengali ? "font-bengali" : "",
+          quote.is_bengali ? "font-bengali" : "",
           featured && "text-xl font-medium"
         )}>
           "{quote.text}"
@@ -33,21 +34,31 @@ export function QuoteCard({ quote, onDelete, featured = false }: QuoteCardProps)
         {quote.author && (
           <p className={cn(
             "mt-4 text-sm text-muted-foreground",
-            quote.isBengali ? "font-bengali" : ""
+            quote.is_bengali ? "font-bengali" : ""
           )}>
             — {quote.author}
           </p>
         )}
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={() => onDelete(quote.id)}
-        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-      >
-        <Trash2 className="w-4 h-4" />
-      </Button>
+      <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onEdit(quote)}
+          className="text-muted-foreground hover:text-primary"
+        >
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onDelete(quote.id)}
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }

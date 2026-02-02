@@ -1,23 +1,27 @@
+import { useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
 import { AddSubjectDialog } from '@/components/syllabus/AddSubjectDialog';
-import type { Subject } from '@/types/study';
+import { EditSubjectDialog } from '@/components/syllabus/EditSubjectDialog';
+import type { Subject } from '@/hooks/useSupabaseData';
 
 interface SyllabusViewProps {
   subjects: Subject[];
-  addSubject: (subject: Omit<Subject, 'id'>) => void;
-  updateSubjectProgress: (id: string, completed: number) => void;
+  addSubject: (subject: Omit<Subject, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  updateSubject: (id: string, updates: Partial<Subject>) => void;
   deleteSubject: (id: string) => void;
 }
 
 export function SyllabusView({
   subjects,
   addSubject,
-  updateSubjectProgress,
+  updateSubject,
   deleteSubject,
 }: SyllabusViewProps) {
-  const totalChapters = subjects.reduce((acc, s) => acc + s.totalChapters, 0);
-  const completedChapters = subjects.reduce((acc, s) => acc + s.completedChapters, 0);
+  const [editSubject, setEditSubject] = useState<Subject | null>(null);
+  
+  const totalChapters = subjects.reduce((acc, s) => acc + s.total_chapters, 0);
+  const completedChapters = subjects.reduce((acc, s) => acc + s.completed_chapters, 0);
   const overallProgress = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
 
   return (
@@ -67,8 +71,9 @@ export function SyllabusView({
           <div key={subject.id} className={`stagger-${(index % 5) + 1}`}>
             <SubjectCard
               subject={subject}
-              onUpdateProgress={updateSubjectProgress}
+              onUpdateProgress={(id, completed) => updateSubject(id, { completed_chapters: completed })}
               onDelete={deleteSubject}
+              onEdit={setEditSubject}
             />
           </div>
         ))}
@@ -85,6 +90,14 @@ export function SyllabusView({
           </p>
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <EditSubjectDialog
+        subject={editSubject}
+        open={!!editSubject}
+        onOpenChange={(open) => !open && setEditSubject(null)}
+        onSave={updateSubject}
+      />
     </div>
   );
 }

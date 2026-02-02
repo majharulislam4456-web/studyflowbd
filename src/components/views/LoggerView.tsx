@@ -1,10 +1,10 @@
 import { PenTool } from 'lucide-react';
 import { StudyLoggerPanel } from '@/components/logger/StudyLoggerPanel';
-import type { Subject, StudySession } from '@/types/study';
+import type { Subject, StudySession } from '@/hooks/useSupabaseData';
 
 interface LoggerViewProps {
   subjects: Subject[];
-  addSession: (session: Omit<StudySession, 'id'>) => void;
+  addSession: (session: Omit<StudySession, 'id' | 'user_id' | 'created_at'>) => void;
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
 }

@@ -1,16 +1,17 @@
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Trash2, Flag, Calendar, Zap } from 'lucide-react';
-import type { Goal } from '@/types/study';
+import { Trash2, Flag, Calendar, Zap, Pencil } from 'lucide-react';
+import type { Goal } from '@/hooks/useSupabaseData';
 
 interface GoalCardProps {
   goal: Goal;
   onUpdateProgress: (id: string, progress: number) => void;
   onDelete: (id: string) => void;
+  onEdit: (goal: Goal) => void;
 }
 
-export function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
+export function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardProps) {
   const getTypeInfo = () => {
     switch (goal.type) {
       case 'mission':
@@ -43,7 +44,7 @@ export function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
   return (
     <div className={cn(
       "glass-card p-5 transition-smooth hover:shadow-lg group animate-fade-in",
-      goal.isCompleted && "opacity-60"
+      goal.is_completed && "opacity-60"
     )}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -56,24 +57,34 @@ export function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
           </div>
           <h3 className={cn(
             "font-semibold text-foreground",
-            goal.isCompleted && "line-through"
+            goal.is_completed && "line-through"
           )}>
             {goal.title}
           </h3>
-          {goal.titleBn && (
+          {goal.title_bn && (
             <p className="text-sm text-muted-foreground font-bengali mt-1">
-              {goal.titleBn}
+              {goal.title_bn}
             </p>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onDelete(goal.id)}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onEdit(goal)}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onDelete(goal.id)}
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -81,7 +92,7 @@ export function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
         
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            {goal.daysRemaining} days left / <span className="font-bengali">দিন বাকি</span>
+            {goal.days_remaining} days left / <span className="font-bengali">দিন বাকি</span>
           </span>
           <span className={cn(
             "font-medium",
@@ -91,7 +102,7 @@ export function GoalCard({ goal, onUpdateProgress, onDelete }: GoalCardProps) {
           </span>
         </div>
 
-        {!goal.isCompleted && (
+        {!goal.is_completed && (
           <div className="flex gap-2 pt-2">
             {[25, 50, 75, 100].map((value) => (
               <Button

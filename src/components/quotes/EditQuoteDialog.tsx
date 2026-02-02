@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,58 +9,57 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
 import type { Quote } from '@/hooks/useSupabaseData';
 
-interface AddQuoteDialogProps {
-  onAdd: (quote: Omit<Quote, 'id' | 'user_id' | 'created_at'>) => void;
+interface EditQuoteDialogProps {
+  quote: Quote | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (id: string, updates: Partial<Quote>) => void;
 }
 
-export function AddQuoteDialog({ onAdd }: AddQuoteDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditQuoteDialog({ quote, open, onOpenChange, onSave }: EditQuoteDialogProps) {
   const [text, setText] = useState('');
   const [author, setAuthor] = useState('');
   const [isBengali, setIsBengali] = useState(true);
 
+  useEffect(() => {
+    if (quote) {
+      setText(quote.text);
+      setAuthor(quote.author || '');
+      setIsBengali(quote.is_bengali);
+    }
+  }, [quote]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!quote || !text.trim()) return;
 
-    onAdd({
+    onSave(quote.id, {
       text: text.trim(),
       author: author.trim() || null,
       is_bengali: isBengali,
     });
 
-    setText('');
-    setAuthor('');
-    setIsBengali(true);
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="gradient" className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Quote / <span className="font-bengali">উক্তি যোগ করুন</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Add Motivational Quote / <span className="font-bengali">অনুপ্রেরণামূলক উক্তি যোগ করুন</span>
+            Edit Quote / <span className="font-bengali">উক্তি সম্পাদনা</span>
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="text">
+            <Label htmlFor="edit-text">
               Quote Text / <span className="font-bengali">উক্তির লেখা</span>
             </Label>
             <Textarea
-              id="text"
+              id="edit-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={isBengali ? "আপনার উক্তি লিখুন..." : "Enter your quote..."}
@@ -70,11 +69,11 @@ export function AddQuoteDialog({ onAdd }: AddQuoteDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="author">
+            <Label htmlFor="edit-author">
               Author (optional) / <span className="font-bengali">লেখক (ঐচ্ছিক)</span>
             </Label>
             <Input
-              id="author"
+              id="edit-author"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
               placeholder={isBengali ? "লেখকের নাম" : "Author name"}
@@ -82,17 +81,17 @@ export function AddQuoteDialog({ onAdd }: AddQuoteDialogProps) {
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="isBengali" className="cursor-pointer">
+            <Label htmlFor="edit-isBengali" className="cursor-pointer">
               Bengali Quote / <span className="font-bengali">বাংলা উক্তি</span>
             </Label>
             <Switch
-              id="isBengali"
+              id="edit-isBengali"
               checked={isBengali}
               onCheckedChange={setIsBengali}
             />
           </div>
           <Button type="submit" className="w-full" variant="gradient">
-            Add Quote / <span className="font-bengali">যোগ করুন</span>
+            Save Changes / <span className="font-bengali">পরিবর্তন সংরক্ষণ করুন</span>
           </Button>
         </form>
       </DialogContent>

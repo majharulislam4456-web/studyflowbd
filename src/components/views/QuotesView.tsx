@@ -1,21 +1,27 @@
+import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { QuoteCard } from '@/components/quotes/QuoteCard';
 import { AddQuoteDialog } from '@/components/quotes/AddQuoteDialog';
-import type { Quote } from '@/types/study';
+import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
+import type { Quote } from '@/hooks/useSupabaseData';
 
 interface QuotesViewProps {
   quotes: Quote[];
-  addQuote: (quote: Omit<Quote, 'id'>) => void;
+  addQuote: (quote: Omit<Quote, 'id' | 'user_id' | 'created_at'>) => void;
+  updateQuote: (id: string, updates: Partial<Quote>) => void;
   deleteQuote: (id: string) => void;
 }
 
 export function QuotesView({
   quotes,
   addQuote,
+  updateQuote,
   deleteQuote,
 }: QuotesViewProps) {
-  const bengaliQuotes = quotes.filter(q => q.isBengali);
-  const englishQuotes = quotes.filter(q => !q.isBengali);
+  const [editQuote, setEditQuote] = useState<Quote | null>(null);
+  
+  const bengaliQuotes = quotes.filter(q => q.is_bengali);
+  const englishQuotes = quotes.filter(q => !q.is_bengali);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -42,7 +48,11 @@ export function QuotesView({
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {bengaliQuotes.map((quote, index) => (
               <div key={quote.id} className={`stagger-${(index % 5) + 1}`}>
-                <QuoteCard quote={quote} onDelete={deleteQuote} />
+                <QuoteCard 
+                  quote={quote} 
+                  onDelete={deleteQuote} 
+                  onEdit={setEditQuote}
+                />
               </div>
             ))}
           </div>
@@ -58,7 +68,11 @@ export function QuotesView({
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {englishQuotes.map((quote, index) => (
               <div key={quote.id} className={`stagger-${(index % 5) + 1}`}>
-                <QuoteCard quote={quote} onDelete={deleteQuote} />
+                <QuoteCard 
+                  quote={quote} 
+                  onDelete={deleteQuote}
+                  onEdit={setEditQuote}
+                />
               </div>
             ))}
           </div>
@@ -76,6 +90,14 @@ export function QuotesView({
           </p>
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <EditQuoteDialog
+        quote={editQuote}
+        open={!!editQuote}
+        onOpenChange={(open) => !open && setEditQuote(null)}
+        onSave={updateQuote}
+      />
     </div>
   );
 }

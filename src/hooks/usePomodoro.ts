@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { PomodoroSettings } from '@/types/study';
+
+export interface PomodoroSettings {
+  focusDuration: number;
+  breakDuration: number;
+  longBreakDuration: number;
+  sessionsBeforeLongBreak: number;
+}
 
 type PomodoroPhase = 'focus' | 'break' | 'longBreak' | 'idle';
 

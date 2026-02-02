@@ -7,10 +7,13 @@ import {
   Sparkles,
   Moon,
   Sun,
-  ChevronLeft
+  ChevronLeft,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import type { Profile } from '@/hooks/useSupabaseData';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -19,6 +22,7 @@ interface AppSidebarProps {
   toggleTheme: () => void;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
+  profile: Profile | null;
 }
 
 const navItems = [
@@ -36,8 +40,16 @@ export function AppSidebar({
   isDark, 
   toggleTheme,
   isCollapsed,
-  setIsCollapsed
+  setIsCollapsed,
+  profile
 }: AppSidebarProps) {
+  const getInitials = () => {
+    if (profile?.display_name) {
+      return profile.display_name.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
+
   return (
     <aside className={cn(
       "hidden md:flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
@@ -90,8 +102,34 @@ export function AppSidebar({
         ))}
       </nav>
 
-      {/* Footer Actions */}
+      {/* Profile & Footer */}
       <div className="p-3 border-t border-sidebar-border space-y-2">
+        {/* Profile button */}
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
+            activeTab === 'profile' 
+              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" 
+              : "text-sidebar-foreground hover:bg-sidebar-accent"
+          )}
+        >
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={profile?.avatar_url || undefined} />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              {getInitials()}
+            </AvatarFallback>
+          </Avatar>
+          {!isCollapsed && (
+            <div className="text-left flex-1 min-w-0">
+              <span className="block text-sm font-medium truncate">
+                {profile?.display_name || 'Profile'}
+              </span>
+              <span className="block text-xs opacity-70 font-bengali">প্রোফাইল</span>
+            </div>
+          )}
+        </button>
+
         <Button
           variant="ghost"
           size={isCollapsed ? "icon" : "default"}

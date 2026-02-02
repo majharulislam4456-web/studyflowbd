@@ -1,17 +1,18 @@
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, Trash2 } from 'lucide-react';
-import type { Subject } from '@/types/study';
+import { Plus, Minus, Trash2, Pencil } from 'lucide-react';
+import type { Subject } from '@/hooks/useSupabaseData';
 
 interface SubjectCardProps {
   subject: Subject;
   onUpdateProgress: (id: string, completed: number) => void;
   onDelete: (id: string) => void;
+  onEdit: (subject: Subject) => void;
 }
 
-export function SubjectCard({ subject, onUpdateProgress, onDelete }: SubjectCardProps) {
-  const progress = (subject.completedChapters / subject.totalChapters) * 100;
+export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit }: SubjectCardProps) {
+  const progress = (subject.completed_chapters / subject.total_chapters) * 100;
 
   return (
     <div className="glass-card p-5 transition-smooth hover:shadow-lg group animate-fade-in">
@@ -28,19 +29,29 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete }: SubjectCard
           </div>
           <div>
             <h3 className="font-semibold text-foreground">{subject.name}</h3>
-            {subject.nameBn && (
-              <p className="text-sm text-muted-foreground font-bengali">{subject.nameBn}</p>
+            {subject.name_bn && (
+              <p className="text-sm text-muted-foreground font-bengali">{subject.name_bn}</p>
             )}
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onDelete(subject.id)}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onEdit(subject)}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onDelete(subject.id)}
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -49,16 +60,13 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete }: SubjectCard
             Progress / <span className="font-bengali">অগ্রগতি</span>
           </span>
           <span className="font-medium text-foreground">
-            {subject.completedChapters}/{subject.totalChapters} chapters
+            {subject.completed_chapters}/{subject.total_chapters} chapters
           </span>
         </div>
 
         <Progress 
           value={progress} 
           className="h-3"
-          style={{
-            ['--progress-color' as any]: subject.color
-          }}
         />
 
         <div className="flex items-center justify-between pt-2">
@@ -77,16 +85,16 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete }: SubjectCard
             <Button
               variant="outline"
               size="icon-sm"
-              onClick={() => onUpdateProgress(subject.id, Math.max(0, subject.completedChapters - 1))}
-              disabled={subject.completedChapters === 0}
+              onClick={() => onUpdateProgress(subject.id, Math.max(0, subject.completed_chapters - 1))}
+              disabled={subject.completed_chapters === 0}
             >
               <Minus className="w-3 h-3" />
             </Button>
             <Button
               variant="default"
               size="icon-sm"
-              onClick={() => onUpdateProgress(subject.id, subject.completedChapters + 1)}
-              disabled={subject.completedChapters >= subject.totalChapters}
+              onClick={() => onUpdateProgress(subject.id, subject.completed_chapters + 1)}
+              disabled={subject.completed_chapters >= subject.total_chapters}
             >
               <Plus className="w-3 h-3" />
             </Button>
