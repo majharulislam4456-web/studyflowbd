@@ -5,6 +5,7 @@ import {
   Target, 
   PenTool, 
   Sparkles,
+  BarChart3,
   Moon,
   Sun,
   ChevronLeft,
@@ -31,6 +32,7 @@ const navItems = [
   { id: 'pomodoro', label: 'Focus Timer', labelBn: 'ফোকাস টাইমার', icon: Timer },
   { id: 'goals', label: 'Goals', labelBn: 'লক্ষ্য', icon: Target },
   { id: 'logger', label: 'Study Log', labelBn: 'স্টাডি লগ', icon: PenTool },
+  { id: 'analytics', label: 'Analytics', labelBn: 'পরিসংখ্যান', icon: BarChart3 },
   { id: 'quotes', label: 'Motivation', labelBn: 'অনুপ্রেরণা', icon: Sparkles },
 ];
 
