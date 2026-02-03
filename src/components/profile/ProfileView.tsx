@@ -170,7 +170,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
           </div>
           <div className="text-xs text-muted-foreground space-y-1">
             <p>Version 1.0.0</p>
-            <p className="font-bengali">বাংলাদেশি শিক্ষার্থীদের জন্য তৈরি</p>
+            <p className="font-bengali">তৈরি করেছেন: মাজহারুল ইসলাম</p>
           </div>
         </div>
       </div>
