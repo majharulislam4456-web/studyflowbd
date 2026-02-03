@@ -25,14 +25,14 @@ export function StudyLoggerPanel({
   getTodayStudyTime,
   getWeekStudyTime
 }: StudyLoggerPanelProps) {
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('general');
   const [duration, setDuration] = useState('30');
 
   const handleLog = () => {
     if (!duration) return;
 
     onAddSession({
-      subject_id: selectedSubject || null,
+      subject_id: selectedSubject === 'general' ? null : selectedSubject,
       duration: parseInt(duration),
       session_date: new Date().toISOString(),
       notes: null,
@@ -75,7 +75,7 @@ export function StudyLoggerPanel({
               <SelectValue placeholder="Select subject (optional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">General Study</SelectItem>
+              <SelectItem value="general">General Study</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name} {subject.name_bn && `/ ${subject.name_bn}`}
