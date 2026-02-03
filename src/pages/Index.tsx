@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,10 +12,10 @@ import { PomodoroView } from '@/components/views/PomodoroView';
 import { GoalsView } from '@/components/views/GoalsView';
 import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
-import { ProfilePanel } from '@/components/profile/ProfilePanel';
+import { AnalyticsView } from '@/components/analytics/AnalyticsView';
+import { ProfileView } from '@/components/profile/ProfileView';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -28,6 +28,7 @@ const Index = () => {
     subjects,
     goals,
     quotes,
+    sessions,
     profile,
     loading: dataLoading,
     addSubject,
@@ -122,14 +123,21 @@ const Index = () => {
             deleteQuote={deleteQuote}
           />
         );
+      case 'analytics':
+        return (
+          <AnalyticsView
+            sessions={sessions}
+            subjects={subjects}
+          />
+        );
       case 'profile':
         return (
-          <div className="max-w-md">
-            <h1 className="text-3xl font-bold text-foreground mb-6">
-              Profile / <span className="font-bengali">প্রোফাইল</span>
-            </h1>
-            <ProfilePanel profile={profile} onUpdateProfile={updateProfile} />
-          </div>
+          <ProfileView
+            profile={profile}
+            onUpdateProfile={updateProfile}
+            isDark={isDark}
+            toggleTheme={toggleTheme}
+          />
         );
       default:
         return null;
