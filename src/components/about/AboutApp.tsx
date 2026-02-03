@@ -247,10 +247,10 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
           {/* Credits */}
           <div className="text-center pt-4 border-t border-border">
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <span className="font-bengali">তৈরি করা হয়েছে</span>
-              <Heart className="w-4 h-4 text-destructive" />
-              <span className="font-bengali">দিয়ে</span>
+              <span className="font-bengali">তৈরি করেছেন</span>
+              <Heart className="w-4 h-4 text-destructive animate-pulse" />
             </div>
+            <p className="text-foreground font-semibold mt-1 font-bengali">মাজহারুল ইসলাম</p>
             <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
               <Code2 className="w-3 h-3" />
               <span>StudyFlow BD v1.0</span>
