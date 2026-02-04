@@ -53,6 +53,20 @@ export interface Profile {
   user_id: string;
   display_name: string | null;
   avatar_url: string | null;
+  language?: string;
+  theme_color?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Todo {
+  id: string;
+  user_id: string;
+  title: string;
+  title_bn?: string | null;
+  is_completed: boolean;
+  due_date?: string | null;
+  priority: 'low' | 'medium' | 'high';
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +78,7 @@ export function useSupabaseData() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -75,11 +90,12 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, goalsRes, sessionsRes, quotesRes, profileRes] = await Promise.all([
+      const [subjectsRes, goalsRes, sessionsRes, quotesRes, todosRes, profileRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
         supabase.from('study_sessions').select('*').order('session_date', { ascending: false }),
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
+        supabase.from('todos').select('*').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('user_id', user.id).single()
       ]);
 
@@ -87,7 +103,8 @@ export function useSupabaseData() {
       if (goalsRes.data) setGoals(goalsRes.data as Goal[]);
       if (sessionsRes.data) setSessions(sessionsRes.data);
       if (quotesRes.data) setQuotes(quotesRes.data);
-      if (profileRes.data) setProfile(profileRes.data);
+      if (todosRes.data) setTodos(todosRes.data as Todo[]);
+      if (profileRes.data) setProfile(profileRes.data as Profile);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
@@ -285,11 +302,55 @@ export function useSupabaseData() {
       .reduce((acc, s) => acc + s.duration, 0);
   };
 
+  // TODOS
+  const addTodo = async (todo: Omit<Todo, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('todos')
+      .insert({ ...todo, user_id: user.id })
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    if (data) setTodos(prev => [data as Todo, ...prev]);
+  };
+
+  const updateTodo = async (id: string, updates: Partial<Todo>) => {
+    const { error } = await supabase
+      .from('todos')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  const deleteTodo = async (id: string) => {
+    const { error } = await supabase.from('todos').delete().eq('id', id);
+    
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    setTodos(prev => prev.filter(t => t.id !== id));
+  };
+
   return {
     subjects,
     goals,
     sessions,
     quotes,
+    todos,
     profile,
     loading,
     addSubject,
@@ -302,6 +363,9 @@ export function useSupabaseData() {
     addQuote,
     updateQuote,
     deleteQuote,
+    addTodo,
+    updateTodo,
+    deleteTodo,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,

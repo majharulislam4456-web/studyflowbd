@@ -62,6 +62,8 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          language: string
+          theme_color: string
           updated_at: string
           user_id: string
         }
@@ -70,6 +72,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          language?: string
+          theme_color?: string
           updated_at?: string
           user_id: string
         }
@@ -78,6 +82,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          language?: string
+          theme_color?: string
           updated_at?: string
           user_id?: string
         }
@@ -179,6 +185,42 @@ export type Database = {
           name?: string
           name_bn?: string | null
           total_chapters?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      todos: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          id: string
+          is_completed: boolean
+          priority: string
+          title: string
+          title_bn: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          priority?: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          priority?: string
+          title?: string
+          title_bn?: string | null
           updated_at?: string
           user_id?: string
         }
