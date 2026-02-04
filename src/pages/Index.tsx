@@ -29,6 +29,7 @@ const Index = () => {
     goals,
     quotes,
     sessions,
+    todos,
     profile,
     loading: dataLoading,
     addSubject,
@@ -41,6 +42,9 @@ const Index = () => {
     addQuote,
     updateQuote,
     deleteQuote,
+    addTodo,
+    updateTodo,
+    deleteTodo,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
@@ -75,6 +79,7 @@ const Index = () => {
             subjects={subjects}
             goals={goals}
             quotes={quotes}
+            todos={todos}
             getTodayStudyTime={getTodayStudyTime}
             getWeekStudyTime={getWeekStudyTime}
             updateSubject={updateSubject}
@@ -83,6 +88,7 @@ const Index = () => {
             deleteGoal={deleteGoal}
             updateQuote={updateQuote}
             deleteQuote={deleteQuote}
+            updateTodo={updateTodo}
           />
         );
       case 'syllabus':
@@ -100,9 +106,13 @@ const Index = () => {
         return (
           <GoalsView
             goals={goals}
+            todos={todos}
             addGoal={addGoal}
             updateGoal={updateGoal}
             deleteGoal={deleteGoal}
+            addTodo={addTodo}
+            updateTodo={updateTodo}
+            deleteTodo={deleteTodo}
           />
         );
       case 'logger':
