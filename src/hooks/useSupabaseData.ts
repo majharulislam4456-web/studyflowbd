@@ -89,7 +89,9 @@ export function useSupabaseData() {
       if (quotesRes.data) setQuotes(quotesRes.data);
       if (profileRes.data) setProfile(profileRes.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching data:', error);
+      }
     } finally {
       setLoading(false);
     }
