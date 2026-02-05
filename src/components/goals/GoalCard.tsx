@@ -3,6 +3,9 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Trash2, Flag, Calendar, Zap, Pencil } from 'lucide-react';
 import type { Goal } from '@/hooks/useSupabaseData';
+ import { useToast } from '@/hooks/use-toast';
+ import { useLanguage } from '@/contexts/LanguageContext';
+ import { getRandomMessage } from '@/utils/congratulations';
 
 interface GoalCardProps {
   goal: Goal;
@@ -12,6 +15,23 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardProps) {
+   const { toast } = useToast();
+   const { language } = useLanguage();
+ 
+   const handleProgressUpdate = (id: string, progress: number) => {
+     const wasComplete = goal.is_completed;
+     const willBeComplete = progress >= 100;
+     
+     onUpdateProgress(id, progress);
+     
+     if (willBeComplete && !wasComplete) {
+       setTimeout(() => {
+         const message = getRandomMessage('goalComplete', language);
+         toast({ title: message, duration: 5000 });
+       }, 300);
+     }
+   };
+ 
   const getTypeInfo = () => {
     switch (goal.type) {
       case 'mission':
@@ -43,8 +63,9 @@ export function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardP
 
   return (
     <div className={cn(
-      "glass-card p-5 transition-smooth hover:shadow-lg group animate-fade-in",
-      goal.is_completed && "opacity-60"
+       "glass-card p-5 transition-all hover:shadow-lg group animate-fade-in",
+       "hover:scale-[1.02]",
+       goal.is_completed && "opacity-60 scale-100"
     )}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -109,7 +130,7 @@ export function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardP
                 key={value}
                 variant={goal.progress >= value ? "default" : "outline"}
                 size="sm"
-                onClick={() => onUpdateProgress(goal.id, value)}
+                 onClick={() => handleProgressUpdate(goal.id, value)}
                 className="flex-1 text-xs"
               >
                 {value}%

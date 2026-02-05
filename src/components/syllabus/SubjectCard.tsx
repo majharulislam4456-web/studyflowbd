@@ -1,21 +1,53 @@
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, Trash2, Pencil } from 'lucide-react';
+ import { Plus, Minus, Trash2, Pencil, Star, StarOff } from 'lucide-react';
 import type { Subject } from '@/hooks/useSupabaseData';
+ import { useToast } from '@/hooks/use-toast';
+ import { useLanguage } from '@/contexts/LanguageContext';
+ import { getRandomMessage } from '@/utils/congratulations';
 
 interface SubjectCardProps {
   subject: Subject;
   onUpdateProgress: (id: string, completed: number) => void;
   onDelete: (id: string) => void;
   onEdit: (subject: Subject) => void;
+   onTogglePriority?: (id: string, priority: number) => void;
 }
 
-export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit }: SubjectCardProps) {
+ export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit, onTogglePriority }: SubjectCardProps) {
   const progress = (subject.completed_chapters / subject.total_chapters) * 100;
+   const { toast } = useToast();
+   const { language } = useLanguage();
+   const isPriority = (subject as any).priority > 0;
+ 
+   const handleProgressUpdate = (id: string, newCompleted: number) => {
+     const wasComplete = subject.completed_chapters === subject.total_chapters;
+     const willBeComplete = newCompleted === subject.total_chapters;
+     const isIncrement = newCompleted > subject.completed_chapters;
+     
+     onUpdateProgress(id, newCompleted);
+     
+     // Show congratulation messages
+     if (isIncrement) {
+       const message = getRandomMessage('chapterComplete', language);
+       toast({ title: message, duration: 3000 });
+       
+       if (willBeComplete && !wasComplete) {
+         setTimeout(() => {
+           const subjectDoneMessage = getRandomMessage('subjectComplete', language);
+           toast({ title: subjectDoneMessage, duration: 5000 });
+         }, 1500);
+       }
+     }
+   };
 
   return (
-    <div className="glass-card p-5 transition-smooth hover:shadow-lg group animate-fade-in">
+     <div className={cn(
+       "glass-card p-5 transition-all hover:shadow-lg group animate-fade-in",
+       "hover:scale-[1.02]",
+       isPriority && "ring-2 ring-primary/50"
+     )}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div 
@@ -35,6 +67,20 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit }: Sub
           </div>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+           {onTogglePriority && (
+             <Button
+               variant="ghost"
+               size="icon-sm"
+               onClick={() => onTogglePriority(subject.id, isPriority ? 0 : 1)}
+               className={cn(
+                 "text-muted-foreground",
+                 isPriority && "text-amber-500"
+               )}
+               title={isPriority ? 'Remove from top' : 'Show at top'}
+             >
+               {isPriority ? <Star className="w-4 h-4 fill-current" /> : <StarOff className="w-4 h-4" />}
+             </Button>
+           )}
           <Button
             variant="ghost"
             size="icon-sm"
@@ -85,7 +131,7 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit }: Sub
             <Button
               variant="outline"
               size="icon-sm"
-              onClick={() => onUpdateProgress(subject.id, Math.max(0, subject.completed_chapters - 1))}
+               onClick={() => handleProgressUpdate(subject.id, Math.max(0, subject.completed_chapters - 1))}
               disabled={subject.completed_chapters === 0}
             >
               <Minus className="w-3 h-3" />
@@ -93,7 +139,7 @@ export function SubjectCard({ subject, onUpdateProgress, onDelete, onEdit }: Sub
             <Button
               variant="default"
               size="icon-sm"
-              onClick={() => onUpdateProgress(subject.id, subject.completed_chapters + 1)}
+               onClick={() => handleProgressUpdate(subject.id, subject.completed_chapters + 1)}
               disabled={subject.completed_chapters >= subject.total_chapters}
             >
               <Plus className="w-3 h-3" />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, Timer, Target, TrendingUp } from 'lucide-react';
+ import { BookOpen, Timer, Target, TrendingUp, Star } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
@@ -68,6 +68,15 @@ export function DashboardView({
   // Get a random quote for featured display
   const featuredQuote = quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
 
+   // Get top priority subjects first, then by progress
+   const topSubjects = [...subjects]
+     .sort((a, b) => {
+       const priorityDiff = ((b as any).priority || 0) - ((a as any).priority || 0);
+       if (priorityDiff !== 0) return priorityDiff;
+       return (b.completed_chapters / b.total_chapters) - (a.completed_chapters / a.total_chapters);
+     })
+     .slice(0, 4);
+ 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Section */}
@@ -133,7 +142,7 @@ export function DashboardView({
             {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {subjects.slice(0, 4).map((subject, index) => (
+             {topSubjects.map((subject, index) => (
               <div key={subject.id} className={`stagger-${index + 1}`}>
                 <SubjectCard
                   subject={subject}

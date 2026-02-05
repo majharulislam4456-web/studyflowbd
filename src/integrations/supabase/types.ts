@@ -162,6 +162,7 @@ export type Database = {
           id: string
           name: string
           name_bn: string | null
+          priority: number
           total_chapters: number
           updated_at: string
           user_id: string
@@ -173,6 +174,7 @@ export type Database = {
           id?: string
           name: string
           name_bn?: string | null
+          priority?: number
           total_chapters?: number
           updated_at?: string
           user_id: string
@@ -184,6 +186,7 @@ export type Database = {
           id?: string
           name?: string
           name_bn?: string | null
+          priority?: number
           total_chapters?: number
           updated_at?: string
           user_id?: string

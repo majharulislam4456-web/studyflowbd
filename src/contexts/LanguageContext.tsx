@@ -130,6 +130,15 @@ export const translations: Translations = {
   artist: { en: 'Artist', bn: 'শিল্পী' },
   developer: { en: 'Developer', bn: 'ডেভেলপার' },
   entrepreneur: { en: 'Entrepreneur', bn: 'উদ্যোক্তা' },
+ 
+   // New Profession Avatars
+   bcsCadre: { en: 'BCS Cadre', bn: 'বিসিএস ক্যাডার' },
+   lawyer: { en: 'Lawyer', bn: 'আইনজীবী' },
+   banker: { en: 'Banker', bn: 'ব্যাংকার' },
+   judge: { en: 'Judge', bn: 'বিচারক' },
+   pilot: { en: 'Pilot', bn: 'পাইলট' },
+   nurse: { en: 'Nurse', bn: 'নার্স' },
+   accountant: { en: 'Accountant', bn: 'হিসাবরক্ষক' },
 };
 
 interface LanguageContextType {

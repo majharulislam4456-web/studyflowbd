@@ -253,7 +253,7 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
             <p className="text-foreground font-semibold mt-1 font-bengali">মাজহারুল ইসলাম</p>
             <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
               <Code2 className="w-3 h-3" />
-              <span>StudyFlow BD v2.0</span>
+               <span>StudyFlow BD v2.1</span>
             </div>
           </div>
         </div>
