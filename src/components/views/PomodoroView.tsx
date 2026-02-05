@@ -1,9 +1,7 @@
 import { Timer, Coffee, Brain, Zap } from 'lucide-react';
 import { PomodoroTimer } from '@/components/pomodoro/PomodoroTimer';
-
 export function PomodoroView() {
-  return (
-    <div className="space-y-8 animate-fade-in">
+  return <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-3">
@@ -22,8 +20,8 @@ export function PomodoroView() {
 
       {/* Tips */}
       <div className="max-w-3xl mx-auto">
-        <h2 className="text-xl font-semibold text-center text-foreground mb-6">
-          How it works / <span className="font-bengali">কিভাবে কাজ করে</span>
+        <h2 className="font-semibold text-center text-foreground mb-6 text-5xl">
+          How it works  
         </h2>
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="glass-card p-5 text-center">
@@ -55,6 +53,5 @@ export function PomodoroView() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
