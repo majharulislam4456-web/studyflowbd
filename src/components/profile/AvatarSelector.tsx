@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
-import { GraduationCap, BookOpen, Stethoscope, Wrench, Atom, Palette, Code, Briefcase } from 'lucide-react';
+ import { GraduationCap, BookOpen, Stethoscope, Wrench, Atom, Palette, Code, Briefcase, Scale, Shield, Building2, Landmark, Heart, Plane, Calculator, Microscope } from 'lucide-react';
 
 interface AvatarSelectorProps {
   currentAvatar?: string | null;
@@ -11,14 +11,19 @@ interface AvatarSelectorProps {
 }
 
 const avatarOptions = [
-  { id: 'student', icon: GraduationCap, color: 'bg-blue-500', key: 'student' },
-  { id: 'teacher', icon: BookOpen, color: 'bg-green-500', key: 'teacher' },
-  { id: 'doctor', icon: Stethoscope, color: 'bg-red-500', key: 'doctor' },
-  { id: 'engineer', icon: Wrench, color: 'bg-orange-500', key: 'engineer' },
-  { id: 'scientist', icon: Atom, color: 'bg-purple-500', key: 'scientist' },
-  { id: 'artist', icon: Palette, color: 'bg-pink-500', key: 'artist' },
-  { id: 'developer', icon: Code, color: 'bg-teal-500', key: 'developer' },
-  { id: 'entrepreneur', icon: Briefcase, color: 'bg-amber-500', key: 'entrepreneur' },
+ // Popular future professions for students
+   { id: 'bcs_cadre', icon: Shield, color: 'bg-emerald-600', key: 'bcsCadre' },
+   { id: 'doctor', icon: Stethoscope, color: 'bg-red-500', key: 'doctor' },
+   { id: 'engineer', icon: Wrench, color: 'bg-orange-500', key: 'engineer' },
+   { id: 'lawyer', icon: Scale, color: 'bg-indigo-600', key: 'lawyer' },
+   { id: 'banker', icon: Building2, color: 'bg-blue-600', key: 'banker' },
+   { id: 'judge', icon: Landmark, color: 'bg-purple-700', key: 'judge' },
+   { id: 'teacher', icon: BookOpen, color: 'bg-green-500', key: 'teacher' },
+   { id: 'scientist', icon: Microscope, color: 'bg-purple-500', key: 'scientist' },
+   { id: 'pilot', icon: Plane, color: 'bg-sky-500', key: 'pilot' },
+   { id: 'nurse', icon: Heart, color: 'bg-pink-500', key: 'nurse' },
+   { id: 'accountant', icon: Calculator, color: 'bg-slate-600', key: 'accountant' },
+   { id: 'developer', icon: Code, color: 'bg-teal-500', key: 'developer' },
 ];
 
 export function AvatarSelector({ currentAvatar, onSelect }: AvatarSelectorProps) {
@@ -49,7 +54,7 @@ export function AvatarSelector({ currentAvatar, onSelect }: AvatarSelectorProps)
           <DialogTitle className="font-bengali">{t('chooseAvatar')}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-4 gap-4 py-4">
+         <div className="grid grid-cols-4 gap-3 py-4 max-h-[400px] overflow-y-auto">
           {avatarOptions.map((avatar) => {
             const Icon = avatar.icon;
             const isSelected = selected === avatar.id || currentAvatar === `avatar:${avatar.id}`;

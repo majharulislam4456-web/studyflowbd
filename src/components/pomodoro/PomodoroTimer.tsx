@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
-import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain } from 'lucide-react';
+ import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePomodoro } from '@/hooks/usePomodoro';
+ import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 
 export function PomodoroTimer() {
-  const {
+   const pomodoro = useGlobalPomodoro();
+   const {
     phase,
     formattedTime,
     isRunning,
@@ -15,7 +16,8 @@ export function PomodoroTimer() {
     pause,
     reset,
     skip,
-  } = usePomodoro();
+     minimize,
+   } = pomodoro;
 
   const getPhaseInfo = () => {
     switch (phase) {
@@ -118,6 +120,19 @@ export function PomodoroTimer() {
           <SkipForward className="w-5 h-5" />
         </Button>
       </div>
+ 
+       {/* Minimize button - appears when timer is running */}
+       {(isRunning || phase !== 'idle') && (
+         <Button
+           variant="ghost"
+           size="sm"
+           onClick={minimize}
+           className="gap-2 text-muted-foreground"
+         >
+           <Minimize2 className="w-4 h-4" />
+           Minimize / <span className="font-bengali">মিনিমাইজ</span>
+         </Button>
+       )}
 
       {/* Session info */}
       <div className="flex items-center gap-2 text-muted-foreground">

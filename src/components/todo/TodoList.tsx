@@ -6,8 +6,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Calendar, Flag } from 'lucide-react';
+ import { Plus, Trash2, Calendar, Flag, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
+ import { useToast } from '@/hooks/use-toast';
+ import { getRandomMessage } from '@/utils/congratulations';
 
 export interface Todo {
   id: string;
@@ -31,12 +33,46 @@ interface TodoListProps {
 
 export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = false }: TodoListProps) {
   const { t, language } = useLanguage();
+   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [titleBn, setTitleBn] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
 
+   const handleToggleTodo = async (todo: Todo, checked: boolean) => {
+     await updateTodo(todo.id, { is_completed: checked });
+     
+     if (checked) {
+       // Show congratulation for completing a task
+       const message = getRandomMessage('todoComplete', language);
+       toast({ 
+         title: message,
+         duration: 3000,
+       });
+       
+       // Check if all today's todos are complete
+       const todayTodos = todos.filter(t => {
+         if (!t.due_date) return false;
+         const today = new Date().toISOString().split('T')[0];
+         return t.due_date === today;
+       });
+       
+       const allComplete = todayTodos.length > 0 && 
+         todayTodos.filter(t => t.id !== todo.id).every(t => t.is_completed);
+       
+       if (allComplete) {
+         setTimeout(() => {
+           const allDoneMessage = getRandomMessage('allTodosComplete', language);
+           toast({ 
+             title: allDoneMessage,
+             duration: 5000,
+           });
+         }, 1500);
+       }
+     }
+   };
+ 
   const handleSubmit = async () => {
     if (!title.trim()) return;
     
@@ -88,12 +124,13 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
                 key={todo.id} 
                 className={cn(
                   "flex items-center gap-2 p-2 rounded-lg bg-muted/50",
-                  todo.is_completed && "opacity-50"
+                   todo.is_completed && "opacity-50",
+                   "transition-all hover:scale-[1.02]"
                 )}
               >
                 <Checkbox
                   checked={todo.is_completed}
-                  onCheckedChange={(checked) => updateTodo(todo.id, { is_completed: !!checked })}
+                   onCheckedChange={(checked) => handleToggleTodo(todo, !!checked)}
                 />
                 <span className={cn(
                   "text-sm flex-1",
@@ -185,12 +222,13 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
               key={todo.id}
               className={cn(
                 "flex items-center gap-3 p-3 rounded-xl bg-card border border-border transition-all",
-                todo.is_completed && "opacity-60"
+                 todo.is_completed && "opacity-60",
+                 "hover:shadow-md hover:scale-[1.01] animate-fade-in"
               )}
             >
               <Checkbox
                 checked={todo.is_completed}
-                onCheckedChange={(checked) => updateTodo(todo.id, { is_completed: !!checked })}
+                 onCheckedChange={(checked) => handleToggleTodo(todo, !!checked)}
               />
               <div className="flex-1">
                 <p className={cn(

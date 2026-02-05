@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseData } from '@/hooks/useSupabaseData';
+ import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { MobileHeader } from '@/components/layout/MobileHeader';
@@ -14,6 +15,7 @@ import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
 import { AnalyticsView } from '@/components/analytics/AnalyticsView';
 import { ProfileView } from '@/components/profile/ProfileView';
+ import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
@@ -23,6 +25,7 @@ const Index = () => {
   const { isDark, toggleTheme } = useTheme();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+   const pomodoro = useGlobalPomodoro();
   
   const {
     subjects,
@@ -39,6 +42,8 @@ const Index = () => {
     updateGoal,
     deleteGoal,
     addSession,
+     updateSession,
+     deleteSession,
     addQuote,
     updateQuote,
     deleteQuote,
@@ -119,7 +124,10 @@ const Index = () => {
         return (
           <LoggerView
             subjects={subjects}
+             sessions={sessions}
             addSession={addSession}
+             updateSession={updateSession}
+             deleteSession={deleteSession}
             getTodayStudyTime={getTodayStudyTime}
             getWeekStudyTime={getWeekStudyTime}
           />
@@ -187,6 +195,23 @@ const Index = () => {
 
       {/* Mobile Bottom Navigation */}
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
+ 
+       {/* Floating Pomodoro Timer */}
+       {pomodoro.isMinimized && (pomodoro.isRunning || pomodoro.phase !== 'idle') && (
+         <FloatingPomodoroTimer
+           phase={pomodoro.phase}
+           formattedTime={pomodoro.formattedTime}
+           isRunning={pomodoro.isRunning}
+           progress={pomodoro.progress}
+           onStart={pomodoro.start}
+           onPause={pomodoro.pause}
+           onClose={pomodoro.close}
+           onExpand={() => {
+             pomodoro.maximize();
+             setActiveTab('pomodoro');
+           }}
+         />
+       )}
     </div>
   );
 };

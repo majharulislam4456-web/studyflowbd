@@ -11,6 +11,7 @@ export interface Subject {
   total_chapters: number;
   completed_chapters: number;
   color: string;
+   priority?: number;
   created_at: string;
   updated_at: string;
 }
@@ -81,6 +82,13 @@ export function useSupabaseData() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+ 
+   // Sort subjects by priority (higher first) then by created_at
+   const sortedSubjects = [...subjects].sort((a, b) => {
+     const priorityDiff = (b as any).priority - (a as any).priority;
+     if (priorityDiff !== 0) return priorityDiff;
+     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+   });
 
   // Fetch all data
   const fetchData = useCallback(async () => {
@@ -221,8 +229,32 @@ export function useSupabaseData() {
 
     if (data) {
       setSessions(prev => [data, ...prev]);
-      toast({ title: 'Session Logged! / সেশন লগ হয়েছে!' });
+     }
+   };
+ 
+   const updateSession = async (id: string, duration: number) => {
+     const { error } = await supabase
+       .from('study_sessions')
+       .update({ duration })
+       .eq('id', id);
+ 
+     if (error) {
+       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+       return;
+     }
+ 
+     setSessions(prev => prev.map(s => s.id === id ? { ...s, duration } : s));
+   };
+ 
+   const deleteSession = async (id: string) => {
+     const { error } = await supabase.from('study_sessions').delete().eq('id', id);
+     
+     if (error) {
+       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+       return;
     }
+ 
+     setSessions(prev => prev.filter(s => s.id !== id));
   };
 
   // QUOTES
@@ -346,7 +378,7 @@ export function useSupabaseData() {
   };
 
   return {
-    subjects,
+     subjects: sortedSubjects,
     goals,
     sessions,
     quotes,
@@ -360,6 +392,8 @@ export function useSupabaseData() {
     updateGoal,
     deleteGoal,
     addSession,
+     updateSession,
+     deleteSession,
     addQuote,
     updateQuote,
     deleteQuote,
