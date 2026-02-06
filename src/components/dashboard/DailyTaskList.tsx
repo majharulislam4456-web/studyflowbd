@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useToast } from '@/hooks/use-toast';
+import { getRandomMessage } from '@/utils/congratulations';
 import { cn } from '@/lib/utils';
 
 export interface DailyTask {
@@ -30,6 +32,7 @@ export function DailyTaskList({
   deleteDailyTask,
 }: DailyTaskListProps) {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [newTask, setNewTask] = useState('');
   const [newTaskBn, setNewTaskBn] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -55,10 +58,33 @@ export function DailyTaskList({
   };
 
   const handleToggle = async (task: DailyTask) => {
-    if (isCompletedToday(task)) {
+    const wasCompleted = isCompletedToday(task);
+    
+    if (wasCompleted) {
       await updateDailyTask(task.id, { last_completed_date: null });
     } else {
       await updateDailyTask(task.id, { last_completed_date: today });
+      
+      // Show congratulation message
+      const message = getRandomMessage('dailyTaskComplete', language);
+      toast({ 
+        title: message,
+        duration: 3000,
+      });
+      
+      // Check if all daily tasks are now complete
+      const otherTasks = dailyTasks.filter(t => t.id !== task.id);
+      const allOthersComplete = otherTasks.every(t => isCompletedToday(t));
+      
+      if (allOthersComplete && dailyTasks.length > 1) {
+        setTimeout(() => {
+          const allDoneMessage = getRandomMessage('allDailyTasksComplete', language);
+          toast({ 
+            title: allDoneMessage,
+            duration: 5000,
+          });
+        }, 1500);
+      }
     }
   };
 
