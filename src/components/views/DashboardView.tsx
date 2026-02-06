@@ -1,5 +1,5 @@
 import { useState } from 'react';
- import { BookOpen, Timer, Target, TrendingUp, Star } from 'lucide-react';
+import { BookOpen, Timer, Target, TrendingUp } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
@@ -9,6 +9,7 @@ import { EditGoalDialog } from '@/components/goals/EditGoalDialog';
 import { QuoteCard } from '@/components/quotes/QuoteCard';
 import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
 import { TodoList, type Todo } from '@/components/todo/TodoList';
+import { DailyTaskList, type DailyTask } from '@/components/dashboard/DailyTaskList';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { Subject, Goal, Quote } from '@/hooks/useSupabaseData';
 
@@ -17,6 +18,7 @@ interface DashboardViewProps {
   goals: Goal[];
   quotes: Quote[];
   todos: Todo[];
+  dailyTasks: DailyTask[];
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
@@ -26,6 +28,9 @@ interface DashboardViewProps {
   updateQuote: (id: string, updates: Partial<Quote>) => void;
   deleteQuote: (id: string) => void;
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
+  addDailyTask: (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateDailyTask: (id: string, updates: Partial<DailyTask>) => Promise<void>;
+  deleteDailyTask: (id: string) => Promise<void>;
 }
 
 export function DashboardView({
@@ -33,6 +38,7 @@ export function DashboardView({
   goals,
   quotes,
   todos,
+  dailyTasks,
   getTodayStudyTime,
   getWeekStudyTime,
   updateSubject,
@@ -42,6 +48,9 @@ export function DashboardView({
   updateQuote,
   deleteQuote,
   updateTodo,
+  addDailyTask,
+  updateDailyTask,
+  deleteDailyTask,
 }: DashboardViewProps) {
   const { t, language } = useLanguage();
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
@@ -68,14 +77,14 @@ export function DashboardView({
   // Get a random quote for featured display
   const featuredQuote = quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
 
-   // Get top priority subjects first, then by progress
-   const topSubjects = [...subjects]
-     .sort((a, b) => {
-       const priorityDiff = ((b as any).priority || 0) - ((a as any).priority || 0);
-       if (priorityDiff !== 0) return priorityDiff;
-       return (b.completed_chapters / b.total_chapters) - (a.completed_chapters / a.total_chapters);
-     })
-     .slice(0, 4);
+  // Get top priority subjects first, then by progress
+  const topSubjects = [...subjects]
+    .sort((a, b) => {
+      const priorityDiff = ((b as any).priority || 0) - ((a as any).priority || 0);
+      if (priorityDiff !== 0) return priorityDiff;
+      return (b.completed_chapters / b.total_chapters) - (a.completed_chapters / a.total_chapters);
+    })
+    .slice(0, 4);
  
   return (
     <div className="space-y-8 animate-fade-in">
@@ -157,7 +166,17 @@ export function DashboardView({
 
         {/* Goals, Tasks & Quote Column */}
         <div className="space-y-6">
-          {/* Today's Tasks */}
+          {/* Daily Tasks - Resets every day */}
+          <div className="glass-card p-4">
+            <DailyTaskList
+              dailyTasks={dailyTasks}
+              addDailyTask={addDailyTask}
+              updateDailyTask={updateDailyTask}
+              deleteDailyTask={deleteDailyTask}
+            />
+          </div>
+
+          {/* Special Tasks (was Today's Tasks) */}
           <div className="glass-card p-4">
             <TodoList
               todos={todos}

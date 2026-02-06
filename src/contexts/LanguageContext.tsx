@@ -48,8 +48,10 @@ export const translations: Translations = {
   weekStudyTime: { en: 'This Week', bn: 'এই সপ্তাহ' },
   completedGoals: { en: 'Completed Goals', bn: 'সম্পন্ন লক্ষ্য' },
   subjects: { en: 'Subjects', bn: 'বিষয়' },
-  todaysTasks: { en: "Today's Tasks", bn: 'আজকের কাজ' },
-  noTasksToday: { en: 'No tasks for today', bn: 'আজকে কোন কাজ নেই' },
+  specialTasks: { en: 'Special Tasks', bn: 'বিশেষ কাজ' },
+  noSpecialTasks: { en: 'No special tasks', bn: 'কোন বিশেষ কাজ নেই' },
+  dailyTasks: { en: 'Daily Tasks', bn: 'প্রতিদিনের কাজ' },
+  noDailyTasks: { en: 'Add daily tasks', bn: 'প্রতিদিনের কাজ যোগ করুন' },
   
   // Syllabus
   addSubject: { en: 'Add Subject', bn: 'বিষয় যোগ করুন' },

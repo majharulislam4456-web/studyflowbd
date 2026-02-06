@@ -33,6 +33,7 @@ const Index = () => {
     quotes,
     sessions,
     todos,
+    dailyTasks,
     profile,
     loading: dataLoading,
     addSubject,
@@ -50,6 +51,9 @@ const Index = () => {
     addTodo,
     updateTodo,
     deleteTodo,
+    addDailyTask,
+    updateDailyTask,
+    deleteDailyTask,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
@@ -85,6 +89,7 @@ const Index = () => {
             goals={goals}
             quotes={quotes}
             todos={todos}
+            dailyTasks={dailyTasks}
             getTodayStudyTime={getTodayStudyTime}
             getWeekStudyTime={getWeekStudyTime}
             updateSubject={updateSubject}
@@ -94,6 +99,9 @@ const Index = () => {
             updateQuote={updateQuote}
             deleteQuote={deleteQuote}
             updateTodo={updateTodo}
+            addDailyTask={addDailyTask}
+            updateDailyTask={updateDailyTask}
+            deleteDailyTask={deleteDailyTask}
           />
         );
       case 'syllabus':
