@@ -112,11 +112,11 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
     return (
       <div className="space-y-2">
         <h3 className="font-semibold font-bengali flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
-          {t('todaysTasks')}
+          <Flag className="w-4 h-4 text-primary" />
+          {t('specialTasks')}
         </h3>
         {displayTodos.length === 0 ? (
-          <p className="text-sm text-muted-foreground font-bengali">{t('noTasksToday')}</p>
+          <p className="text-sm text-muted-foreground font-bengali">{t('noSpecialTasks')}</p>
         ) : (
           <div className="space-y-1">
             {displayTodos.slice(0, 5).map(todo => (

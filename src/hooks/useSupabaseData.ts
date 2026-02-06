@@ -72,6 +72,16 @@ export interface Todo {
   updated_at: string;
 }
 
+export interface DailyTask {
+  id: string;
+  user_id: string;
+  title: string;
+  title_bn?: string | null;
+  last_completed_date?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -80,6 +90,7 @@ export function useSupabaseData() {
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
  
@@ -98,12 +109,13 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, goalsRes, sessionsRes, quotesRes, todosRes, profileRes] = await Promise.all([
+      const [subjectsRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
         supabase.from('study_sessions').select('*').order('session_date', { ascending: false }),
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
+        supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
         supabase.from('profiles').select('*').eq('user_id', user.id).single()
       ]);
 
@@ -112,6 +124,7 @@ export function useSupabaseData() {
       if (sessionsRes.data) setSessions(sessionsRes.data);
       if (quotesRes.data) setQuotes(quotesRes.data);
       if (todosRes.data) setTodos(todosRes.data as Todo[]);
+      if (dailyTasksRes.data) setDailyTasks(dailyTasksRes.data as DailyTask[]);
       if (profileRes.data) setProfile(profileRes.data as Profile);
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -377,12 +390,56 @@ export function useSupabaseData() {
     setTodos(prev => prev.filter(t => t.id !== id));
   };
 
+  // DAILY TASKS
+  const addDailyTask = async (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('daily_tasks')
+      .insert({ ...task, user_id: user.id })
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    if (data) setDailyTasks(prev => [...prev, data as DailyTask]);
+  };
+
+  const updateDailyTask = async (id: string, updates: Partial<DailyTask>) => {
+    const { error } = await supabase
+      .from('daily_tasks')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    setDailyTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  const deleteDailyTask = async (id: string) => {
+    const { error } = await supabase.from('daily_tasks').delete().eq('id', id);
+    
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    setDailyTasks(prev => prev.filter(t => t.id !== id));
+  };
+
   return {
      subjects: sortedSubjects,
     goals,
     sessions,
     quotes,
     todos,
+    dailyTasks,
     profile,
     loading,
     addSubject,
@@ -400,6 +457,9 @@ export function useSupabaseData() {
     addTodo,
     updateTodo,
     deleteTodo,
+    addDailyTask,
+    updateDailyTask,
+    deleteDailyTask,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
