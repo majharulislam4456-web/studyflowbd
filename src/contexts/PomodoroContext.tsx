@@ -19,6 +19,7 @@ interface PomodoroContextType {
   progress: number;
   isMinimized: boolean;
   notificationsEnabled: boolean;
+  focusDuration: number;
   start: () => void;
   pause: () => void;
   reset: () => void;
@@ -27,6 +28,7 @@ interface PomodoroContextType {
   maximize: () => void;
   close: () => void;
   enableNotifications: () => Promise<boolean>;
+  setFocusDuration: (minutes: number) => void;
 }
 
 const defaultSettings: PomodoroSettings = {
@@ -40,6 +42,7 @@ const PomodoroContext = createContext<PomodoroContextType | null>(null);
 
 export function PomodoroProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<PomodoroPhase>('idle');
+  const [focusDuration, setFocusDurationState] = useState(defaultSettings.focusDuration);
   const [timeRemaining, setTimeRemaining] = useState(defaultSettings.focusDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [completedSessions, setCompletedSessions] = useState(0);
@@ -57,13 +60,13 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const getDuration = useCallback((currentPhase: PomodoroPhase) => {
     switch (currentPhase) {
       case 'focus':
-        return defaultSettings.focusDuration * 60;
+        return focusDuration * 60;
       case 'break':
         return defaultSettings.breakDuration * 60;
       case 'longBreak':
         return defaultSettings.longBreakDuration * 60;
       default:
-        return defaultSettings.focusDuration * 60;
+        return focusDuration * 60;
     }
   }, []);
 
@@ -123,10 +126,17 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     setIsRunning(false);
     setPhase('idle');
-    setTimeRemaining(defaultSettings.focusDuration * 60);
+    setTimeRemaining(focusDuration * 60);
     setCompletedSessions(0);
     setIsMinimized(false);
-  }, []);
+  }, [focusDuration]);
+
+  const setFocusDuration = useCallback((minutes: number) => {
+    setFocusDurationState(minutes);
+    if (phase === 'idle') {
+      setTimeRemaining(minutes * 60);
+    }
+  }, [phase]);
 
   const skip = useCallback(() => {
     playAlarm();
@@ -193,6 +203,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         progress,
         isMinimized,
         notificationsEnabled,
+        focusDuration,
         start,
         pause,
         reset,
@@ -201,6 +212,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         maximize,
         close,
         enableNotifications,
+        setFocusDuration,
       }}
     >
       {children}
