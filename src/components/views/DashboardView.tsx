@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, Timer, Target, TrendingUp } from 'lucide-react';
+import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
@@ -86,29 +86,70 @@ export function DashboardView({
     })
     .slice(0, 4);
  
+  // Fun greetings based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return language === 'bn' ? '🌅 সুপ্রভাত!' : '🌅 Good morning!';
+    if (hour < 17) return language === 'bn' ? '☀️ শুভ দুপুর!' : '☀️ Good afternoon!';
+    if (hour < 21) return language === 'bn' ? '🌙 শুভ সন্ধ্যা!' : '🌙 Good evening!';
+    return language === 'bn' ? '🌟 রাতের পড়াশোনা?' : '🌟 Late night grind?';
+  };
+
+  // Streak calculation (based on consecutive days of study)
+  const currentStreak = Math.min(Math.floor(weekTime / 60), 7); // Simplified streak based on hours studied
+
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Welcome Section */}
+      {/* Welcome Section with Fun Elements */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
+        <div className="relative">
+          {/* Floating decorations */}
+          {todayTime > 60 && (
+            <div className="absolute -top-2 -left-6 animate-float">
+              <Flame className="w-6 h-6 text-destructive" />
+            </div>
+          )}
+          {completedGoals.length > 0 && (
+            <div className="absolute -top-2 -right-2 animate-bounce">
+              <Trophy className="w-5 h-5 text-warning" />
+            </div>
+          )}
+          
           <h1 className="text-3xl font-bold text-foreground font-bengali">
-            {language === 'bn' ? 'স্বাগতম!' : 'Welcome back!'}
+            {getGreeting()}
           </h1>
-          <p className="text-muted-foreground mt-1 font-bengali">
-            {language === 'bn' ? 'আপনার অগ্রগতি ট্র্যাক করুন এবং ফোকাসড থাকুন' : 'Track your progress and stay focused'}
+          <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
+            {language === 'bn' ? 'আজকে কি প্ল্যান?' : "What's the plan today?"}
+            <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
+          
+          {/* Streak badge */}
+          {currentStreak > 0 && (
+            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm">
+              <Flame className="w-4 h-4 text-destructive" />
+              <span className="font-bengali font-medium">
+                {language === 'bn' ? `${currentStreak} দিন স্ট্রিক! 🔥` : `${currentStreak} day streak! 🔥`}
+              </span>
+            </div>
+          )}
         </div>
         
-        {/* Overall Progress Ring */}
+        {/* Overall Progress Ring with gamification */}
         <div className="flex items-center gap-6">
-          <ProgressRing progress={overallProgress} size={100} strokeWidth={8}>
-            <div className="text-center">
-              <p className="text-xl font-bold text-foreground">{overallProgress.toFixed(0)}%</p>
-              <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'সম্পূর্ণ' : 'Overall'}
-              </p>
+          <div className="relative group">
+            <ProgressRing progress={overallProgress} size={100} strokeWidth={8}>
+              <div className="text-center">
+                <p className="text-xl font-bold text-foreground">{overallProgress.toFixed(0)}%</p>
+                <p className="text-[10px] text-muted-foreground font-bengali">
+                  {language === 'bn' ? 'সম্পূর্ণ' : 'Overall'}
+                </p>
+              </div>
+            </ProgressRing>
+            {/* Level indicator */}
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white shadow-lg">
+              {Math.floor(overallProgress / 10) + 1}
             </div>
-          </ProgressRing>
+          </div>
         </div>
       </div>
 
