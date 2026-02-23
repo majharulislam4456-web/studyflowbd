@@ -9,27 +9,24 @@ export default {
   		center: true,
   		padding: '1rem',
   		screens: {
-  			sm: '640px',
-  			md: '768px',
-  			lg: '1024px',
-  			xl: '1280px',
+  			'sm': '640px',
+  			'md': '768px',
+  			'lg': '1024px',
+  			'xl': '1280px',
   			'2xl': '1400px'
   		}
   	},
   	extend: {
   		fontFamily: {
   			sans: [
-  				'Work Sans',
+  				'DM Sans',
   				'ui-sans-serif',
   				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
-  				'sans-serif'
+  				'sans-serif',
+  				'Apple Color Emoji',
+  				'Segoe UI Emoji',
+  				'Segoe UI Symbol',
+  				'Noto Color Emoji'
   			],
   			bengali: [
   				'Noto Sans Bengali',
@@ -47,7 +44,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Inconsolata',
+  				'Source Code Pro',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -186,14 +183,7 @@ export default {
   		},
   		boxShadow: {
   			'glow-primary': '0 0 30px -5px hsl(var(--primary) / 0.25)',
-  			'glow-accent': '0 0 30px -5px hsl(var(--accent) / 0.25)',
-  			'2xs': 'var(--shadow-2xs)',
-  			xs: 'var(--shadow-xs)',
-  			sm: 'var(--shadow-sm)',
-  			md: 'var(--shadow-md)',
-  			lg: 'var(--shadow-lg)',
-  			xl: 'var(--shadow-xl)',
-  			'2xl': 'var(--shadow-2xl)'
+  			'glow-accent': '0 0 30px -5px hsl(var(--accent) / 0.25)'
   		}
   	}
   },
