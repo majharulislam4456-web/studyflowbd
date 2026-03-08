@@ -41,6 +41,7 @@ export function DashboardView({
   quotes,
   todos,
   dailyTasks,
+  sessions,
   getTodayStudyTime,
   getWeekStudyTime,
   updateSubject,
