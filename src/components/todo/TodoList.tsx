@@ -71,6 +71,7 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
   const handleSubmit = async () => {
     if (!title.trim()) return;
     
+    playSuccess();
     await addTodo({
       title: title.trim(),
       title_bn: titleBn.trim() || null,
