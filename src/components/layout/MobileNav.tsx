@@ -3,7 +3,8 @@ import {
   BookOpen, 
   Timer, 
   Target, 
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
