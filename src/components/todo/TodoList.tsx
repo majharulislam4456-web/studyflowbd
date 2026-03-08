@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
  import { Plus, Trash2, Calendar, Flag, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
- import { useToast } from '@/hooks/use-toast';
- import { getRandomMessage } from '@/utils/congratulations';
+import { useToast } from '@/hooks/use-toast';
+import { getRandomMessage } from '@/utils/congratulations';
+import { playComplete, playCelebration, playDelete, playSuccess } from '@/utils/sounds';
 
 export interface Todo {
   id: string;

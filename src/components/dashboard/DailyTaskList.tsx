@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { getRandomMessage } from '@/utils/congratulations';
 import { cn } from '@/lib/utils';
+import { playComplete, playCelebration, playDelete } from '@/utils/sounds';
 
 export interface DailyTask {
   id: string;

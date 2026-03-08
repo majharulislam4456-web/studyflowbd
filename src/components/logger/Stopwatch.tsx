@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, Save, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { playStart, playPause, playSuccess, playClick } from '@/utils/sounds';
 
 interface StopwatchProps {
   onSaveTime: (minutes: number) => void;

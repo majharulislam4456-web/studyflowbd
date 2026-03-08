@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { TimerPresets } from './TimerPresets';
 import clockFace from '@/assets/clock-face.png';
+import { playStart, playPause, playClick } from '@/utils/sounds';
 
 export function PomodoroTimer() {
   const pomodoro = useGlobalPomodoro();

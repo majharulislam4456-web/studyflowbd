@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { getRandomMessage, showBrowserNotification, requestNotificationPermission } from '@/utils/congratulations';
+import { playTimerAlarm } from '@/utils/sounds';
 
 export interface PomodoroSettings {
   focusDuration: number;
