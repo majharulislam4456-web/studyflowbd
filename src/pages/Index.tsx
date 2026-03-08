@@ -15,6 +15,8 @@ import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
 import { AnalyticsView } from '@/components/analytics/AnalyticsView';
 import { ProfileView } from '@/components/profile/ProfileView';
+import { ExamReminderView } from '@/components/reminders/ExamReminderView';
+import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -104,6 +106,10 @@ const Index = () => {
         return <QuotesView quotes={quotes} addQuote={addQuote} updateQuote={updateQuote} deleteQuote={deleteQuote} />;
       case 'analytics':
         return <AnalyticsView sessions={sessions} subjects={subjects} />;
+      case 'reminders':
+        return <ExamReminderView />;
+      case 'studywithme':
+        return <StudyWithMeView />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
