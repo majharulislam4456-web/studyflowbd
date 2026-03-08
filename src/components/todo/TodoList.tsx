@@ -249,7 +249,7 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => deleteTodo(todo.id)}
+                onClick={() => { playDelete(); deleteTodo(todo.id); }}
                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4" />
