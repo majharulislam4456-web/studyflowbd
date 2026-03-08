@@ -20,6 +20,7 @@ interface DashboardViewProps {
   quotes: Quote[];
   todos: Todo[];
   dailyTasks: DailyTask[];
+  sessions: StudySession[];
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
