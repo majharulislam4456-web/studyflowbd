@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Clock, BookOpen, Plus } from 'lucide-react';
 import type { Subject, StudySession } from '@/hooks/useSupabaseData';
 import { useState } from 'react';
@@ -27,6 +28,7 @@ export function StudyLoggerPanel({
 }: StudyLoggerPanelProps) {
   const [selectedSubject, setSelectedSubject] = useState('general');
   const [duration, setDuration] = useState('30');
+  const [notes, setNotes] = useState('');
 
   const handleLog = () => {
     if (!duration) return;
@@ -35,10 +37,11 @@ export function StudyLoggerPanel({
       subject_id: selectedSubject === 'general' ? null : selectedSubject,
       duration: parseInt(duration),
       session_date: new Date().toISOString(),
-      notes: null,
+      notes: notes.trim() || null,
     });
 
     setDuration('30');
+    setNotes('');
   };
 
   const formatTime = (minutes: number) => {
@@ -110,6 +113,17 @@ export function StudyLoggerPanel({
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Notes / <span className="font-bengali">কী পড়লাম</span></Label>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="What did you study? / কী পড়েছেন?"
+            rows={2}
+            className="resize-none"
+          />
         </div>
 
         <Button 
