@@ -283,26 +283,20 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-bengali">{t('changePassword')}</span>
-                </div>
-                <Button variant="outline" size="sm" disabled>
-                  {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
-                </Button>
+
+            {/* Password Change */}
+            <PasswordChangeSection language={language} />
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-3">
+                <Shield className="w-5 h-5 text-muted-foreground" />
+                <span className="font-bengali">{t('twoFactorAuth')}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-bengali">{t('twoFactorAuth')}</span>
-                </div>
-                <Button variant="outline" size="sm" disabled>
-                  {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
-                </Button>
-              </div>
+              <Button variant="outline" size="sm" disabled>
+                {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
+              </Button>
             </div>
+
             <p className="text-xs text-muted-foreground text-center font-bengali">
               {language === 'bn' ? 'আপনার ডাটা এনক্রিপ্টেড এবং সুরক্ষিত' : 'Your data is encrypted and secure'}
             </p>
