@@ -193,6 +193,7 @@ export type Database = {
           name: string
           name_bn: string | null
           priority: number
+          syllabus_id: string | null
           total_chapters: number
           updated_at: string
           user_id: string
@@ -205,6 +206,7 @@ export type Database = {
           name: string
           name_bn?: string | null
           priority?: number
+          syllabus_id?: string | null
           total_chapters?: number
           updated_at?: string
           user_id: string
@@ -217,7 +219,49 @@ export type Database = {
           name?: string
           name_bn?: string | null
           priority?: number
+          syllabus_id?: string | null
           total_chapters?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_syllabus_id_fkey"
+            columns: ["syllabus_id"]
+            isOneToOne: false
+            referencedRelation: "syllabuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      syllabuses: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          name_bn: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          name_bn?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          name_bn?: string | null
           updated_at?: string
           user_id?: string
         }
