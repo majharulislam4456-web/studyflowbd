@@ -10,8 +10,9 @@ import { QuoteCard } from '@/components/quotes/QuoteCard';
 import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
 import { TodoList, type Todo } from '@/components/todo/TodoList';
 import { DailyTaskList, type DailyTask } from '@/components/dashboard/DailyTaskList';
+import { WeeklyStudyChart } from '@/components/dashboard/WeeklyStudyChart';
 import { useLanguage } from '@/contexts/LanguageContext';
-import type { Subject, Goal, Quote } from '@/hooks/useSupabaseData';
+import type { Subject, Goal, Quote, StudySession } from '@/hooks/useSupabaseData';
 
 interface DashboardViewProps {
   subjects: Subject[];
@@ -19,6 +20,7 @@ interface DashboardViewProps {
   quotes: Quote[];
   todos: Todo[];
   dailyTasks: DailyTask[];
+  sessions: StudySession[];
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
@@ -39,6 +41,7 @@ export function DashboardView({
   quotes,
   todos,
   dailyTasks,
+  sessions,
   getTodayStudyTime,
   getWeekStudyTime,
   updateSubject,
@@ -152,6 +155,9 @@ export function DashboardView({
           </div>
         </div>
       </div>
+
+      {/* Weekly Study Chart */}
+      <WeeklyStudyChart sessions={sessions} />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

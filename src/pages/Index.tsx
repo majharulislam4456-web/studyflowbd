@@ -90,6 +90,7 @@ const Index = () => {
             quotes={quotes}
             todos={todos}
             dailyTasks={dailyTasks}
+            sessions={sessions}
             getTodayStudyTime={getTodayStudyTime}
             getWeekStudyTime={getWeekStudyTime}
             updateSubject={updateSubject}
