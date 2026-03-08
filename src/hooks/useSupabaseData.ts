@@ -133,7 +133,7 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
@@ -141,7 +141,8 @@ export function useSupabaseData() {
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
         supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
-        supabase.from('profiles').select('*').eq('user_id', user.id).single()
+        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+        supabase.from('notes').select('*').order('updated_at', { ascending: false })
       ]);
 
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
