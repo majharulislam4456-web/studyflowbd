@@ -474,7 +474,8 @@ export function useSupabaseData() {
   };
 
   return {
-     subjects: sortedSubjects,
+    subjects: sortedSubjects,
+    syllabuses,
     goals,
     sessions,
     quotes,
@@ -482,6 +483,9 @@ export function useSupabaseData() {
     dailyTasks,
     profile,
     loading,
+    addSyllabus,
+    updateSyllabus,
+    deleteSyllabus,
     addSubject,
     updateSubject,
     deleteSubject,
@@ -489,8 +493,8 @@ export function useSupabaseData() {
     updateGoal,
     deleteGoal,
     addSession,
-     updateSession,
-     deleteSession,
+    updateSession,
+    deleteSession,
     addQuote,
     updateQuote,
     deleteQuote,
