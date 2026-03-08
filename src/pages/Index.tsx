@@ -17,6 +17,7 @@ import { AnalyticsView } from '@/components/analytics/AnalyticsView';
 import { ProfileView } from '@/components/profile/ProfileView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
+import { NotesView } from '@/components/views/NotesView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
