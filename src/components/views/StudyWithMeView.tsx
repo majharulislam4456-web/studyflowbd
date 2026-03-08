@@ -169,7 +169,7 @@ export function StudyWithMeView() {
               <p className="text-white/60 text-xs font-bengali">
                 {pomodoro.phase === 'focus'
                   ? (language === 'bn' ? 'ফোকাস সেশন' : 'Focus Session')
-                  : pomodoro.phase === 'shortBreak'
+                  : pomodoro.phase === 'break'
                     ? (language === 'bn' ? 'ছোট বিরতি' : 'Short Break')
                     : (language === 'bn' ? 'দীর্ঘ বিরতি' : 'Long Break')
                 }
