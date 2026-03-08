@@ -300,11 +300,12 @@
   }
 
   /* Stagger animations */
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-1 { animation-delay: 0.05s; opacity: 0; animation-fill-mode: forwards; }
+  .stagger-2 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+  .stagger-3 { animation-delay: 0.15s; opacity: 0; animation-fill-mode: forwards; }
+  .stagger-4 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+  .stagger-5 { animation-delay: 0.25s; opacity: 0; animation-fill-mode: forwards; }
+  .stagger-6 { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
 
   /* Hover effects */
   .hover-lift {
@@ -312,6 +313,28 @@
   }
   .hover-lift:hover {
     @apply -translate-y-1 shadow-lg;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  /* Scrollbar hide */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Glass morphism enhanced */
+  .glass-effect {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--border) / 0.5);
   }
 
   /* Fun cursor */
