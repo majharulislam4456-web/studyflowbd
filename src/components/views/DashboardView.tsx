@@ -94,7 +94,7 @@ export function DashboardView({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in-up">
       {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div className="relative">
