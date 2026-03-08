@@ -44,6 +44,48 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_reminders: {
+        Row: {
+          created_at: string
+          exam_date: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          reminder_minutes_before: number
+          reminder_type: string
+          title: string
+          title_bn: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_date: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          reminder_minutes_before?: number
+          reminder_type?: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_date?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          reminder_minutes_before?: number
+          reminder_type?: string
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string
