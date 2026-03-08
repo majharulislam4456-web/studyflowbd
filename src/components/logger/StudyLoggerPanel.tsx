@@ -115,6 +115,17 @@ export function StudyLoggerPanel({
           </div>
         </div>
 
+        <div className="space-y-2">
+          <Label>Notes / <span className="font-bengali">কী পড়লাম</span></Label>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="What did you study? / কী পড়েছেন?"
+            rows={2}
+            className="resize-none"
+          />
+        </div>
+
         <Button 
           onClick={handleLog} 
           variant="gradient" 
