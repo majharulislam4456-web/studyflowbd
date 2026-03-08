@@ -85,10 +85,15 @@
                <div className="p-2 rounded-lg bg-primary/10">
                  <Clock className="w-4 h-4 text-primary" />
                </div>
-               <div>
-                 <p className="font-medium text-sm">{getSubjectName(session.subject_id)}</p>
-                 <p className="text-xs text-muted-foreground">{formatDate(session.session_date)}</p>
-               </div>
+                <div>
+                  <p className="font-medium text-sm">{getSubjectName(session.subject_id)}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(session.session_date)}</p>
+                  {session.notes && (
+                    <p className="text-xs text-muted-foreground/70 font-bengali mt-0.5 truncate max-w-[200px]">
+                      📝 {session.notes}
+                    </p>
+                  )}
+                </div>
              </div>
              
              <div className="flex items-center gap-2">
