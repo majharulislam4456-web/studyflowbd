@@ -17,6 +17,7 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
 
   const start = useCallback(() => {
     if (!isRunning) {
+      playStart();
       setIsRunning(true);
       intervalRef.current = setInterval(() => {
         setTime((prev) => prev + 1);
