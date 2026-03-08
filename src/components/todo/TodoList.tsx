@@ -45,14 +45,10 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
      await updateTodo(todo.id, { is_completed: checked });
      
      if (checked) {
-       // Show congratulation for completing a task
+       playComplete();
        const message = getRandomMessage('todoComplete', language);
-       toast({ 
-         title: message,
-         duration: 3000,
-       });
+       toast({ title: message, duration: 3000 });
        
-       // Check if all today's todos are complete
        const todayTodos = todos.filter(t => {
          if (!t.due_date) return false;
          const today = new Date().toISOString().split('T')[0];
@@ -64,11 +60,9 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
        
        if (allComplete) {
          setTimeout(() => {
+           playCelebration();
            const allDoneMessage = getRandomMessage('allTodosComplete', language);
-           toast({ 
-             title: allDoneMessage,
-             duration: 5000,
-           });
+           toast({ title: allDoneMessage, duration: 5000 });
          }, 1500);
        }
      }

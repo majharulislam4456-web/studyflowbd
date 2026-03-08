@@ -40,7 +40,8 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
   }, [pause]);
 
   const saveTime = useCallback(() => {
-    if (time >= 60) { // At least 1 minute
+    if (time >= 60) {
+      playSuccess();
       const minutes = Math.floor(time / 60);
       onSaveTime(minutes);
       reset();

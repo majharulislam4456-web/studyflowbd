@@ -173,7 +173,7 @@ export function PomodoroTimer() {
         <Button
           variant={isRunning ? "accent" : "gradient"}
           size="lg"
-          onClick={isRunning ? pause : start}
+          onClick={() => { isRunning ? (playPause(), pause()) : (playStart(), start()); }}
           className={cn(
             "rounded-full w-20 h-20 shadow-xl transition-all",
             "hover:scale-105 active:scale-95",

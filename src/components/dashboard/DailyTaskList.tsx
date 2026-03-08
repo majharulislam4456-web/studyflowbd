@@ -64,26 +64,20 @@ export function DailyTaskList({
     if (wasCompleted) {
       await updateDailyTask(task.id, { last_completed_date: null });
     } else {
+      playComplete();
       await updateDailyTask(task.id, { last_completed_date: today });
       
-      // Show congratulation message
       const message = getRandomMessage('dailyTaskComplete', language);
-      toast({ 
-        title: message,
-        duration: 3000,
-      });
+      toast({ title: message, duration: 3000 });
       
-      // Check if all daily tasks are now complete
       const otherTasks = dailyTasks.filter(t => t.id !== task.id);
       const allOthersComplete = otherTasks.every(t => isCompletedToday(t));
       
       if (allOthersComplete && dailyTasks.length > 1) {
         setTimeout(() => {
+          playCelebration();
           const allDoneMessage = getRandomMessage('allDailyTasksComplete', language);
-          toast({ 
-            title: allDoneMessage,
-            duration: 5000,
-          });
+          toast({ title: allDoneMessage, duration: 5000 });
         }, 1500);
       }
     }
