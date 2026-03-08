@@ -153,6 +153,32 @@ export function useSupabaseData() {
     fetchData();
   }, [fetchData]);
 
+  // SYLLABUSES
+  const addSyllabus = async (syllabus: Omit<Syllabus, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('syllabuses')
+      .insert({ ...syllabus, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setSyllabuses(prev => [data as Syllabus, ...prev]);
+  };
+
+  const updateSyllabus = async (id: string, updates: Partial<Syllabus>) => {
+    const { error } = await supabase.from('syllabuses').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setSyllabuses(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const deleteSyllabus = async (id: string) => {
+    const { error } = await supabase.from('syllabuses').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setSyllabuses(prev => prev.filter(s => s.id !== id));
+    // Subjects with this syllabus_id will be cascade deleted by DB
+    setSubjects(prev => prev.filter(s => s.syllabus_id !== id));
+  };
+
   // SUBJECTS
   const addSubject = async (subject: Omit<Subject, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return;
