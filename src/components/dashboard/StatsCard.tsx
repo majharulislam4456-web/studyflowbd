@@ -27,7 +27,7 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <div className={cn(
-      "glass-card p-5 transition-smooth hover:shadow-lg group",
+      "glass-card p-5 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 group animate-fade-in-up",
       className
     )}>
       <div className="flex items-start justify-between">

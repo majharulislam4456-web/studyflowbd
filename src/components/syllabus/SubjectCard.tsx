@@ -52,7 +52,7 @@ export function SubjectCard({
       }
     }
   };
-  return <div className={cn("glass-card p-5 transition-all hover:shadow-lg group animate-fade-in", "hover:scale-[1.02]", isPriority && "ring-2 ring-primary/50")}>
+  return <div className={cn("glass-card p-5 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 group animate-slide-up", isPriority && "ring-2 ring-primary/50 animate-glow-pulse")}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shadow-md" style={{

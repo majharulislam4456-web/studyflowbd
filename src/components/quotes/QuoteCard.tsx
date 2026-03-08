@@ -13,8 +13,8 @@ interface QuoteCardProps {
 export function QuoteCard({ quote, onDelete, onEdit, featured = false }: QuoteCardProps) {
   return (
     <div className={cn(
-      "glass-card p-6 transition-smooth hover:shadow-lg group animate-fade-in relative overflow-hidden",
-      featured && "bg-gradient-to-br from-primary/5 to-accent/5"
+      "glass-card p-6 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 group animate-fade-in-up relative overflow-hidden",
+      featured && "bg-gradient-to-br from-primary/5 to-accent/5 animate-glow-pulse"
     )}>
       {/* Decorative quote icon */}
       <Quote className={cn(

@@ -48,7 +48,7 @@ export function WeeklyStudyChart({ sessions }: WeeklyStudyChartProps) {
   };
 
   return (
-    <div className="glass-card p-5">
+    <div className="glass-card p-5 animate-fade-in-up hover-lift">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2 font-bengali">
           <TrendingUp className="w-5 h-5 text-primary" />
