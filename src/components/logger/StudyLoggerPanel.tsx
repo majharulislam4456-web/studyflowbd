@@ -28,6 +28,7 @@ export function StudyLoggerPanel({
 }: StudyLoggerPanelProps) {
   const [selectedSubject, setSelectedSubject] = useState('general');
   const [duration, setDuration] = useState('30');
+  const [notes, setNotes] = useState('');
 
   const handleLog = () => {
     if (!duration) return;
@@ -36,10 +37,11 @@ export function StudyLoggerPanel({
       subject_id: selectedSubject === 'general' ? null : selectedSubject,
       duration: parseInt(duration),
       session_date: new Date().toISOString(),
-      notes: null,
+      notes: notes.trim() || null,
     });
 
     setDuration('30');
+    setNotes('');
   };
 
   const formatTime = (minutes: number) => {
