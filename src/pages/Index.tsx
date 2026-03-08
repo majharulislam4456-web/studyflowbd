@@ -106,6 +106,10 @@ const Index = () => {
         return <QuotesView quotes={quotes} addQuote={addQuote} updateQuote={updateQuote} deleteQuote={deleteQuote} />;
       case 'analytics':
         return <AnalyticsView sessions={sessions} subjects={subjects} />;
+      case 'reminders':
+        return <ExamReminderView />;
+      case 'studywithme':
+        return <StudyWithMeView />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
