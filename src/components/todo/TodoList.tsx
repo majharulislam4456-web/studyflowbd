@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
  import { Plus, Trash2, Calendar, Flag, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
- import { useToast } from '@/hooks/use-toast';
- import { getRandomMessage } from '@/utils/congratulations';
+import { useToast } from '@/hooks/use-toast';
+import { getRandomMessage } from '@/utils/congratulations';
+import { playComplete, playCelebration, playDelete, playSuccess } from '@/utils/sounds';
 
 export interface Todo {
   id: string;
@@ -44,14 +45,10 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
      await updateTodo(todo.id, { is_completed: checked });
      
      if (checked) {
-       // Show congratulation for completing a task
+       playComplete();
        const message = getRandomMessage('todoComplete', language);
-       toast({ 
-         title: message,
-         duration: 3000,
-       });
+       toast({ title: message, duration: 3000 });
        
-       // Check if all today's todos are complete
        const todayTodos = todos.filter(t => {
          if (!t.due_date) return false;
          const today = new Date().toISOString().split('T')[0];
@@ -63,11 +60,9 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
        
        if (allComplete) {
          setTimeout(() => {
+           playCelebration();
            const allDoneMessage = getRandomMessage('allTodosComplete', language);
-           toast({ 
-             title: allDoneMessage,
-             duration: 5000,
-           });
+           toast({ title: allDoneMessage, duration: 5000 });
          }, 1500);
        }
      }
@@ -76,6 +71,7 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
   const handleSubmit = async () => {
     if (!title.trim()) return;
     
+    playSuccess();
     await addTodo({
       title: title.trim(),
       title_bn: titleBn.trim() || null,
@@ -254,7 +250,7 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => deleteTodo(todo.id)}
+                onClick={() => { playDelete(); deleteTodo(todo.id); }}
                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4" />

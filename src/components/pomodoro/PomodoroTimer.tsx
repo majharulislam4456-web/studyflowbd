@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { TimerPresets } from './TimerPresets';
 import clockFace from '@/assets/clock-face.png';
+import { playStart, playPause, playClick } from '@/utils/sounds';
 
 export function PomodoroTimer() {
   const pomodoro = useGlobalPomodoro();
@@ -172,7 +173,7 @@ export function PomodoroTimer() {
         <Button
           variant={isRunning ? "accent" : "gradient"}
           size="lg"
-          onClick={isRunning ? pause : start}
+          onClick={() => { isRunning ? (playPause(), pause()) : (playStart(), start()); }}
           className={cn(
             "rounded-full w-20 h-20 shadow-xl transition-all",
             "hover:scale-105 active:scale-95",

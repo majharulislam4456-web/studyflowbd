@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { getRandomMessage } from '@/utils/congratulations';
 import { cn } from '@/lib/utils';
+import { playComplete, playCelebration, playDelete } from '@/utils/sounds';
 
 export interface DailyTask {
   id: string;
@@ -63,26 +64,20 @@ export function DailyTaskList({
     if (wasCompleted) {
       await updateDailyTask(task.id, { last_completed_date: null });
     } else {
+      playComplete();
       await updateDailyTask(task.id, { last_completed_date: today });
       
-      // Show congratulation message
       const message = getRandomMessage('dailyTaskComplete', language);
-      toast({ 
-        title: message,
-        duration: 3000,
-      });
+      toast({ title: message, duration: 3000 });
       
-      // Check if all daily tasks are now complete
       const otherTasks = dailyTasks.filter(t => t.id !== task.id);
       const allOthersComplete = otherTasks.every(t => isCompletedToday(t));
       
       if (allOthersComplete && dailyTasks.length > 1) {
         setTimeout(() => {
+          playCelebration();
           const allDoneMessage = getRandomMessage('allDailyTasksComplete', language);
-          toast({ 
-            title: allDoneMessage,
-            duration: 5000,
-          });
+          toast({ title: allDoneMessage, duration: 5000 });
         }, 1500);
       }
     }
@@ -139,7 +134,7 @@ export function DailyTaskList({
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => deleteDailyTask(task.id)}
+                onClick={() => { playDelete(); deleteDailyTask(task.id); }}
               >
                 <Trash2 className="w-3 h-3 text-destructive" />
               </Button>

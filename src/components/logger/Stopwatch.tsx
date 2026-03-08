@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, Save, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { playStart, playPause, playSuccess, playClick } from '@/utils/sounds';
 
 interface StopwatchProps {
   onSaveTime: (minutes: number) => void;
@@ -16,6 +17,7 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
 
   const start = useCallback(() => {
     if (!isRunning) {
+      playStart();
       setIsRunning(true);
       intervalRef.current = setInterval(() => {
         setTime((prev) => prev + 1);
@@ -24,6 +26,7 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
   }, [isRunning]);
 
   const pause = useCallback(() => {
+    playPause();
     setIsRunning(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -37,7 +40,8 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
   }, [pause]);
 
   const saveTime = useCallback(() => {
-    if (time >= 60) { // At least 1 minute
+    if (time >= 60) {
+      playSuccess();
       const minutes = Math.floor(time / 60);
       onSaveTime(minutes);
       reset();
