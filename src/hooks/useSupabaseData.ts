@@ -487,6 +487,30 @@ export function useSupabaseData() {
     setDailyTasks(prev => prev.filter(t => t.id !== id));
   };
 
+  // NOTES
+  const addNote = async (note: Omit<Note, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({ ...note, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setNotes(prev => [data as Note, ...prev]);
+  };
+
+  const updateNote = async (id: string, updates: Partial<Note>) => {
+    const { error } = await supabase.from('notes').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
+  };
+
+  const deleteNote = async (id: string) => {
+    const { error } = await supabase.from('notes').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setNotes(prev => prev.filter(n => n.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
@@ -495,6 +519,7 @@ export function useSupabaseData() {
     quotes,
     todos,
     dailyTasks,
+    notes,
     profile,
     loading,
     addSyllabus,
@@ -518,6 +543,9 @@ export function useSupabaseData() {
     addDailyTask,
     updateDailyTask,
     deleteDailyTask,
+    addNote,
+    updateNote,
+    deleteNote,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
