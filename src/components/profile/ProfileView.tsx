@@ -283,26 +283,20 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-bengali">{t('changePassword')}</span>
-                </div>
-                <Button variant="outline" size="sm" disabled>
-                  {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
-                </Button>
+
+            {/* Password Change */}
+            <PasswordChangeSection language={language} />
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-3">
+                <Shield className="w-5 h-5 text-muted-foreground" />
+                <span className="font-bengali">{t('twoFactorAuth')}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-bengali">{t('twoFactorAuth')}</span>
-                </div>
-                <Button variant="outline" size="sm" disabled>
-                  {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
-                </Button>
-              </div>
+              <Button variant="outline" size="sm" disabled>
+                {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
+              </Button>
             </div>
+
             <p className="text-xs text-muted-foreground text-center font-bengali">
               {language === 'bn' ? 'আপনার ডাটা এনক্রিপ্টেড এবং সুরক্ষিত' : 'Your data is encrypted and secure'}
             </p>
@@ -311,6 +305,82 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
       </Dialog>
 
       <AboutApp open={aboutOpen} onOpenChange={setAboutOpen} />
+    </div>
+  );
+}
+
+function PasswordChangeSection({ language }: { language: string }) {
+  const [isChanging, setIsChanging] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({ title: language === 'bn' ? 'পাসওয়ার্ড মিলছে না' : 'Passwords do not match', variant: 'destructive' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: language === 'bn' ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' : 'Password must be at least 6 characters', variant: 'destructive' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: language === 'bn' ? '✅ পাসওয়ার্ড পরিবর্তন হয়েছে!' : '✅ Password changed!' });
+      setIsChanging(false);
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    } catch (err: any) {
+      toast({ title: err.message || 'Error', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isChanging) {
+    return (
+      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+        <div className="flex items-center gap-3">
+          <Lock className="w-5 h-5 text-muted-foreground" />
+          <span className="font-bengali">{language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Change Password'}</span>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setIsChanging(true)}>
+          {language === 'bn' ? 'পরিবর্তন' : 'Change'}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl bg-muted/30 border border-border space-y-3 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Lock className="w-4 h-4 text-primary" />
+          <span className="text-sm font-semibold font-bengali">{language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Change Password'}</span>
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => setIsChanging(false)}>✕</Button>
+      </div>
+      <Input
+        type="password"
+        placeholder={language === 'bn' ? 'নতুন পাসওয়ার্ড' : 'New password'}
+        value={newPassword}
+        onChange={e => setNewPassword(e.target.value)}
+      />
+      <Input
+        type="password"
+        placeholder={language === 'bn' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm password'}
+        value={confirmPassword}
+        onChange={e => setConfirmPassword(e.target.value)}
+      />
+      <Button onClick={handleChangePassword} className="w-full" disabled={loading || !newPassword || !confirmPassword}>
+        {loading
+          ? (language === 'bn' ? 'পরিবর্তন হচ্ছে...' : 'Changing...')
+          : (language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Update Password')
+        }
+      </Button>
     </div>
   );
 }
