@@ -5,6 +5,8 @@ import { Stopwatch } from '@/components/logger/Stopwatch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Subject, StudySession } from '@/hooks/useSupabaseData';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { filterCurrentWeekSessions, getWeekStartSaturday, getWeekEndFriday } from '@/utils/weekUtils';
+import { format } from 'date-fns';
 
 interface LoggerViewProps {
   subjects: Subject[];
@@ -27,12 +29,17 @@ export function LoggerView({
 }: LoggerViewProps) {
   const { language } = useLanguage();
 
-  const handleStopwatchSave = (minutes: number) => {
+  // Only show current week sessions (Sat-Fri)
+  const weekSessions = filterCurrentWeekSessions(sessions);
+  const weekStart = getWeekStartSaturday();
+  const weekEnd = getWeekEndFriday();
+
+  const handleStopwatchSave = (data: { minutes: number; subjectId: string | null; notes: string }) => {
     addSession({
-      subject_id: null,
-      duration: minutes,
+      subject_id: data.subjectId,
+      duration: data.minutes,
       session_date: new Date().toISOString(),
-      notes: language === 'bn' ? 'স্টপওয়াচ থেকে লগ করা হয়েছে' : 'Logged from stopwatch',
+      notes: data.notes || (language === 'bn' ? 'স্টপওয়াচ থেকে লগ করা হয়েছে' : 'Logged from stopwatch'),
     });
   };
 
@@ -51,7 +58,6 @@ export function LoggerView({
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          {/* Tabs for Manual vs Stopwatch */}
           <Tabs defaultValue="manual" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="manual" className="font-bengali">
@@ -72,17 +78,23 @@ export function LoggerView({
             </TabsContent>
             
             <TabsContent value="stopwatch" className="mt-4">
-              <Stopwatch onSaveTime={handleStopwatchSave} />
+              <Stopwatch subjects={subjects} onSaveSession={handleStopwatchSave} />
             </TabsContent>
           </Tabs>
         </div>
         
         <div className="glass-card p-6 space-y-4">
-          <h3 className="font-semibold text-foreground font-bengali">
-            {language === 'bn' ? 'সাম্প্রতিক সেশন' : 'Recent Sessions'}
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-foreground font-bengali">
+              {language === 'bn' ? 'এই সপ্তাহের সেশন' : "This Week's Sessions"}
+            </h3>
+            <span className="text-xs text-muted-foreground font-bengali">
+              {format(weekStart, 'dd/MM')} - {format(weekEnd, 'dd/MM')}
+              {' '}({language === 'bn' ? 'শনি-শুক্র' : 'Sat-Fri'})
+            </span>
+          </div>
           <StudySessionList
-            sessions={sessions}
+            sessions={weekSessions}
             subjects={subjects}
             onUpdate={updateSession}
             onDelete={deleteSession}

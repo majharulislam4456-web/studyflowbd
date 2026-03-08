@@ -1,18 +1,26 @@
 import { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Play, Pause, RotateCcw, Save, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { playStart, playPause, playSuccess, playClick } from '@/utils/sounds';
+import type { Subject } from '@/hooks/useSupabaseData';
 
 interface StopwatchProps {
-  onSaveTime: (minutes: number) => void;
+  subjects: Subject[];
+  onSaveSession: (data: { minutes: number; subjectId: string | null; notes: string }) => void;
 }
 
-export function Stopwatch({ onSaveTime }: StopwatchProps) {
+export function Stopwatch({ subjects, onSaveSession }: StopwatchProps) {
   const { language } = useLanguage();
-  const [time, setTime] = useState(0); // in seconds
+  const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<string>('none');
+  const [notes, setNotes] = useState('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const start = useCallback(() => {
@@ -43,16 +51,21 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
     if (time >= 60) {
       playSuccess();
       const minutes = Math.floor(time / 60);
-      onSaveTime(minutes);
+      onSaveSession({
+        minutes,
+        subjectId: selectedSubject === 'none' ? null : selectedSubject,
+        notes: notes.trim(),
+      });
       reset();
+      setNotes('');
+      setSelectedSubject('none');
     }
-  }, [time, onSaveTime, reset]);
+  }, [time, onSaveSession, reset, selectedSubject, notes]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
     if (hrs > 0) {
       return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
@@ -76,9 +89,31 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
         </div>
       </div>
 
+      {/* Subject Selector */}
+      <div className="space-y-2">
+        <Label className="font-bengali text-sm">
+          {language === 'bn' ? '📚 বিষয় নির্বাচন করুন' : '📚 Select Subject'}
+        </Label>
+        <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+          <SelectTrigger>
+            <SelectValue placeholder={language === 'bn' ? 'বিষয় বেছে নিন' : 'Choose subject'} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              {language === 'bn' ? 'সাধারণ পড়াশোনা' : 'General Study'}
+            </SelectItem>
+            {subjects.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {language === 'bn' && s.name_bn ? s.name_bn : s.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Timer Display */}
       <div className="relative">
-        <div 
+        <div
           className={cn(
             "text-5xl md:text-6xl font-mono font-bold text-center py-8",
             "bg-gradient-to-br from-accent/10 to-primary/10 rounded-2xl",
@@ -93,8 +128,6 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
             {formatTime(time)}
           </span>
         </div>
-        
-        {/* Running indicator */}
         {isRunning && (
           <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-success animate-pulse" />
         )}
@@ -102,28 +135,17 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={reset}
-          className="rounded-full h-12 w-12"
-        >
+        <Button variant="outline" size="icon" onClick={reset} className="rounded-full h-12 w-12">
           <RotateCcw className="w-5 h-5" />
         </Button>
-
         <Button
           variant={isRunning ? "accent" : "gradient"}
           size="lg"
           onClick={isRunning ? pause : start}
           className="rounded-full h-16 w-16 shadow-lg"
         >
-          {isRunning ? (
-            <Pause className="w-7 h-7" />
-          ) : (
-            <Play className="w-7 h-7 ml-1" />
-          )}
+          {isRunning ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
         </Button>
-
         <Button
           variant="outline"
           size="icon"
@@ -135,9 +157,23 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
         </Button>
       </div>
 
+      {/* Notes */}
+      <div className="space-y-2">
+        <Label className="font-bengali text-sm">
+          {language === 'bn' ? '📝 কি পড়লাম / করলাম' : '📝 What did I study?'}
+        </Label>
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder={language === 'bn' ? 'ছোট্ট নোট লিখো... যেমন: অধ্যায় ৩ শেষ করলাম' : 'Quick note... e.g., Finished chapter 3'}
+          className="font-bengali resize-none"
+          rows={2}
+        />
+      </div>
+
       {/* Helper text */}
       <p className="text-center text-sm text-muted-foreground font-bengali">
-        {time < 60 
+        {time < 60
           ? (language === 'bn' ? '১ মিনিটের বেশি হলে সেভ করতে পারবেন' : 'Study for at least 1 min to save')
           : (language === 'bn' ? `${Math.floor(time / 60)} মিনিট সেভ করুন` : `Save ${Math.floor(time / 60)} minutes`)
         }

@@ -2,42 +2,42 @@ import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { subDays, startOfDay, eachDayOfInterval, isSameDay, format } from 'date-fns';
+import { startOfDay, isSameDay, format } from 'date-fns';
+import { getCurrentWeekDays, filterCurrentWeekSessions, getWeekStartSaturday, getWeekEndFriday } from '@/utils/weekUtils';
 import type { StudySession } from '@/hooks/useSupabaseData';
 
 interface WeeklyStudyChartProps {
   sessions: StudySession[];
 }
 
+const DAY_NAMES_BN = ['শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র'];
+const DAY_NAMES_EN = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
 export function WeeklyStudyChart({ sessions }: WeeklyStudyChartProps) {
   const { language } = useLanguage();
 
+  const weekSessions = useMemo(() => filterCurrentWeekSessions(sessions), [sessions]);
+
   const dailyData = useMemo(() => {
-    const today = new Date();
-    const days = eachDayOfInterval({
-      start: subDays(today, 6),
-      end: today,
-    });
-
-    const dayNamesBn = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'];
-
-    return days.map(day => {
+    const days = getCurrentWeekDays();
+    return days.map((day, i) => {
       const dayStart = startOfDay(day);
-      const totalMinutes = sessions
+      const totalMinutes = weekSessions
         .filter(s => isSameDay(new Date(s.session_date), dayStart))
         .reduce((acc, s) => acc + s.duration, 0);
 
-      const dayIndex = day.getDay();
       return {
-        day: language === 'bn' ? dayNamesBn[dayIndex] : format(day, 'EEE'),
+        day: language === 'bn' ? DAY_NAMES_BN[i] : DAY_NAMES_EN[i],
         minutes: totalMinutes,
         hours: Math.round(totalMinutes / 60 * 10) / 10,
       };
     });
-  }, [sessions, language]);
+  }, [weekSessions, language]);
 
   const totalWeekMinutes = dailyData.reduce((acc, d) => acc + d.minutes, 0);
   const avgMinutes = Math.round(totalWeekMinutes / 7);
+  const weekStart = getWeekStartSaturday();
+  const weekEnd = getWeekEndFriday();
 
   const formatTime = (minutes: number) => {
     const h = Math.floor(minutes / 60);
@@ -55,7 +55,7 @@ export function WeeklyStudyChart({ sessions }: WeeklyStudyChartProps) {
           {language === 'bn' ? 'সাপ্তাহিক পড়াশোনা' : 'Weekly Study'}
         </h3>
         <div className="text-xs text-muted-foreground font-bengali">
-          {language === 'bn' ? 'গড়:' : 'Avg:'} {formatTime(avgMinutes)}/{language === 'bn' ? 'দিন' : 'day'}
+          {format(weekStart, 'dd/MM')} - {format(weekEnd, 'dd/MM')} | {language === 'bn' ? 'গড়:' : 'Avg:'} {formatTime(avgMinutes)}/{language === 'bn' ? 'দিন' : 'day'}
         </div>
       </div>
 
