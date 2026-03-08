@@ -45,6 +45,16 @@ const navItems = [{
   labelBn: 'পরিসংখ্যান',
   icon: BarChart3
 }, {
+  id: 'reminders',
+  label: 'Reminders',
+  labelBn: 'রিমাইন্ডার',
+  icon: BellRing
+}, {
+  id: 'studywithme',
+  label: 'Study With Me',
+  labelBn: 'একসাথে পড়ি',
+  icon: Brain
+}, {
   id: 'quotes',
   label: 'Motivation',
   labelBn: 'অনুপ্রেরণা',
