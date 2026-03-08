@@ -11,11 +11,13 @@ import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
 import { TodoList, type Todo } from '@/components/todo/TodoList';
 import { DailyTaskList, type DailyTask } from '@/components/dashboard/DailyTaskList';
 import { WeeklyStudyChart } from '@/components/dashboard/WeeklyStudyChart';
+import { DashboardSettings, useDashboardConfig } from '@/components/settings/DashboardSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
-import type { Subject, Goal, Quote, StudySession } from '@/hooks/useSupabaseData';
+import type { Subject, Goal, Quote, StudySession, Syllabus } from '@/hooks/useSupabaseData';
 
 interface DashboardViewProps {
   subjects: Subject[];
+  syllabuses: Syllabus[];
   goals: Goal[];
   quotes: Quote[];
   todos: Todo[];
@@ -37,6 +39,7 @@ interface DashboardViewProps {
 
 export function DashboardView({
   subjects,
+  syllabuses,
   goals,
   quotes,
   todos,
@@ -56,15 +59,21 @@ export function DashboardView({
   deleteDailyTask,
 }: DashboardViewProps) {
   const { t, language } = useLanguage();
+  const { config, updateConfig } = useDashboardConfig();
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editQuote, setEditQuote] = useState<Quote | null>(null);
 
   const todayTime = getTodayStudyTime();
   const weekTime = getWeekStudyTime();
+
+  // Filter subjects by selected syllabuses
+  const dashboardSubjects = config.selectedSyllabusIds.length > 0
+    ? subjects.filter(s => s.syllabus_id && config.selectedSyllabusIds.includes(s.syllabus_id))
+    : subjects;
   
-  const totalChapters = subjects.reduce((acc, s) => acc + s.total_chapters, 0);
-  const completedChapters = subjects.reduce((acc, s) => acc + s.completed_chapters, 0);
+  const totalChapters = dashboardSubjects.reduce((acc, s) => acc + s.total_chapters, 0);
+  const completedChapters = dashboardSubjects.reduce((acc, s) => acc + s.completed_chapters, 0);
   const overallProgress = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
 
   const activeGoals = goals.filter(g => !g.is_completed);
@@ -77,19 +86,16 @@ export function DashboardView({
     return `${hours}${language === 'bn' ? 'ঘ' : 'h'} ${mins}${language === 'bn' ? 'মি' : 'm'}`;
   };
 
-  // Get a random quote for featured display
   const featuredQuote = quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
 
-  // Get top priority subjects first, then by progress
-  const topSubjects = [...subjects]
+  const topSubjects = [...dashboardSubjects]
     .sort((a, b) => {
       const priorityDiff = ((b as any).priority || 0) - ((a as any).priority || 0);
       if (priorityDiff !== 0) return priorityDiff;
       return (b.completed_chapters / b.total_chapters) - (a.completed_chapters / a.total_chapters);
     })
     .slice(0, 4);
- 
-  // Fun greetings based on time of day
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return language === 'bn' ? '🌅 সুপ্রভাত!' : '🌅 Good morning!';
@@ -98,15 +104,13 @@ export function DashboardView({
     return language === 'bn' ? '🌟 রাতের পড়াশোনা?' : '🌟 Late night grind?';
   };
 
-  // Streak calculation (based on consecutive days of study)
-  const currentStreak = Math.min(Math.floor(weekTime / 60), 7); // Simplified streak based on hours studied
+  const currentStreak = Math.min(Math.floor(weekTime / 60), 7);
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Welcome Section with Fun Elements */}
+      {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div className="relative">
-          {/* Floating decorations */}
           {todayTime > 60 && (
             <div className="absolute -top-2 -left-6 animate-float">
               <Flame className="w-6 h-6 text-destructive" />
@@ -126,7 +130,6 @@ export function DashboardView({
             <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
-          {/* Streak badge */}
           {currentStreak > 0 && (
             <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm">
               <Flame className="w-4 h-4 text-destructive" />
@@ -137,8 +140,15 @@ export function DashboardView({
           )}
         </div>
         
-        {/* Overall Progress Ring with gamification */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          {/* Settings button */}
+          <DashboardSettings
+            syllabuses={syllabuses}
+            config={config}
+            onUpdateConfig={updateConfig}
+          />
+          
+          {/* Overall Progress Ring */}
           <div className="relative group">
             <ProgressRing progress={overallProgress} size={100} strokeWidth={8}>
               <div className="text-center">
@@ -148,7 +158,6 @@ export function DashboardView({
                 </p>
               </div>
             </ProgressRing>
-            {/* Level indicator */}
             <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white shadow-lg">
               {Math.floor(overallProgress / 10) + 1}
             </div>
@@ -157,13 +166,13 @@ export function DashboardView({
       </div>
 
       {/* Weekly Study Chart */}
-      <WeeklyStudyChart sessions={sessions} />
+      {config.showWeeklyChart && <WeeklyStudyChart sessions={sessions} />}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title={t('subjects')}
-          value={subjects.length}
+          value={dashboardSubjects.length}
           subtitle={`${completedChapters}/${totalChapters} ${language === 'bn' ? 'অধ্যায়' : 'chapters'}`}
           icon={BookOpen}
         />
@@ -198,7 +207,7 @@ export function DashboardView({
             {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
-             {topSubjects.map((subject, index) => (
+            {topSubjects.map((subject, index) => (
               <div key={subject.id} className={`stagger-${index + 1}`}>
                 <SubjectCard
                   subject={subject}
@@ -213,45 +222,51 @@ export function DashboardView({
 
         {/* Goals, Tasks & Quote Column */}
         <div className="space-y-6">
-          {/* Daily Tasks - Resets every day */}
-          <div className="glass-card p-4">
-            <DailyTaskList
-              dailyTasks={dailyTasks}
-              addDailyTask={addDailyTask}
-              updateDailyTask={updateDailyTask}
-              deleteDailyTask={deleteDailyTask}
-            />
-          </div>
-
-          {/* Special Tasks (was Today's Tasks) */}
-          <div className="glass-card p-4">
-            <TodoList
-              todos={todos}
-              addTodo={async () => {}}
-              updateTodo={updateTodo}
-              deleteTodo={async () => {}}
-              compact
-            />
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
-              <Target className="w-5 h-5 text-primary" />
-              {language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
-            </h2>
-            {activeGoals.slice(0, 2).map((goal) => (
-              <GoalCard
-                key={goal.id}
-                goal={goal}
-                onUpdateProgress={(id, progress) => updateGoal(id, { progress, is_completed: progress >= 100 })}
-                onDelete={deleteGoal}
-                onEdit={setEditGoal}
+          {/* Daily Tasks */}
+          {config.showDailyTasks && (
+            <div className="glass-card p-4">
+              <DailyTaskList
+                dailyTasks={dailyTasks}
+                addDailyTask={addDailyTask}
+                updateDailyTask={updateDailyTask}
+                deleteDailyTask={deleteDailyTask}
               />
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* Special Tasks */}
+          {config.showTodos && (
+            <div className="glass-card p-4">
+              <TodoList
+                todos={todos}
+                addTodo={async () => {}}
+                updateTodo={updateTodo}
+                deleteTodo={async () => {}}
+                compact
+              />
+            </div>
+          )}
+
+          {config.showGoals && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
+                <Target className="w-5 h-5 text-primary" />
+                {language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+              </h2>
+              {activeGoals.slice(0, 2).map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  onUpdateProgress={(id, progress) => updateGoal(id, { progress, is_completed: progress >= 100 })}
+                  onDelete={deleteGoal}
+                  onEdit={setEditGoal}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Featured Quote */}
-          {featuredQuote && (
+          {config.showQuotes && featuredQuote && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground font-bengali">
                 {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
