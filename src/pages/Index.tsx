@@ -38,7 +38,7 @@ const Index = () => {
   }, []);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, profile,
+    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
@@ -47,6 +47,7 @@ const Index = () => {
     addQuote, updateQuote, deleteQuote,
     addTodo, updateTodo, deleteTodo,
     addDailyTask, updateDailyTask, deleteDailyTask,
+    addNote, updateNote, deleteNote,
     updateProfile, getTodayStudyTime, getWeekStudyTime,
   } = useSupabaseData();
 
