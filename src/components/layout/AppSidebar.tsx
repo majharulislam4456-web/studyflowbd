@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Profile } from '@/hooks/useSupabaseData';
+import logoImg from '@/assets/logo.jpg';
+
 interface AppSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -67,17 +69,13 @@ export function AppSidebar({
       {/* Logo */}
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!isCollapsed && <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
-              <BookOpen className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src={logoImg} alt="Study Tracker" className="w-10 h-10 rounded-xl shadow-md object-cover" />
             <div>
-              <h1 className="font-bold text-lg text-sidebar-foreground">StudyFlow</h1>
-              <p className="text-xs text-muted-foreground font-bengali">স্টাডিফ্লো</p>
+              <h1 className="font-bold text-lg text-sidebar-foreground">Study Tracker</h1>
+              <p className="text-xs text-muted-foreground font-bengali">স্টাডি ট্র্যাকার</p>
             </div>
           </div>}
-        {isCollapsed && <div className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
-            <BookOpen className="w-5 h-5 text-primary-foreground" />
-          </div>}
+        {isCollapsed && <img src={logoImg} alt="Study Tracker" className="w-10 h-10 mx-auto rounded-xl shadow-md object-cover" />}
       </div>
 
       {/* Navigation */}
@@ -93,7 +91,6 @@ export function AppSidebar({
 
       {/* Profile & Footer */}
       <div className="p-3 border-t border-sidebar-border space-y-2">
-        {/* Profile button */}
         <button onClick={() => setActiveTab('profile')} className={cn("w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200", activeTab === 'profile' ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground hover:bg-sidebar-accent")}>
           <Avatar className="w-8 h-8">
             <AvatarImage src={profile?.avatar_url || undefined} />
