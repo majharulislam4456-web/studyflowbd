@@ -153,6 +153,7 @@ export function useSupabaseData() {
       if (todosRes.data) setTodos(todosRes.data as Todo[]);
       if (dailyTasksRes.data) setDailyTasks(dailyTasksRes.data as DailyTask[]);
       if (profileRes.data) setProfile(profileRes.data as Profile);
+      if (notesRes.data) setNotes(notesRes.data as Note[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
