@@ -94,6 +94,17 @@ export interface DailyTask {
   updated_at: string;
 }
 
+export interface Note {
+  id: string;
+  user_id: string;
+  subject_id: string | null;
+  title: string;
+  title_bn: string | null;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -105,6 +116,7 @@ export function useSupabaseData() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
@@ -121,7 +133,7 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
@@ -129,7 +141,8 @@ export function useSupabaseData() {
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
         supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
-        supabase.from('profiles').select('*').eq('user_id', user.id).single()
+        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+        supabase.from('notes').select('*').order('updated_at', { ascending: false })
       ]);
 
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
@@ -140,6 +153,7 @@ export function useSupabaseData() {
       if (todosRes.data) setTodos(todosRes.data as Todo[]);
       if (dailyTasksRes.data) setDailyTasks(dailyTasksRes.data as DailyTask[]);
       if (profileRes.data) setProfile(profileRes.data as Profile);
+      if (notesRes.data) setNotes(notesRes.data as Note[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
@@ -473,6 +487,30 @@ export function useSupabaseData() {
     setDailyTasks(prev => prev.filter(t => t.id !== id));
   };
 
+  // NOTES
+  const addNote = async (note: Omit<Note, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({ ...note, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setNotes(prev => [data as Note, ...prev]);
+  };
+
+  const updateNote = async (id: string, updates: Partial<Note>) => {
+    const { error } = await supabase.from('notes').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
+  };
+
+  const deleteNote = async (id: string) => {
+    const { error } = await supabase.from('notes').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setNotes(prev => prev.filter(n => n.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
@@ -481,6 +519,7 @@ export function useSupabaseData() {
     quotes,
     todos,
     dailyTasks,
+    notes,
     profile,
     loading,
     addSyllabus,
@@ -504,6 +543,9 @@ export function useSupabaseData() {
     addDailyTask,
     updateDailyTask,
     deleteDailyTask,
+    addNote,
+    updateNote,
+    deleteNote,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,

@@ -3,7 +3,8 @@ import {
   BookOpen, 
   Timer, 
   Target, 
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,7 @@ const navItems = [
   { id: 'pomodoro', label: 'Focus', icon: Timer },
   { id: 'goals', label: 'Goals', icon: Target },
   { id: 'analytics', label: 'Stats', icon: BarChart3 },
+  { id: 'notes', label: 'Notes', icon: FileText },
 ];
 
 export function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {

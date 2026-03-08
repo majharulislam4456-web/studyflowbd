@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User, BellRing, Brain } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User, BellRing, Brain, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -44,6 +44,11 @@ const navItems = [{
   label: 'Analytics',
   labelBn: 'পরিসংখ্যান',
   icon: BarChart3
+}, {
+  id: 'notes',
+  label: 'Notes',
+  labelBn: 'নোটস',
+  icon: FileText
 }, {
   id: 'reminders',
   label: 'Reminders',
