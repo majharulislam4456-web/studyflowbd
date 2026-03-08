@@ -26,6 +26,7 @@ export function Stopwatch({ onSaveTime }: StopwatchProps) {
   }, [isRunning]);
 
   const pause = useCallback(() => {
+    playPause();
     setIsRunning(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
