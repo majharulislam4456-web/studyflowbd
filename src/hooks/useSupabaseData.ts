@@ -3,6 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+export interface Syllabus {
+  id: string;
+  user_id: string;
+  name: string;
+  name_bn: string | null;
+  description: string | null;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Subject {
   id: string;
   user_id: string;
@@ -11,7 +22,8 @@ export interface Subject {
   total_chapters: number;
   completed_chapters: number;
   color: string;
-   priority?: number;
+  priority?: number;
+  syllabus_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -86,6 +98,7 @@ export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [syllabuses, setSyllabuses] = useState<Syllabus[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -93,7 +106,6 @@ export function useSupabaseData() {
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
- 
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
      const priorityDiff = (b as any).priority - (a as any).priority;
@@ -109,8 +121,9 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
+        supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
         supabase.from('study_sessions').select('*').order('session_date', { ascending: false }),
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
@@ -119,7 +132,8 @@ export function useSupabaseData() {
         supabase.from('profiles').select('*').eq('user_id', user.id).single()
       ]);
 
-      if (subjectsRes.data) setSubjects(subjectsRes.data);
+      if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
+      if (syllabusesRes.data) setSyllabuses(syllabusesRes.data as Syllabus[]);
       if (goalsRes.data) setGoals(goalsRes.data as Goal[]);
       if (sessionsRes.data) setSessions(sessionsRes.data);
       if (quotesRes.data) setQuotes(quotesRes.data);
@@ -138,6 +152,32 @@ export function useSupabaseData() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // SYLLABUSES
+  const addSyllabus = async (syllabus: Omit<Syllabus, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('syllabuses')
+      .insert({ ...syllabus, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setSyllabuses(prev => [data as Syllabus, ...prev]);
+  };
+
+  const updateSyllabus = async (id: string, updates: Partial<Syllabus>) => {
+    const { error } = await supabase.from('syllabuses').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setSyllabuses(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const deleteSyllabus = async (id: string) => {
+    const { error } = await supabase.from('syllabuses').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setSyllabuses(prev => prev.filter(s => s.id !== id));
+    // Subjects with this syllabus_id will be cascade deleted by DB
+    setSubjects(prev => prev.filter(s => s.syllabus_id !== id));
+  };
 
   // SUBJECTS
   const addSubject = async (subject: Omit<Subject, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
@@ -434,7 +474,8 @@ export function useSupabaseData() {
   };
 
   return {
-     subjects: sortedSubjects,
+    subjects: sortedSubjects,
+    syllabuses,
     goals,
     sessions,
     quotes,
@@ -442,6 +483,9 @@ export function useSupabaseData() {
     dailyTasks,
     profile,
     loading,
+    addSyllabus,
+    updateSyllabus,
+    deleteSyllabus,
     addSubject,
     updateSubject,
     deleteSubject,
@@ -449,8 +493,8 @@ export function useSupabaseData() {
     updateGoal,
     deleteGoal,
     addSession,
-     updateSession,
-     deleteSession,
+    updateSession,
+    deleteSession,
     addQuote,
     updateQuote,
     deleteQuote,
