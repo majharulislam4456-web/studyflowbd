@@ -18,6 +18,7 @@ import { ProfileView } from '@/components/profile/ProfileView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { applyDailyTheme } from '@/utils/dailyTheme';
