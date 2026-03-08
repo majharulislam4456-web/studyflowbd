@@ -156,6 +156,9 @@ export function DashboardView({
         </div>
       </div>
 
+      {/* Weekly Study Chart */}
+      <WeeklyStudyChart sessions={sessions} />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
