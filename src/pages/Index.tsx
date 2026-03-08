@@ -129,6 +129,8 @@ const Index = () => {
         return <ExamReminderView />;
       case 'studywithme':
         return <StudyWithMeView />;
+      case 'notes':
+        return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;

@@ -45,6 +45,11 @@ const navItems = [{
   labelBn: 'পরিসংখ্যান',
   icon: BarChart3
 }, {
+  id: 'notes',
+  label: 'Notes',
+  labelBn: 'নোটস',
+  icon: FileText
+}, {
   id: 'reminders',
   label: 'Reminders',
   labelBn: 'রিমাইন্ডার',

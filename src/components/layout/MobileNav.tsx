@@ -19,6 +19,7 @@ const navItems = [
   { id: 'pomodoro', label: 'Focus', icon: Timer },
   { id: 'goals', label: 'Goals', icon: Target },
   { id: 'analytics', label: 'Stats', icon: BarChart3 },
+  { id: 'notes', label: 'Notes', icon: FileText },
 ];
 
 export function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {
