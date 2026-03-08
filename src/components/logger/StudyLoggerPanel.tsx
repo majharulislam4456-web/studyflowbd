@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Clock, BookOpen, Plus } from 'lucide-react';
 import type { Subject, StudySession } from '@/hooks/useSupabaseData';
 import { useState } from 'react';
