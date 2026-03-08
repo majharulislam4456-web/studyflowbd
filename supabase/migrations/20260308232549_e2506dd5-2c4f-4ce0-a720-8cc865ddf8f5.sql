@@ -1,0 +1,4 @@
+
+ALTER TABLE public.profiles
+ADD COLUMN student_class TEXT DEFAULT NULL,
+ADD COLUMN division TEXT DEFAULT NULL;

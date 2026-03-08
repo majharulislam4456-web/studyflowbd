@@ -18,6 +18,7 @@ import { ProfileView } from '@/components/profile/ProfileView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { applyDailyTheme } from '@/utils/dailyTheme';
@@ -64,6 +65,22 @@ const Index = () => {
   }
 
   if (!user) return null;
+
+  // Show onboarding if no student_class set
+  const needsOnboarding = profile && !(profile as any).student_class;
+
+  const handleOnboardingComplete = async (studentClass: string, division: string | null) => {
+    await updateProfile({ student_class: studentClass, division } as any);
+  };
+
+  if (needsOnboarding) {
+    return (
+      <OnboardingFlow
+        displayName={profile?.display_name || null}
+        onComplete={handleOnboardingComplete}
+      />
+    );
+  }
 
   const renderView = () => {
     switch (activeTab) {
