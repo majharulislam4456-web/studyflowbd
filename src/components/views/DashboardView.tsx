@@ -13,6 +13,7 @@ import { DailyTaskList, type DailyTask } from '@/components/dashboard/DailyTaskL
 import { WeeklyStudyChart } from '@/components/dashboard/WeeklyStudyChart';
 import { DashboardSettings, useDashboardConfig } from '@/components/settings/DashboardSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { calculateStreak } from '@/utils/streak';
 import type { Subject, Goal, Quote, StudySession, Syllabus } from '@/hooks/useSupabaseData';
 
 interface DashboardViewProps {
@@ -38,25 +39,11 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({
-  subjects,
-  syllabuses,
-  goals,
-  quotes,
-  todos,
-  dailyTasks,
-  sessions,
-  getTodayStudyTime,
-  getWeekStudyTime,
-  updateSubject,
-  deleteSubject,
-  updateGoal,
-  deleteGoal,
-  updateQuote,
-  deleteQuote,
-  updateTodo,
-  addDailyTask,
-  updateDailyTask,
-  deleteDailyTask,
+  subjects, syllabuses, goals, quotes, todos, dailyTasks, sessions,
+  getTodayStudyTime, getWeekStudyTime,
+  updateSubject, deleteSubject, updateGoal, deleteGoal,
+  updateQuote, deleteQuote, updateTodo,
+  addDailyTask, updateDailyTask, deleteDailyTask,
 }: DashboardViewProps) {
   const { t, language } = useLanguage();
   const { config, updateConfig } = useDashboardConfig();
@@ -67,7 +54,6 @@ export function DashboardView({
   const todayTime = getTodayStudyTime();
   const weekTime = getWeekStudyTime();
 
-  // Filter subjects by selected syllabuses
   const dashboardSubjects = config.selectedSyllabusIds.length > 0
     ? subjects.filter(s => s.syllabus_id && config.selectedSyllabusIds.includes(s.syllabus_id))
     : subjects;
@@ -78,6 +64,9 @@ export function DashboardView({
 
   const activeGoals = goals.filter(g => !g.is_completed);
   const completedGoals = goals.filter(g => g.is_completed);
+
+  // Calculate real streak from sessions
+  const currentStreak = calculateStreak(sessions);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -104,8 +93,6 @@ export function DashboardView({
     return language === 'bn' ? '🌟 রাতের পড়াশোনা?' : '🌟 Late night grind?';
   };
 
-  const currentStreak = Math.min(Math.floor(weekTime / 60), 7);
-
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Section */}
@@ -130,25 +117,25 @@ export function DashboardView({
             <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
-          {currentStreak > 0 && (
-            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm">
-              <Flame className="w-4 h-4 text-destructive" />
-              <span className="font-bengali font-medium">
-                {language === 'bn' ? `${currentStreak} দিন স্ট্রিক! 🔥` : `${currentStreak} day streak! 🔥`}
-              </span>
-            </div>
+          {/* Real Streak Display */}
+          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm border border-primary/10">
+            <Flame className="w-4 h-4 text-destructive" />
+            <span className="font-bengali font-semibold">
+              {currentStreak > 0 
+                ? (language === 'bn' ? `${currentStreak} দিন স্ট্রিক! 🔥` : `${currentStreak} day streak! 🔥`)
+                : (language === 'bn' ? 'আজ পড়া শুরু করো! 💪' : 'Start studying today! 💪')
+              }
+            </span>
+          </div>
+          {currentStreak === 0 && (
+            <p className="text-xs text-muted-foreground mt-1 font-bengali">
+              {language === 'bn' ? '⚠️ স্টাডি লগে সময় যোগ করলে স্ট্রিক শুরু হবে' : '⚠️ Add time in Study Log to start streak'}
+            </p>
           )}
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Settings button */}
-          <DashboardSettings
-            syllabuses={syllabuses}
-            config={config}
-            onUpdateConfig={updateConfig}
-          />
-          
-          {/* Overall Progress Ring */}
+          <DashboardSettings syllabuses={syllabuses} config={config} onUpdateConfig={updateConfig} />
           <div className="relative group">
             <ProgressRing progress={overallProgress} size={100} strokeWidth={8}>
               <div className="text-center">
@@ -170,37 +157,26 @@ export function DashboardView({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title={t('subjects')}
-          value={dashboardSubjects.length}
+        <StatsCard title={t('subjects')} value={dashboardSubjects.length}
           subtitle={`${completedChapters}/${totalChapters} ${language === 'bn' ? 'অধ্যায়' : 'chapters'}`}
           icon={BookOpen}
         />
-        <StatsCard
-          title={t('todayStudyTime')}
-          value={formatTime(todayTime)}
-          icon={Timer}
-          iconClassName="bg-accent/10 text-accent"
+        <StatsCard title={t('todayStudyTime')} value={formatTime(todayTime)}
+          icon={Timer} iconClassName="bg-accent/10 text-accent"
         />
-        <StatsCard
-          title={language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+        <StatsCard title={language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
           value={activeGoals.length}
           subtitle={`${completedGoals.length} ${language === 'bn' ? 'সম্পন্ন' : 'completed'}`}
-          icon={Target}
-          iconClassName="bg-success/10 text-success"
+          icon={Target} iconClassName="bg-success/10 text-success"
         />
-        <StatsCard
-          title={t('weekStudyTime')}
-          value={formatTime(weekTime)}
-          icon={TrendingUp}
-          trend={{ value: 12, isPositive: true }}
+        <StatsCard title={t('weekStudyTime')} value={formatTime(weekTime)}
+          icon={TrendingUp} trend={{ value: 12, isPositive: true }}
           iconClassName="bg-info/10 text-info"
         />
       </div>
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Subjects Column */}
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
             <BookOpen className="w-5 h-5 text-primary" />
@@ -209,41 +185,25 @@ export function DashboardView({
           <div className="grid sm:grid-cols-2 gap-4">
             {topSubjects.map((subject, index) => (
               <div key={subject.id} className={`stagger-${index + 1}`}>
-                <SubjectCard
-                  subject={subject}
+                <SubjectCard subject={subject}
                   onUpdateProgress={(id, completed) => updateSubject(id, { completed_chapters: completed })}
-                  onDelete={deleteSubject}
-                  onEdit={setEditSubject}
+                  onDelete={deleteSubject} onEdit={setEditSubject}
                 />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Goals, Tasks & Quote Column */}
         <div className="space-y-6">
-          {/* Daily Tasks */}
           {config.showDailyTasks && (
             <div className="glass-card p-4">
-              <DailyTaskList
-                dailyTasks={dailyTasks}
-                addDailyTask={addDailyTask}
-                updateDailyTask={updateDailyTask}
-                deleteDailyTask={deleteDailyTask}
-              />
+              <DailyTaskList dailyTasks={dailyTasks} addDailyTask={addDailyTask} updateDailyTask={updateDailyTask} deleteDailyTask={deleteDailyTask} />
             </div>
           )}
 
-          {/* Special Tasks */}
           {config.showTodos && (
             <div className="glass-card p-4">
-              <TodoList
-                todos={todos}
-                addTodo={async () => {}}
-                updateTodo={updateTodo}
-                deleteTodo={async () => {}}
-                compact
-              />
+              <TodoList todos={todos} addTodo={async () => {}} updateTodo={updateTodo} deleteTodo={async () => {}} compact />
             </div>
           )}
 
@@ -254,53 +214,28 @@ export function DashboardView({
                 {language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
               </h2>
               {activeGoals.slice(0, 2).map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  goal={goal}
+                <GoalCard key={goal.id} goal={goal}
                   onUpdateProgress={(id, progress) => updateGoal(id, { progress, is_completed: progress >= 100 })}
-                  onDelete={deleteGoal}
-                  onEdit={setEditGoal}
+                  onDelete={deleteGoal} onEdit={setEditGoal}
                 />
               ))}
             </div>
           )}
 
-          {/* Featured Quote */}
           {config.showQuotes && featuredQuote && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground font-bengali">
                 {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
               </h2>
-              <QuoteCard 
-                quote={featuredQuote} 
-                onDelete={deleteQuote} 
-                onEdit={setEditQuote}
-                featured 
-              />
+              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
             </div>
           )}
         </div>
       </div>
 
-      {/* Edit Dialogs */}
-      <EditSubjectDialog
-        subject={editSubject}
-        open={!!editSubject}
-        onOpenChange={(open) => !open && setEditSubject(null)}
-        onSave={updateSubject}
-      />
-      <EditGoalDialog
-        goal={editGoal}
-        open={!!editGoal}
-        onOpenChange={(open) => !open && setEditGoal(null)}
-        onSave={updateGoal}
-      />
-      <EditQuoteDialog
-        quote={editQuote}
-        open={!!editQuote}
-        onOpenChange={(open) => !open && setEditQuote(null)}
-        onSave={updateQuote}
-      />
+      <EditSubjectDialog subject={editSubject} open={!!editSubject} onOpenChange={(open) => !open && setEditSubject(null)} onSave={updateSubject} />
+      <EditGoalDialog goal={editGoal} open={!!editGoal} onOpenChange={(open) => !open && setEditGoal(null)} onSave={updateGoal} />
+      <EditQuoteDialog quote={editQuote} open={!!editQuote} onOpenChange={(open) => !open && setEditQuote(null)} onSave={updateQuote} />
     </div>
   );
 }

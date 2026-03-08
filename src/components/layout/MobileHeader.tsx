@@ -1,4 +1,4 @@
-import { BookOpen, Moon, Sun, Menu } from 'lucide-react';
+import { Moon, Sun, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logoImg from '@/assets/logo.jpg';
 
 interface MobileHeaderProps {
   isDark: boolean;
@@ -18,12 +19,10 @@ export function MobileHeader({ isDark, toggleTheme, setActiveTab }: MobileHeader
     <header className="md:hidden sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
-            <BookOpen className="w-4 h-4 text-primary-foreground" />
-          </div>
+          <img src={logoImg} alt="Study Tracker" className="w-9 h-9 rounded-xl shadow-md object-cover" />
           <div>
-            <h1 className="font-bold text-base text-foreground">StudyFlow</h1>
-            <p className="text-[10px] text-muted-foreground font-bengali">স্টাডিফ্লো</p>
+            <h1 className="font-bold text-base text-foreground">Study Tracker</h1>
+            <p className="text-[10px] text-muted-foreground font-bengali">স্টাডি ট্র্যাকার</p>
           </div>
         </div>
         
