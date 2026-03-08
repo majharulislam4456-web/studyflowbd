@@ -98,6 +98,7 @@ export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [syllabuses, setSyllabuses] = useState<Syllabus[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -105,7 +106,6 @@ export function useSupabaseData() {
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
- 
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
      const priorityDiff = (b as any).priority - (a as any).priority;
