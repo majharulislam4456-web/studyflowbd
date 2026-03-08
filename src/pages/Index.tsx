@@ -29,6 +29,7 @@ const Index = () => {
   
   const {
     subjects,
+    syllabuses,
     goals,
     quotes,
     sessions,
@@ -36,6 +37,9 @@ const Index = () => {
     dailyTasks,
     profile,
     loading: dataLoading,
+    addSyllabus,
+    updateSyllabus,
+    deleteSyllabus,
     addSubject,
     updateSubject,
     deleteSubject,
@@ -43,8 +47,8 @@ const Index = () => {
     updateGoal,
     deleteGoal,
     addSession,
-     updateSession,
-     deleteSession,
+    updateSession,
+    deleteSession,
     addQuote,
     updateQuote,
     deleteQuote,
