@@ -63,9 +63,8 @@ export function GoalCard({ goal, onUpdateProgress, onDelete, onEdit }: GoalCardP
 
   return (
     <div className={cn(
-       "glass-card p-5 transition-all hover:shadow-lg group animate-fade-in",
-       "hover:scale-[1.02]",
-       goal.is_completed && "opacity-60 scale-100"
+       "glass-card p-5 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 group animate-slide-up",
+       goal.is_completed && "opacity-60"
     )}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
