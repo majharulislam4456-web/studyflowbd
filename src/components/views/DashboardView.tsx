@@ -10,8 +10,9 @@ import { QuoteCard } from '@/components/quotes/QuoteCard';
 import { EditQuoteDialog } from '@/components/quotes/EditQuoteDialog';
 import { TodoList, type Todo } from '@/components/todo/TodoList';
 import { DailyTaskList, type DailyTask } from '@/components/dashboard/DailyTaskList';
+import { WeeklyStudyChart } from '@/components/dashboard/WeeklyStudyChart';
 import { useLanguage } from '@/contexts/LanguageContext';
-import type { Subject, Goal, Quote } from '@/hooks/useSupabaseData';
+import type { Subject, Goal, Quote, StudySession } from '@/hooks/useSupabaseData';
 
 interface DashboardViewProps {
   subjects: Subject[];
