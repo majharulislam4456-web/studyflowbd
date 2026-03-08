@@ -90,6 +90,7 @@ const Index = () => {
         return (
           <DashboardView
             subjects={subjects}
+            syllabuses={syllabuses}
             goals={goals}
             quotes={quotes}
             todos={todos}
