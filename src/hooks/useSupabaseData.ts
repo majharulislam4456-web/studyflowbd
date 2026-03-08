@@ -3,6 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+export interface Syllabus {
+  id: string;
+  user_id: string;
+  name: string;
+  name_bn: string | null;
+  description: string | null;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Subject {
   id: string;
   user_id: string;
@@ -11,7 +22,8 @@ export interface Subject {
   total_chapters: number;
   completed_chapters: number;
   color: string;
-   priority?: number;
+  priority?: number;
+  syllabus_id?: string | null;
   created_at: string;
   updated_at: string;
 }
