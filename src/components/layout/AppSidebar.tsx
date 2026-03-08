@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User, BellRing, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
