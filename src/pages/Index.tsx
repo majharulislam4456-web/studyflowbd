@@ -114,9 +114,13 @@ const Index = () => {
         return (
           <SyllabusView
             subjects={subjects}
+            syllabuses={syllabuses}
             addSubject={addSubject}
             updateSubject={updateSubject}
             deleteSubject={deleteSubject}
+            addSyllabus={addSyllabus}
+            updateSyllabus={updateSyllabus}
+            deleteSyllabus={deleteSyllabus}
           />
         );
       case 'pomodoro':
