@@ -52,6 +52,7 @@ const Index = () => {
     addDailyTask, updateDailyTask, deleteDailyTask,
     addNote, updateNote, deleteNote,
     addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
     updateProfile, getTodayStudyTime, getWeekStudyTime,
   } = useSupabaseData();
 
