@@ -19,6 +19,8 @@ import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
+import { FlashcardView } from '@/components/views/FlashcardView';
+import { CalendarView } from '@/components/views/CalendarView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
@@ -39,7 +41,7 @@ const Index = () => {
   }, []);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, profile,
+    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, flashcards, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
@@ -50,6 +52,7 @@ const Index = () => {
     addDailyTask, updateDailyTask, deleteDailyTask,
     addNote, updateNote, deleteNote,
     addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
     updateProfile, getTodayStudyTime, getWeekStudyTime,
   } = useSupabaseData();
 
@@ -135,6 +138,10 @@ const Index = () => {
         return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
       case 'timetable':
         return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
+      case 'flashcards':
+        return <FlashcardView flashcards={flashcards} subjects={subjects} addFlashcard={addFlashcard} updateFlashcard={updateFlashcard} deleteFlashcard={deleteFlashcard} />;
+      case 'calendar':
+        return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;

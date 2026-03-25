@@ -116,6 +116,19 @@ export interface StudyRoutine {
   updated_at: string;
 }
 
+export interface Flashcard {
+  id: string;
+  user_id: string;
+  subject_id: string | null;
+  question: string;
+  answer: string;
+  difficulty: number;
+  next_review_date: string | null;
+  review_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -129,6 +142,7 @@ export function useSupabaseData() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [routines, setRoutines] = useState<StudyRoutine[]>([]);
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
@@ -145,7 +159,7 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
@@ -155,7 +169,8 @@ export function useSupabaseData() {
         supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
         supabase.from('profiles').select('*').eq('user_id', user.id).single(),
         supabase.from('notes').select('*').order('updated_at', { ascending: false }),
-        supabase.from('study_routines').select('*').order('start_time', { ascending: true })
+        supabase.from('study_routines').select('*').order('start_time', { ascending: true }),
+        supabase.from('flashcards').select('*').order('created_at', { ascending: false })
       ]);
 
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
@@ -168,6 +183,7 @@ export function useSupabaseData() {
       if (profileRes.data) setProfile(profileRes.data as Profile);
       if (notesRes.data) setNotes(notesRes.data as Note[]);
       if (routinesRes.data) setRoutines(routinesRes.data as StudyRoutine[]);
+      if (flashcardsRes.data) setFlashcards(flashcardsRes.data as Flashcard[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
@@ -543,6 +559,30 @@ export function useSupabaseData() {
     setRoutines(prev => prev.filter(r => r.id !== id));
   };
 
+  // FLASHCARDS
+  const addFlashcard = async (card: Omit<Flashcard, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('flashcards')
+      .insert({ ...card, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setFlashcards(prev => [data as Flashcard, ...prev]);
+  };
+
+  const updateFlashcard = async (id: string, updates: Partial<Flashcard>) => {
+    const { error } = await supabase.from('flashcards').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setFlashcards(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+  };
+
+  const deleteFlashcard = async (id: string) => {
+    const { error } = await supabase.from('flashcards').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setFlashcards(prev => prev.filter(f => f.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
@@ -553,6 +593,7 @@ export function useSupabaseData() {
     dailyTasks,
     notes,
     routines,
+    flashcards,
     profile,
     loading,
     addSyllabus,
@@ -581,6 +622,9 @@ export function useSupabaseData() {
     deleteNote,
     addRoutine,
     deleteRoutine,
+    addFlashcard,
+    updateFlashcard,
+    deleteFlashcard,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
