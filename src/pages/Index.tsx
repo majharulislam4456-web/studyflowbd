@@ -19,6 +19,8 @@ import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
+import { FlashcardView } from '@/components/views/FlashcardView';
+import { CalendarView } from '@/components/views/CalendarView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
