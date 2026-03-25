@@ -579,6 +579,8 @@ export function useSupabaseData() {
     addNote,
     updateNote,
     deleteNote,
+    addRoutine,
+    deleteRoutine,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,

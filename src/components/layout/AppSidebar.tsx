@@ -55,6 +55,11 @@ const navItems = [{
   labelBn: 'রিমাইন্ডার',
   icon: BellRing
 }, {
+  id: 'timetable',
+  label: 'Timetable',
+  labelBn: 'রুটিন',
+  icon: CalendarDays
+}, {
   id: 'studywithme',
   label: 'Study With Me',
   labelBn: 'একসাথে পড়ি',
