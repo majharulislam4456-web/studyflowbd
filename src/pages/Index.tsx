@@ -41,7 +41,7 @@ const Index = () => {
   }, []);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, profile,
+    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, flashcards, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
