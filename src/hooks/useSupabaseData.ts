@@ -128,6 +128,7 @@ export function useSupabaseData() {
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [routines, setRoutines] = useState<StudyRoutine[]>([]);
   const [loading, setLoading] = useState(true);
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
