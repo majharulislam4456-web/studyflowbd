@@ -159,7 +159,7 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
@@ -169,7 +169,8 @@ export function useSupabaseData() {
         supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
         supabase.from('profiles').select('*').eq('user_id', user.id).single(),
         supabase.from('notes').select('*').order('updated_at', { ascending: false }),
-        supabase.from('study_routines').select('*').order('start_time', { ascending: true })
+        supabase.from('study_routines').select('*').order('start_time', { ascending: true }),
+        supabase.from('flashcards').select('*').order('created_at', { ascending: false })
       ]);
 
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
