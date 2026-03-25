@@ -183,6 +183,7 @@ export function useSupabaseData() {
       if (profileRes.data) setProfile(profileRes.data as Profile);
       if (notesRes.data) setNotes(notesRes.data as Note[]);
       if (routinesRes.data) setRoutines(routinesRes.data as StudyRoutine[]);
+      if (flashcardsRes.data) setFlashcards(flashcardsRes.data as Flashcard[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
