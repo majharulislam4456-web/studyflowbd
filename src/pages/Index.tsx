@@ -138,6 +138,10 @@ const Index = () => {
         return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
       case 'timetable':
         return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
+      case 'flashcards':
+        return <FlashcardView flashcards={flashcards} subjects={subjects} addFlashcard={addFlashcard} updateFlashcard={updateFlashcard} deleteFlashcard={deleteFlashcard} />;
+      case 'calendar':
+        return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
