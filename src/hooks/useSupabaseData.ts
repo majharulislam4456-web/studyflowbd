@@ -552,6 +552,7 @@ export function useSupabaseData() {
     todos,
     dailyTasks,
     notes,
+    routines,
     profile,
     loading,
     addSyllabus,
