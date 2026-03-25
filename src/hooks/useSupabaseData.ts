@@ -593,6 +593,7 @@ export function useSupabaseData() {
     dailyTasks,
     notes,
     routines,
+    flashcards,
     profile,
     loading,
     addSyllabus,
