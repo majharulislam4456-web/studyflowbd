@@ -116,6 +116,19 @@ export interface StudyRoutine {
   updated_at: string;
 }
 
+export interface Flashcard {
+  id: string;
+  user_id: string;
+  subject_id: string | null;
+  question: string;
+  answer: string;
+  difficulty: number;
+  next_review_date: string | null;
+  review_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
