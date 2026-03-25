@@ -559,6 +559,30 @@ export function useSupabaseData() {
     setRoutines(prev => prev.filter(r => r.id !== id));
   };
 
+  // FLASHCARDS
+  const addFlashcard = async (card: Omit<Flashcard, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('flashcards')
+      .insert({ ...card, user_id: user.id } as any)
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setFlashcards(prev => [data as Flashcard, ...prev]);
+  };
+
+  const updateFlashcard = async (id: string, updates: Partial<Flashcard>) => {
+    const { error } = await supabase.from('flashcards').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setFlashcards(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+  };
+
+  const deleteFlashcard = async (id: string) => {
+    const { error } = await supabase.from('flashcards').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setFlashcards(prev => prev.filter(f => f.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
