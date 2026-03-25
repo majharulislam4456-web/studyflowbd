@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, BookOpen, Clock, Bell, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, getDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay } from 'date-fns';
 import { bn } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import type { StudySession, Subject } from '@/hooks/useSupabaseData';
 import type { StudyRoutine } from '@/components/views/TimetableView';
 
@@ -20,14 +22,23 @@ interface CalendarViewProps {
   sessions: StudySession[];
   subjects: Subject[];
   routines: StudyRoutine[];
-  examReminders: ExamReminder[];
+  examReminders?: ExamReminder[];
 }
 
 const DAY_LABELS_BN = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'];
 
-export function CalendarView({ sessions, subjects, routines, examReminders }: CalendarViewProps) {
+export function CalendarView({ sessions, subjects, routines }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [examReminders, setExamReminders] = useState<ExamReminder[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('exam_reminders').select('id, title, title_bn, exam_date')
+      .eq('user_id', user.id)
+      .then(({ data }) => { if (data) setExamReminders(data); });
+  }, [user]);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
