@@ -105,6 +105,17 @@ export interface Note {
   updated_at: string;
 }
 
+export interface StudyRoutine {
+  id: string;
+  user_id: string;
+  subject_id: string | null;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
