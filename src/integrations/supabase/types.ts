@@ -86,6 +86,53 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcards: {
+        Row: {
+          answer: string
+          created_at: string
+          difficulty: number
+          id: string
+          next_review_date: string | null
+          question: string
+          review_count: number
+          subject_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          difficulty?: number
+          id?: string
+          next_review_date?: string | null
+          question: string
+          review_count?: number
+          subject_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          difficulty?: number
+          id?: string
+          next_review_date?: string | null
+          question?: string
+          review_count?: number
+          subject_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           created_at: string
