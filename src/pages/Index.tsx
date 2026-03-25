@@ -18,6 +18,7 @@ import { ProfileView } from '@/components/profile/ProfileView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { NotesView } from '@/components/views/NotesView';
+import { TimetableView } from '@/components/views/TimetableView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
@@ -38,7 +39,7 @@ const Index = () => {
   }, []);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, profile,
+    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
@@ -48,6 +49,7 @@ const Index = () => {
     addTodo, updateTodo, deleteTodo,
     addDailyTask, updateDailyTask, deleteDailyTask,
     addNote, updateNote, deleteNote,
+    addRoutine, deleteRoutine,
     updateProfile, getTodayStudyTime, getWeekStudyTime,
   } = useSupabaseData();
 
@@ -131,6 +133,8 @@ const Index = () => {
         return <StudyWithMeView />;
       case 'notes':
         return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
+      case 'timetable':
+        return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
       case 'profile':
         return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;

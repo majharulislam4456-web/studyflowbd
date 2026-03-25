@@ -105,6 +105,17 @@ export interface Note {
   updated_at: string;
 }
 
+export interface StudyRoutine {
+  id: string;
+  user_id: string;
+  subject_id: string | null;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useSupabaseData() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -117,6 +128,7 @@ export function useSupabaseData() {
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [routines, setRoutines] = useState<StudyRoutine[]>([]);
   const [loading, setLoading] = useState(true);
    // Sort subjects by priority (higher first) then by created_at
    const sortedSubjects = [...subjects].sort((a, b) => {
@@ -133,7 +145,7 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
@@ -142,7 +154,8 @@ export function useSupabaseData() {
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
         supabase.from('daily_tasks').select('*').order('created_at', { ascending: true }),
         supabase.from('profiles').select('*').eq('user_id', user.id).single(),
-        supabase.from('notes').select('*').order('updated_at', { ascending: false })
+        supabase.from('notes').select('*').order('updated_at', { ascending: false }),
+        supabase.from('study_routines').select('*').order('start_time', { ascending: true })
       ]);
 
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
@@ -154,6 +167,7 @@ export function useSupabaseData() {
       if (dailyTasksRes.data) setDailyTasks(dailyTasksRes.data as DailyTask[]);
       if (profileRes.data) setProfile(profileRes.data as Profile);
       if (notesRes.data) setNotes(notesRes.data as Note[]);
+      if (routinesRes.data) setRoutines(routinesRes.data as StudyRoutine[]);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error fetching data:', error);
@@ -511,6 +525,24 @@ export function useSupabaseData() {
     setNotes(prev => prev.filter(n => n.id !== id));
   };
 
+  // ROUTINES
+  const addRoutine = async (routine: Omit<StudyRoutine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('study_routines')
+      .insert({ ...routine, user_id: user.id })
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setRoutines(prev => [...prev, data as StudyRoutine]);
+  };
+
+  const deleteRoutine = async (id: string) => {
+    const { error } = await supabase.from('study_routines').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setRoutines(prev => prev.filter(r => r.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
@@ -520,6 +552,7 @@ export function useSupabaseData() {
     todos,
     dailyTasks,
     notes,
+    routines,
     profile,
     loading,
     addSyllabus,
@@ -546,6 +579,8 @@ export function useSupabaseData() {
     addNote,
     updateNote,
     deleteNote,
+    addRoutine,
+    deleteRoutine,
     updateProfile,
     getTodayStudyTime,
     getWeekStudyTime,
