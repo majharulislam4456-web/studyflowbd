@@ -525,6 +525,24 @@ export function useSupabaseData() {
     setNotes(prev => prev.filter(n => n.id !== id));
   };
 
+  // ROUTINES
+  const addRoutine = async (routine: Omit<StudyRoutine, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('study_routines')
+      .insert({ ...routine, user_id: user.id })
+      .select()
+      .single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setRoutines(prev => [...prev, data as StudyRoutine]);
+  };
+
+  const deleteRoutine = async (id: string) => {
+    const { error } = await supabase.from('study_routines').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setRoutines(prev => prev.filter(r => r.id !== id));
+  };
+
   return {
     subjects: sortedSubjects,
     syllabuses,
