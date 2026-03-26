@@ -101,6 +101,12 @@ export interface Note {
   title: string;
   title_bn: string | null;
   content: string;
+  is_pinned: boolean;
+  color: string | null;
+  is_archived: boolean;
+  labels: string[];
+  is_checklist: boolean;
+  checklist_items: any[];
   created_at: string;
   updated_at: string;
 }
@@ -125,6 +131,7 @@ export interface Flashcard {
   difficulty: number;
   next_review_date: string | null;
   review_count: number;
+  chapter: string | null;
   created_at: string;
   updated_at: string;
 }
