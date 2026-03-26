@@ -20,6 +20,7 @@ export interface Flashcard {
   difficulty: number;
   next_review_date: string | null;
   review_count: number;
+  chapter: string | null;
   created_at: string;
   updated_at: string;
 }
