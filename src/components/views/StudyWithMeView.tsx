@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Play, Pause, RotateCcw, Moon, X, Coffee, Brain, Headphones } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Play, Pause, RotateCcw, Moon, X, Coffee, Brain, Headphones, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -202,8 +202,18 @@ export function StudyWithMeView() {
   const [showYoutube, setShowYoutube] = useState(false);
   const [studyTimer, setStudyTimer] = useState(0);
   const [isStudyTimerRunning, setIsStudyTimerRunning] = useState(false);
+  const [customBg, setCustomBg] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const bgInputRef = useRef<HTMLInputElement>(null);
+
+  const handleBgUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCustomBg(reader.result as string);
+    reader.readAsDataURL(file);
+  }, []);
 
   useEffect(() => {
     if (isStudyTimerRunning) {
@@ -230,7 +240,7 @@ export function StudyWithMeView() {
   };
 
   const getYoutubeEmbedUrl = (url: string) => {
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?]+)/);
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?\s]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
   };
 
@@ -239,9 +249,11 @@ export function StudyWithMeView() {
   return (
     <div ref={containerRef} className={cn(
       "relative min-h-[80vh] rounded-2xl overflow-hidden transition-all duration-700",
-      `bg-gradient-to-br ${selectedScene.gradient}`,
+      !customBg && `bg-gradient-to-br ${selectedScene.gradient}`,
       deepStudyMode && "fixed inset-0 z-[100] min-h-screen rounded-none"
-    )}>
+    )}
+    style={customBg ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+    >
       {/* Ambient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
@@ -270,10 +282,24 @@ export function StudyWithMeView() {
 
       {/* Scene Selector */}
       <div className="relative z-10 flex items-center gap-2 px-4 md:px-6 overflow-x-auto pb-2 scrollbar-hide">
+        {/* Custom wallpaper button */}
+        <input ref={bgInputRef} type="file" accept="image/*" onChange={handleBgUpload} className="hidden" />
+        <button onClick={() => bgInputRef.current?.click()}
+          className={cn("flex items-center gap-2 px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-300",
+            customBg ? "bg-white/20 text-white shadow-lg backdrop-blur-md" : "bg-white/5 text-white/60 hover:bg-white/10"
+          )}>
+          <ImagePlus className="w-4 h-4" />
+          <span className="font-bengali">{language === 'bn' ? 'ওয়ালপেপার' : 'Wallpaper'}</span>
+        </button>
+        {customBg && (
+          <button onClick={() => setCustomBg(null)} className="px-3 py-2 rounded-full text-sm bg-red-500/20 text-white/70 hover:bg-red-500/40 transition-all">
+            <X className="w-4 h-4" />
+          </button>
+        )}
         {SCENES.map((scene, i) => (
           <button
             key={scene.id}
-            onClick={() => setSelectedScene(scene)}
+            onClick={() => { setSelectedScene(scene); setCustomBg(null); }}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-300",
               selectedScene.id === scene.id

@@ -89,6 +89,7 @@ export type Database = {
       flashcards: {
         Row: {
           answer: string
+          chapter: string | null
           created_at: string
           difficulty: number
           id: string
@@ -101,6 +102,7 @@ export type Database = {
         }
         Insert: {
           answer: string
+          chapter?: string | null
           created_at?: string
           difficulty?: number
           id?: string
@@ -113,6 +115,7 @@ export type Database = {
         }
         Update: {
           answer?: string
+          chapter?: string | null
           created_at?: string
           difficulty?: number
           id?: string
@@ -177,9 +180,15 @@ export type Database = {
       }
       notes: {
         Row: {
+          checklist_items: Json
+          color: string | null
           content: string
           created_at: string
           id: string
+          is_archived: boolean
+          is_checklist: boolean
+          is_pinned: boolean
+          labels: string[]
           subject_id: string | null
           title: string
           title_bn: string | null
@@ -187,9 +196,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          checklist_items?: Json
+          color?: string | null
           content?: string
           created_at?: string
           id?: string
+          is_archived?: boolean
+          is_checklist?: boolean
+          is_pinned?: boolean
+          labels?: string[]
           subject_id?: string | null
           title: string
           title_bn?: string | null
@@ -197,9 +212,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          checklist_items?: Json
+          color?: string | null
           content?: string
           created_at?: string
           id?: string
+          is_archived?: boolean
+          is_checklist?: boolean
+          is_pinned?: boolean
+          labels?: string[]
           subject_id?: string | null
           title?: string
           title_bn?: string | null
