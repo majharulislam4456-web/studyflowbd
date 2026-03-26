@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Bell, BellRing, Plus, Trash2, Calendar, Clock, BookOpen, RotateCcw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { playTimerAlarm, playSuccess } from '@/utils/sounds';
-import { format, formatDistanceToNow, isPast } from 'date-fns';
+import { format, formatDistanceToNow, isPast, differenceInSeconds } from 'date-fns';
 import { bn } from 'date-fns/locale';
 
 interface ExamReminder {
@@ -164,7 +164,6 @@ export function ExamReminderView() {
                 </SelectContent>
               </Select>
               <Input placeholder={language === 'bn' ? 'শিরোনাম (English)' : 'Title'} value={title} onChange={e => setTitle(e.target.value)} />
-              <Input placeholder={language === 'bn' ? 'শিরোনাম (বাংলা)' : 'Title (Bangla)'} value={titleBn} onChange={e => setTitleBn(e.target.value)} className="font-bengali" />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-bengali mb-1 block">
@@ -233,12 +232,33 @@ export function ExamReminderView() {
 }
 
 function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
-  reminder: ExamReminder; language: string;
+  reminder: ExamReminder;
+  language: string;
   onToggle: (id: string, active: boolean) => void;
   onDelete: (id: string) => void;
   isPast?: boolean;
 }) {
   const examDate = new Date(reminder.exam_date);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    if (isPast) return;
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, [isPast]);
+
+  const countdown = useMemo(() => {
+    if (isPast) return null;
+    const totalSecs = differenceInSeconds(examDate, now);
+    if (totalSecs <= 0) return null;
+    const days = Math.floor(totalSecs / 86400);
+    const hours = Math.floor((totalSecs % 86400) / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    if (days > 0) return `${days}d ${hours}h ${mins}m`;
+    return `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  }, [examDate, now, isPast]);
+
   return (
     <Card className={`p-4 transition-all ${isPast ? 'opacity-60' : 'hover:shadow-md'} ${!reminder.is_active ? 'opacity-40' : ''}`}>
       <div className="flex items-start justify-between gap-3">
@@ -254,7 +274,7 @@ function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
                 {format(examDate, 'dd MMM yyyy, hh:mm a')}
               </Badge>
               <Badge variant="secondary" className="text-xs font-bengali">
-                {!isPast && formatDistanceToNow(examDate, { addSuffix: true, locale: language === 'bn' ? bn : undefined })}
+                {!isPast && countdown ? `⏱️ ${countdown}` : !isPast ? formatDistanceToNow(examDate, { addSuffix: true, locale: language === 'bn' ? bn : undefined }) : null}
                 {isPast && (language === 'bn' ? 'সম্পন্ন' : 'Done')}
               </Badge>
             </div>

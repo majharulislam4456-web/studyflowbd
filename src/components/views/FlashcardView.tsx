@@ -41,6 +41,7 @@ export function FlashcardView({ flashcards, subjects, addFlashcard, updateFlashc
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [chapter, setChapter] = useState('');
 
   // Review state
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,10 +66,12 @@ export function FlashcardView({ flashcards, subjects, addFlashcard, updateFlashc
       difficulty: 0,
       next_review_date: new Date().toISOString(),
       review_count: 0,
+      chapter: chapter.trim() || null,
     });
     setQuestion('');
     setAnswer('');
     setSelectedSubject('');
+    setChapter('');
     setDialogOpen(false);
   };
 
@@ -254,6 +257,10 @@ export function FlashcardView({ flashcards, subjects, addFlashcard, updateFlashc
                   </Select>
                 </div>
                 <div>
+                  <Label className="font-bengali">চ্যাপ্টার (ঐচ্ছিক)</Label>
+                  <Input value={chapter} onChange={e => setChapter(e.target.value)} placeholder="যেমন: অধ্যায় ৩ - গতিবিদ্যা" />
+                </div>
+                <div>
                   <Label className="font-bengali">প্রশ্ন</Label>
                   <Textarea value={question} onChange={e => setQuestion(e.target.value)} placeholder="প্রশ্নটি লিখুন..." rows={3} />
                 </div>
@@ -297,7 +304,8 @@ export function FlashcardView({ flashcards, subjects, addFlashcard, updateFlashc
                 </div>
                 <p className="font-medium text-sm mb-2 line-clamp-2">{card.question}</p>
                 <p className="text-xs text-muted-foreground line-clamp-2">{card.answer}</p>
-                <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                {(card as any).chapter && <p className="text-xs text-primary/70 mt-1 font-bengali">📖 {(card as any).chapter}</p>}
+                <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                   <span className="font-bengali">রিভিউ: {card.review_count}বার</span>
                   <Badge variant={card.difficulty > 2 ? 'destructive' : 'secondary'} className="text-[10px]">
                     {card.difficulty > 2 ? 'কঠিন' : card.difficulty > 0 ? 'মাঝারি' : 'সহজ'}

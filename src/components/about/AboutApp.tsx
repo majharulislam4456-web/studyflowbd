@@ -144,6 +144,33 @@ const features = [
     color: 'text-info',
     bgColor: 'bg-info/10',
   },
+  {
+    icon: FolderOpen,
+    title: 'Google Keep নোটস',
+    titleEn: 'Keep-Style Notes',
+    description: 'Pin, কালার, চেকলিস্ট, আর্কাইভ সহ Google Keep স্টাইলে নোট রাখুন। ভিউ ও এডিট মোড আলাদা।',
+    descEn: 'Pin, color, checklist, archive — Google Keep style notes with separate view & edit modes.',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
+  },
+  {
+    icon: Calendar,
+    title: 'ফ্ল্যাশকার্ড ও ক্যালেন্ডার',
+    titleEn: 'Flashcards & Calendar',
+    description: 'চ্যাপ্টার অনুযায়ী ফ্ল্যাশকার্ড তৈরি করুন। ক্যালেন্ডারে সেশন, পরীক্ষা ও রুটিন দেখুন।',
+    descEn: 'Create flashcards by chapter. View sessions, exams & routines on calendar.',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+  },
+  {
+    icon: Bell,
+    title: 'কাউন্টডাউন রিমাইন্ডার',
+    titleEn: 'Countdown Reminders',
+    description: 'পরীক্ষার রিমাইন্ডারে লাইভ কাউন্টডাউন টাইমার দেখুন। কত সময় বাকি তা রিয়েলটাইমে।',
+    descEn: 'Live countdown timer on exam reminders. See exactly how much time remains.',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+  },
 ];
 
 const tourSteps = [
@@ -349,6 +376,7 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
             <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
               <Code2 className="w-3 h-3" />
               <span>Study Tracker v4.8.6</span>
+              <span className="ml-2 font-bengali">• {features.length}+ ফিচার</span>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
               {isBn ? 'সর্বশেষ আপডেট: মার্চ ২০২৬' : 'Last updated: March 2026'}
