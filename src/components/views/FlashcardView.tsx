@@ -305,7 +305,7 @@ export function FlashcardView({ flashcards, subjects, addFlashcard, updateFlashc
                 </div>
                 <p className="font-medium text-sm mb-2 line-clamp-2">{card.question}</p>
                 <p className="text-xs text-muted-foreground line-clamp-2">{card.answer}</p>
-                {(card as any).chapter && <p className="text-xs text-primary/70 mt-1 font-bengali">📖 {(card as any).chapter}</p>}
+                {card.chapter && <p className="text-xs text-primary/70 mt-1 font-bengali">📖 {card.chapter}</p>}
                 <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                   <span className="font-bengali">রিভিউ: {card.review_count}বার</span>
                   <Badge variant={card.difficulty > 2 ? 'destructive' : 'secondary'} className="text-[10px]">
