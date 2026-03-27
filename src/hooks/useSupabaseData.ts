@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -151,12 +151,11 @@ export function useSupabaseData() {
   const [routines, setRoutines] = useState<StudyRoutine[]>([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
-   // Sort subjects by priority (higher first) then by created_at
-   const sortedSubjects = [...subjects].sort((a, b) => {
+   const sortedSubjects = useMemo(() => [...subjects].sort((a, b) => {
      const priorityDiff = (b as any).priority - (a as any).priority;
      if (priorityDiff !== 0) return priorityDiff;
      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-   });
+   }), [subjects]);
 
   // Fetch all data
   const fetchData = useCallback(async () => {
@@ -423,20 +422,20 @@ export function useSupabaseData() {
   };
 
   // Helper functions
-  const getTodayStudyTime = () => {
+  const getTodayStudyTime = useCallback(() => {
     const today = new Date().toDateString();
     return sessions
       .filter(s => new Date(s.session_date).toDateString() === today)
       .reduce((acc, s) => acc + s.duration, 0);
-  };
+  }, [sessions]);
 
-  const getWeekStudyTime = () => {
+  const getWeekStudyTime = useCallback(() => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return sessions
       .filter(s => new Date(s.session_date) >= weekAgo)
       .reduce((acc, s) => acc + s.duration, 0);
-  };
+  }, [sessions]);
 
   // TODOS
   const addTodo = async (todo: Omit<Todo, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
@@ -590,7 +589,7 @@ export function useSupabaseData() {
     setFlashcards(prev => prev.filter(f => f.id !== id));
   };
 
-  return {
+  return useMemo(() => ({
     subjects: sortedSubjects,
     syllabuses,
     goals,
@@ -636,5 +635,19 @@ export function useSupabaseData() {
     getTodayStudyTime,
     getWeekStudyTime,
     refetch: fetchData,
-  };
+  }), [
+    sortedSubjects, syllabuses, goals, sessions, quotes, todos, dailyTasks,
+    notes, routines, flashcards, profile, loading,
+    addSyllabus, updateSyllabus, deleteSyllabus,
+    addSubject, updateSubject, deleteSubject,
+    addGoal, updateGoal, deleteGoal,
+    addSession, updateSession, deleteSession,
+    addQuote, updateQuote, deleteQuote,
+    addTodo, updateTodo, deleteTodo,
+    addDailyTask, updateDailyTask, deleteDailyTask,
+    addNote, updateNote, deleteNote,
+    addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
+    updateProfile, getTodayStudyTime, getWeekStudyTime, fetchData,
+  ]);
 }
