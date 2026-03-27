@@ -589,7 +589,7 @@ export function useSupabaseData() {
     setFlashcards(prev => prev.filter(f => f.id !== id));
   };
 
-  return {
+  return useMemo(() => ({
     subjects: sortedSubjects,
     syllabuses,
     goals,
@@ -635,5 +635,19 @@ export function useSupabaseData() {
     getTodayStudyTime,
     getWeekStudyTime,
     refetch: fetchData,
-  };
+  }), [
+    sortedSubjects, syllabuses, goals, sessions, quotes, todos, dailyTasks,
+    notes, routines, flashcards, profile, loading,
+    addSyllabus, updateSyllabus, deleteSyllabus,
+    addSubject, updateSubject, deleteSubject,
+    addGoal, updateGoal, deleteGoal,
+    addSession, updateSession, deleteSession,
+    addQuote, updateQuote, deleteQuote,
+    addTodo, updateTodo, deleteTodo,
+    addDailyTask, updateDailyTask, deleteDailyTask,
+    addNote, updateNote, deleteNote,
+    addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
+    updateProfile, getTodayStudyTime, getWeekStudyTime, fetchData,
+  ]);
 }
