@@ -422,20 +422,20 @@ export function useSupabaseData() {
   };
 
   // Helper functions
-  const getTodayStudyTime = () => {
+  const getTodayStudyTime = useCallback(() => {
     const today = new Date().toDateString();
     return sessions
       .filter(s => new Date(s.session_date).toDateString() === today)
       .reduce((acc, s) => acc + s.duration, 0);
-  };
+  }, [sessions]);
 
-  const getWeekStudyTime = () => {
+  const getWeekStudyTime = useCallback(() => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return sessions
       .filter(s => new Date(s.session_date) >= weekAgo)
       .reduce((acc, s) => acc + s.duration, 0);
-  };
+  }, [sessions]);
 
   // TODOS
   const addTodo = async (todo: Omit<Todo, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
