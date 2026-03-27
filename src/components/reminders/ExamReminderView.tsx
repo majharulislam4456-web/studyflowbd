@@ -255,7 +255,7 @@ function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
     const hours = Math.floor((totalSecs % 86400) / 3600);
     const mins = Math.floor((totalSecs % 3600) / 60);
     const secs = totalSecs % 60;
-    if (days > 0) return `${days}d ${hours}h ${mins}m`;
+    if (days > 0) return `${days}d ${hours}h ${mins}m ${secs}s`;
     return `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
   }, [examDate, now, isPast]);
 
