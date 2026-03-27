@@ -151,12 +151,11 @@ export function useSupabaseData() {
   const [routines, setRoutines] = useState<StudyRoutine[]>([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
-   // Sort subjects by priority (higher first) then by created_at
-   const sortedSubjects = [...subjects].sort((a, b) => {
+   const sortedSubjects = useMemo(() => [...subjects].sort((a, b) => {
      const priorityDiff = (b as any).priority - (a as any).priority;
      if (priorityDiff !== 0) return priorityDiff;
      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-   });
+   }), [subjects]);
 
   // Fetch all data
   const fetchData = useCallback(async () => {
