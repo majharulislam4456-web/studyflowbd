@@ -375,11 +375,11 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
             <p className="text-foreground font-semibold mt-1 font-bengali">মাজহারুল ইসলাম</p>
             <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
               <Code2 className="w-3 h-3" />
-              <span>Study Tracker v4.8.6</span>
+              <span>Study Tracker v5.0</span>
               <span className="ml-2 font-bengali">• {features.length}+ ফিচার</span>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {isBn ? 'সর্বশেষ আপডেট: মার্চ ২০২৬' : 'Last updated: March 2026'}
+              {isBn ? 'Powered by Gemini AI & NotebookLM • মার্চ ২০২৬' : 'Powered by Gemini AI & NotebookLM • March 2026'}
             </p>
           </div>
         </div>
