@@ -6,8 +6,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  SelectValue } from
+'@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Clock, BookOpen, Plus } from 'lucide-react';
 import type { Subject, StudySession } from '@/hooks/useSupabaseData';
@@ -20,8 +20,8 @@ interface StudyLoggerPanelProps {
   getWeekStudyTime: () => number;
 }
 
-export function StudyLoggerPanel({ 
-  subjects, 
+export function StudyLoggerPanel({
+  subjects,
   onAddSession,
   getTodayStudyTime,
   getWeekStudyTime
@@ -37,7 +37,7 @@ export function StudyLoggerPanel({
       subject_id: selectedSubject === 'general' ? null : selectedSubject,
       duration: parseInt(duration),
       session_date: new Date().toISOString(),
-      notes: notes.trim() || null,
+      notes: notes.trim() || null
     });
 
     setDuration('30');
@@ -72,24 +72,24 @@ export function StudyLoggerPanel({
 
       <div className="grid gap-4">
         <div className="space-y-2">
-          <Label>Subject / <span className="font-bengali">বিষয়</span></Label>
+          <Label>​ <span className="font-bengali">বিষয়</span></Label>
           <Select value={selectedSubject} onValueChange={setSelectedSubject}>
             <SelectTrigger>
               <SelectValue placeholder="Select subject (optional)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="general">General Study</SelectItem>
-              {subjects.map((subject) => (
-                <SelectItem key={subject.id} value={subject.id}>
+              {subjects.map((subject) =>
+              <SelectItem key={subject.id} value={subject.id}>
                   {subject.name} {subject.name_bn && `/ ${subject.name_bn}`}
                 </SelectItem>
-              ))}
+              )}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Duration (minutes) / <span className="font-bengali">সময়কাল (মিনিট)</span></Label>
+          <Label><span className="font-bengali">সময়কাল (মিনিট)</span></Label>
           <div className="flex gap-2">
             <Input
               type="number"
@@ -97,43 +97,44 @@ export function StudyLoggerPanel({
               max="480"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="flex-1"
-            />
+              className="flex-1" />
+            
             <div className="flex gap-1">
-              {[15, 30, 45, 60].map((mins) => (
-                <Button
-                  key={mins}
-                  variant={duration === String(mins) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDuration(String(mins))}
-                  className="px-3"
-                >
+              {[15, 30, 45, 60].map((mins) =>
+              <Button
+                key={mins}
+                variant={duration === String(mins) ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDuration(String(mins))}
+                className="px-3">
+                
                   {mins}
                 </Button>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Notes / <span className="font-bengali">কী পড়লাম</span></Label>
+          <Label>​ <span className="font-bengali">কী পড়লাম</span></Label>
           <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="What did you study? / কী পড়েছেন?"
             rows={2}
-            className="resize-none"
-          />
+            className="resize-none" />
+          
         </div>
 
-        <Button 
-          onClick={handleLog} 
-          variant="gradient" 
+        <Button
+          onClick={handleLog}
+          variant="gradient"
           className="w-full gap-2"
-          disabled={!duration}
-        >
+          disabled={!duration}>
+          
           <Plus className="w-4 h-4" />
-          Log Session / <span className="font-bengali">লগ করুন</span>
+          Log Session / <span className="font-bengali">
+</span>
         </Button>
       </div>
 
@@ -142,18 +143,17 @@ export function StudyLoggerPanel({
         <div className="text-center p-4 rounded-xl bg-muted/50">
           <Clock className="w-5 h-5 mx-auto mb-2 text-primary" />
           <p className="text-2xl font-bold text-foreground">{formatTime(todayTime)}</p>
-          <p className="text-xs text-muted-foreground">
-            Today / <span className="font-bengali">আজ</span>
+          <p className="text-xs text-muted-foreground">Today
+            <span className="font-bengali"></span>
           </p>
         </div>
         <div className="text-center p-4 rounded-xl bg-muted/50">
           <Clock className="w-5 h-5 mx-auto mb-2 text-accent" />
           <p className="text-2xl font-bold text-foreground">{formatTime(weekTime)}</p>
-          <p className="text-xs text-muted-foreground">
-            This Week / <span className="font-bengali">এই সপ্তাহ</span>
+          <p className="text-xs text-muted-foreground">This Week
+            <span className="font-bengali"></span>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }
