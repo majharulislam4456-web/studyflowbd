@@ -330,8 +330,8 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
           <div className="glass-card p-4 bg-gradient-to-br from-primary/5 to-accent/5">
             <p className="text-foreground font-bengali leading-relaxed">
               {isBn 
-                ? <><strong>Study Tracker</strong> হলো বাংলাদেশি শিক্ষার্থীদের জন্য তৈরি একটি পূর্ণাঙ্গ স্টাডি ম্যানেজমেন্ট অ্যাপ। মাল্টি সিলেবাস, স্ট্রিক সিস্টেম, পমোডোরো টাইমার, স্টপওয়াচ, ড্যাশবোর্ড কাস্টমাইজেশন, ডেইলি অটো থিম সহ ১২+ ফিচার।</>
-                : <><strong>Study Tracker</strong> is a complete study management app for Bangladeshi students. Multi-syllabus, streak system, pomodoro timer, stopwatch, dashboard customization, daily auto theme, and 12+ features.</>
+                ? <><strong>Study Tracker</strong> হলো বাংলাদেশি শিক্ষার্থীদের জন্য তৈরি একটি পূর্ণাঙ্গ স্টাডি ম্যানেজমেন্ট অ্যাপ। মাল্টি সিলেবাস, স্ট্রিক সিস্টেম, পমোডোরো টাইমার, টাইমটেবিল, ড্যাশবোর্ড কাস্টমাইজেশন, ডেইলি অটো থিম সহ ১৫+ ফিচার। এই অ্যাপে Google Gemini AI ও NotebookLM ব্যবহার করা হয়েছে।</>
+                : <><strong>Study Tracker</strong> is a complete study management app for Bangladeshi students with 15+ features including multi-syllabus, streak system, pomodoro, timetable, and more. Powered by Google Gemini AI & NotebookLM.</>
               }
             </p>
           </div>
