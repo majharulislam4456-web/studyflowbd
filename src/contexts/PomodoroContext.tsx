@@ -7,6 +7,11 @@ export interface PomodoroSettings {
   breakDuration: number;
   longBreakDuration: number;
   sessionsBeforeLongBreak: number;
+  autoStartBreaks: boolean;
+  autoStartPomodoros: boolean;
+  alarmSound: string;
+  volume: number;
+  browserNotification: boolean;
 }
 
 type PomodoroPhase = 'focus' | 'break' | 'longBreak' | 'idle';
@@ -21,6 +26,7 @@ interface PomodoroContextType {
   isMinimized: boolean;
   notificationsEnabled: boolean;
   focusDuration: number;
+  settings: PomodoroSettings;
   start: () => void;
   pause: () => void;
   reset: () => void;
@@ -30,6 +36,7 @@ interface PomodoroContextType {
   close: () => void;
   enableNotifications: () => Promise<boolean>;
   setFocusDuration: (minutes: number) => void;
+  updateSettings: (updates: Partial<PomodoroSettings>) => void;
 }
 
 const defaultSettings: PomodoroSettings = {
@@ -37,67 +44,71 @@ const defaultSettings: PomodoroSettings = {
   breakDuration: 5,
   longBreakDuration: 15,
   sessionsBeforeLongBreak: 4,
+  autoStartBreaks: true,
+  autoStartPomodoros: false,
+  alarmSound: 'digital',
+  volume: 100,
+  browserNotification: false,
 };
 
 const PomodoroContext = createContext<PomodoroContextType | null>(null);
 
 export function PomodoroProvider({ children }: { children: ReactNode }) {
+  const [settings, setSettings] = useState<PomodoroSettings>(() => {
+    try {
+      const saved = localStorage.getItem('pomodoroSettings');
+      return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+    } catch { return defaultSettings; }
+  });
   const [phase, setPhase] = useState<PomodoroPhase>('idle');
-  const [focusDuration, setFocusDurationState] = useState(defaultSettings.focusDuration);
-  const [timeRemaining, setTimeRemaining] = useState(defaultSettings.focusDuration * 60);
+  const [focusDuration, setFocusDurationState] = useState(settings.focusDuration);
+  const [timeRemaining, setTimeRemaining] = useState(settings.focusDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [completedSessions, setCompletedSessions] = useState(0);
   const [isMinimized, setIsMinimized] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check notification permission on mount
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'granted') {
       setNotificationsEnabled(true);
     }
   }, []);
 
-  const getDuration = useCallback((currentPhase: PomodoroPhase) => {
-    switch (currentPhase) {
-      case 'focus':
-        return focusDuration * 60;
-      case 'break':
-        return defaultSettings.breakDuration * 60;
-      case 'longBreak':
-        return defaultSettings.longBreakDuration * 60;
-      default:
-        return focusDuration * 60;
-    }
+  const updateSettings = useCallback((updates: Partial<PomodoroSettings>) => {
+    setSettings(prev => {
+      const next = { ...prev, ...updates };
+      localStorage.setItem('pomodoroSettings', JSON.stringify(next));
+      return next;
+    });
   }, []);
 
-  const playAlarm = useCallback(() => {
-    playTimerAlarm();
-  }, []);
+  const getDuration = useCallback((currentPhase: PomodoroPhase) => {
+    switch (currentPhase) {
+      case 'focus': return focusDuration * 60;
+      case 'break': return settings.breakDuration * 60;
+      case 'longBreak': return settings.longBreakDuration * 60;
+      default: return focusDuration * 60;
+    }
+  }, [focusDuration, settings.breakDuration, settings.longBreakDuration]);
 
   const enableNotifications = useCallback(async () => {
     const granted = await requestNotificationPermission();
     setNotificationsEnabled(granted);
+    updateSettings({ browserNotification: granted });
     return granted;
-  }, []);
+  }, [updateSettings]);
 
   const showPhaseNotification = useCallback((completedPhase: PomodoroPhase, language: 'en' | 'bn' = 'bn') => {
-    if (!notificationsEnabled) return;
-    
+    if (!notificationsEnabled && !settings.browserNotification) return;
     if (completedPhase === 'focus') {
       const message = getRandomMessage('pomodoroFocusComplete', language);
-      showBrowserNotification(
-        language === 'bn' ? 'ফোকাস সেশন শেষ!' : 'Focus Session Complete!',
-        message
-      );
+      showBrowserNotification(language === 'bn' ? 'ফোকাস সেশন শেষ!' : 'Focus Session Complete!', message);
     } else if (completedPhase === 'break' || completedPhase === 'longBreak') {
       const message = getRandomMessage('pomodoroBreakComplete', language);
-      showBrowserNotification(
-        language === 'bn' ? 'বিরতি শেষ!' : 'Break Complete!',
-        message
-      );
+      showBrowserNotification(language === 'bn' ? 'বিরতি শেষ!' : 'Break Complete!', message);
     }
-  }, [notificationsEnabled]);
+  }, [notificationsEnabled, settings.browserNotification]);
 
   const start = useCallback(() => {
     if (phase === 'idle') {
@@ -107,9 +118,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     setIsRunning(true);
   }, [phase, getDuration]);
 
-  const pause = useCallback(() => {
-    setIsRunning(false);
-  }, []);
+  const pause = useCallback(() => { setIsRunning(false); }, []);
 
   const reset = useCallback(() => {
     setIsRunning(false);
@@ -121,46 +130,37 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
   const setFocusDuration = useCallback((minutes: number) => {
     setFocusDurationState(minutes);
-    if (phase === 'idle') {
-      setTimeRemaining(minutes * 60);
-    }
+    if (phase === 'idle') setTimeRemaining(minutes * 60);
   }, [phase]);
 
   const skip = useCallback(() => {
-    playAlarm();
+    playTimerAlarm();
     showPhaseNotification(phase);
     
     if (phase === 'focus') {
       const newCompleted = completedSessions + 1;
       setCompletedSessions(newCompleted);
-      
-      if (newCompleted % defaultSettings.sessionsBeforeLongBreak === 0) {
-        setPhase('longBreak');
-        setTimeRemaining(getDuration('longBreak'));
-      } else {
-        setPhase('break');
-        setTimeRemaining(getDuration('break'));
-      }
+      const isLongBreak = newCompleted % settings.sessionsBeforeLongBreak === 0;
+      const nextPhase = isLongBreak ? 'longBreak' : 'break';
+      setPhase(nextPhase);
+      setTimeRemaining(getDuration(nextPhase));
+      if (settings.autoStartBreaks) setIsRunning(true);
+      else setIsRunning(false);
     } else {
       setPhase('focus');
       setTimeRemaining(getDuration('focus'));
+      if (settings.autoStartPomodoros) setIsRunning(true);
+      else setIsRunning(false);
     }
-  }, [phase, completedSessions, getDuration, playAlarm, showPhaseNotification]);
+  }, [phase, completedSessions, getDuration, showPhaseNotification, settings]);
 
   useEffect(() => {
     if (isRunning && timeRemaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeRemaining((prev) => prev - 1);
-      }, 1000);
+      intervalRef.current = setInterval(() => setTimeRemaining(prev => prev - 1), 1000);
     } else if (timeRemaining === 0 && isRunning) {
       skip();
     }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isRunning, timeRemaining, skip]);
 
   const formatTime = (seconds: number) => {
@@ -169,40 +169,21 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = phase !== 'idle' 
-    ? ((getDuration(phase) - timeRemaining) / getDuration(phase)) * 100 
+  const progress = phase !== 'idle'
+    ? ((getDuration(phase) - timeRemaining) / getDuration(phase)) * 100
     : 0;
 
-  const minimize = () => setIsMinimized(true);
-  const maximize = () => setIsMinimized(false);
-  const close = () => {
-    setIsMinimized(false);
-    setIsRunning(false);
-  };
-
   return (
-    <PomodoroContext.Provider
-      value={{
-        phase,
-        timeRemaining,
-        formattedTime: formatTime(timeRemaining),
-        isRunning,
-        completedSessions,
-        progress,
-        isMinimized,
-        notificationsEnabled,
-        focusDuration,
-        start,
-        pause,
-        reset,
-        skip,
-        minimize,
-        maximize,
-        close,
-        enableNotifications,
-        setFocusDuration,
-      }}
-    >
+    <PomodoroContext.Provider value={{
+      phase, timeRemaining, formattedTime: formatTime(timeRemaining),
+      isRunning, completedSessions, progress, isMinimized, notificationsEnabled,
+      focusDuration, settings,
+      start, pause, reset, skip,
+      minimize: () => setIsMinimized(true),
+      maximize: () => setIsMinimized(false),
+      close: () => { setIsMinimized(false); setIsRunning(false); },
+      enableNotifications, setFocusDuration, updateSettings,
+    }}>
       {children}
     </PomodoroContext.Provider>
   );
@@ -210,8 +191,6 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
 export function useGlobalPomodoro() {
   const context = useContext(PomodoroContext);
-  if (!context) {
-    throw new Error('useGlobalPomodoro must be used within a PomodoroProvider');
-  }
+  if (!context) throw new Error('useGlobalPomodoro must be used within a PomodoroProvider');
   return context;
 }

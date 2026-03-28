@@ -8,12 +8,46 @@ import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { cn } from '@/lib/utils';
 
 const SCENES = [
-  { id: 'rain', emoji: '🌧️', label: 'Rainy Day', labelBn: 'বৃষ্টির দিন', gradient: 'from-slate-800 via-blue-900 to-slate-900', particleType: 'rain' as const },
-  { id: 'forest', emoji: '🌿', label: 'Forest', labelBn: 'বন', gradient: 'from-emerald-900 via-green-800 to-teal-900', particleType: 'leaves' as const },
-  { id: 'night', emoji: '🌙', label: 'Night Sky', labelBn: 'রাতের আকাশ', gradient: 'from-indigo-950 via-purple-900 to-slate-950', particleType: 'stars' as const },
-  { id: 'cafe', emoji: '☕', label: 'Cozy Cafe', labelBn: 'কফি শপ', gradient: 'from-stone-800 via-yellow-900/80 to-stone-900', particleType: 'sparkle' as const },
-  { id: 'ocean', emoji: '🌊', label: 'Ocean', labelBn: 'সমুদ্র', gradient: 'from-cyan-900 via-blue-800 to-teal-900', particleType: 'bubbles' as const },
-  { id: 'library', emoji: '📚', label: 'Library', labelBn: 'লাইব্রেরি', gradient: 'from-stone-800 via-stone-700 to-stone-900', particleType: 'sparkle' as const },
+  { 
+    id: 'city-rain', emoji: '🌧️', label: 'City Rain', labelBn: 'শহরে বৃষ্টি', 
+    gradient: 'from-slate-800 via-blue-900 to-slate-900', particleType: 'rain' as const,
+    bgImage: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80'
+  },
+  { 
+    id: 'sunset-city', emoji: '🌇', label: 'Sunset City', labelBn: 'সূর্যাস্তের শহর', 
+    gradient: 'from-orange-900 via-pink-800 to-purple-900', particleType: 'sparkle' as const,
+    bgImage: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80'
+  },
+  { 
+    id: 'night-sky', emoji: '🌙', label: 'Night Sky', labelBn: 'রাতের আকাশ', 
+    gradient: 'from-indigo-950 via-purple-900 to-slate-950', particleType: 'stars' as const,
+    bgImage: 'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=80'
+  },
+  { 
+    id: 'cozy-cafe', emoji: '☕', label: 'Cozy Cafe', labelBn: 'কফি শপ', 
+    gradient: 'from-stone-800 via-yellow-900/80 to-stone-900', particleType: 'sparkle' as const,
+    bgImage: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=1920&q=80'
+  },
+  { 
+    id: 'ocean-view', emoji: '🌊', label: 'Ocean View', labelBn: 'সমুদ্র', 
+    gradient: 'from-cyan-900 via-blue-800 to-teal-900', particleType: 'bubbles' as const,
+    bgImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80'
+  },
+  { 
+    id: 'forest', emoji: '🌿', label: 'Forest', labelBn: 'বন', 
+    gradient: 'from-emerald-900 via-green-800 to-teal-900', particleType: 'leaves' as const,
+    bgImage: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80'
+  },
+  { 
+    id: 'library', emoji: '📚', label: 'Library', labelBn: 'লাইব্রেরি', 
+    gradient: 'from-stone-800 via-stone-700 to-stone-900', particleType: 'sparkle' as const,
+    bgImage: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80'
+  },
+  { 
+    id: 'mountain', emoji: '🏔️', label: 'Mountain', labelBn: 'পাহাড়', 
+    gradient: 'from-slate-700 via-blue-800 to-indigo-900', particleType: 'sparkle' as const,
+    bgImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80'
+  },
 ];
 
 function Particles({ type }: { type: string }) {
@@ -31,26 +65,11 @@ function Particles({ type }: { type: string }) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map(p => (
-          <div
-            key={p.id}
-            className="absolute w-[1px] bg-blue-300/40 rounded-full"
-            style={{
-              left: `${p.x}%`,
-              height: `${10 + p.size * 4}px`,
-              animation: `rainFall ${1 + p.duration * 0.3}s linear infinite`,
-              animationDelay: `${p.delay}s`,
-              opacity: p.opacity,
-            }}
-          />
+          <div key={p.id} className="absolute w-[1px] bg-blue-300/40 rounded-full"
+            style={{ left: `${p.x}%`, height: `${10 + p.size * 4}px`,
+              animation: `rainFall ${1 + p.duration * 0.3}s linear infinite`, animationDelay: `${p.delay}s`, opacity: p.opacity }} />
         ))}
-        <style>{`
-          @keyframes rainFall {
-            0% { transform: translateY(-20px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
-          }
-        `}</style>
+        <style>{`@keyframes rainFall { 0% { transform: translateY(-20px); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
       </div>
     );
   }
@@ -59,44 +78,19 @@ function Particles({ type }: { type: string }) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map(p => (
-          <div
-            key={p.id}
-            className="absolute rounded-full bg-white"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              animation: `twinkle ${2 + p.duration}s ease-in-out infinite`,
-              animationDelay: `${p.delay}s`,
-              opacity: p.opacity * 0.5,
-              boxShadow: `0 0 ${p.size * 2}px ${p.size}px rgba(255,255,255,${p.opacity * 0.3})`,
-            }}
-          />
+          <div key={p.id} className="absolute rounded-full bg-white"
+            style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.size}px`, height: `${p.size}px`,
+              animation: `twinkle ${2 + p.duration}s ease-in-out infinite`, animationDelay: `${p.delay}s`,
+              opacity: p.opacity * 0.5, boxShadow: `0 0 ${p.size * 2}px ${p.size}px rgba(255,255,255,${p.opacity * 0.3})` }} />
         ))}
-        {/* Shooting stars */}
         {[0, 1, 2].map(i => (
-          <div
-            key={`shoot-${i}`}
-            className="absolute w-[2px] h-[2px] bg-white rounded-full"
-            style={{
-              animation: `shootingStar ${3 + i * 2}s ease-out infinite`,
-              animationDelay: `${i * 4 + 2}s`,
-              boxShadow: '0 0 6px 2px rgba(255,255,255,0.6), -30px 0 10px 1px rgba(255,255,255,0.3)',
-            }}
-          />
+          <div key={`shoot-${i}`} className="absolute w-[2px] h-[2px] bg-white rounded-full"
+            style={{ animation: `shootingStar ${3 + i * 2}s ease-out infinite`, animationDelay: `${i * 4 + 2}s`,
+              boxShadow: '0 0 6px 2px rgba(255,255,255,0.6), -30px 0 10px 1px rgba(255,255,255,0.3)' }} />
         ))}
         <style>{`
-          @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-          }
-          @keyframes shootingStar {
-            0% { top: 10%; left: 80%; opacity: 0; transform: translate(0, 0) rotate(-45deg); }
-            5% { opacity: 1; }
-            15% { top: 40%; left: 20%; opacity: 0; transform: translate(-200px, 200px) rotate(-45deg); }
-            100% { top: 40%; left: 20%; opacity: 0; }
-          }
+          @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
+          @keyframes shootingStar { 0% { top: 10%; left: 80%; opacity: 0; transform: translate(0, 0) rotate(-45deg); } 5% { opacity: 1; } 15% { top: 40%; left: 20%; opacity: 0; transform: translate(-200px, 200px) rotate(-45deg); } 100% { top: 40%; left: 20%; opacity: 0; } }
         `}</style>
       </div>
     );
@@ -107,28 +101,13 @@ function Particles({ type }: { type: string }) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.slice(0, 20).map(p => (
-          <div
-            key={p.id}
-            className="absolute text-lg"
-            style={{
-              left: `${p.x}%`,
-              animation: `leafFall ${6 + p.duration}s ease-in-out infinite`,
-              animationDelay: `${p.delay}s`,
-              opacity: p.opacity * 0.6,
-            }}
-          >
+          <div key={p.id} className="absolute text-lg"
+            style={{ left: `${p.x}%`, animation: `leafFall ${6 + p.duration}s ease-in-out infinite`,
+              animationDelay: `${p.delay}s`, opacity: p.opacity * 0.6 }}>
             {leafEmojis[p.id % leafEmojis.length]}
           </div>
         ))}
-        <style>{`
-          @keyframes leafFall {
-            0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; }
-            10% { opacity: 0.6; }
-            50% { transform: translateY(50vh) rotate(180deg) translateX(40px); }
-            90% { opacity: 0.4; }
-            100% { transform: translateY(100vh) rotate(360deg) translateX(-20px); opacity: 0; }
-          }
-        `}</style>
+        <style>{`@keyframes leafFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 0.6; } 50% { transform: translateY(50vh) rotate(180deg) translateX(40px); } 90% { opacity: 0.4; } 100% { transform: translateY(100vh) rotate(360deg) translateX(-20px); opacity: 0; } }`}</style>
       </div>
     );
   }
@@ -137,58 +116,24 @@ function Particles({ type }: { type: string }) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.slice(0, 25).map(p => (
-          <div
-            key={p.id}
-            className="absolute rounded-full border border-cyan-300/20 bg-cyan-200/5"
-            style={{
-              left: `${p.x}%`,
-              width: `${p.size * 3}px`,
-              height: `${p.size * 3}px`,
-              animation: `bubbleRise ${5 + p.duration}s ease-out infinite`,
-              animationDelay: `${p.delay}s`,
-              opacity: p.opacity * 0.5,
-            }}
-          />
+          <div key={p.id} className="absolute rounded-full border border-cyan-300/20 bg-cyan-200/5"
+            style={{ left: `${p.x}%`, width: `${p.size * 3}px`, height: `${p.size * 3}px`,
+              animation: `bubbleRise ${5 + p.duration}s ease-out infinite`, animationDelay: `${p.delay}s`, opacity: p.opacity * 0.5 }} />
         ))}
-        <style>{`
-          @keyframes bubbleRise {
-            0% { bottom: -20px; transform: translateX(0) scale(0.5); opacity: 0; }
-            10% { opacity: 0.5; }
-            50% { transform: translateX(20px) scale(1); }
-            90% { opacity: 0.2; }
-            100% { bottom: 100%; transform: translateX(-10px) scale(1.2); opacity: 0; }
-          }
-        `}</style>
+        <style>{`@keyframes bubbleRise { 0% { bottom: -20px; transform: translateX(0) scale(0.5); opacity: 0; } 10% { opacity: 0.5; } 50% { transform: translateX(20px) scale(1); } 90% { opacity: 0.2; } 100% { bottom: 100%; transform: translateX(-10px) scale(1.2); opacity: 0; } }`}</style>
       </div>
     );
   }
 
-  // sparkle - for cafe & library
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {particles.slice(0, 20).map(p => (
-        <div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
+        <div key={p.id} className="absolute rounded-full"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.size}px`, height: `${p.size}px`,
             background: `radial-gradient(circle, rgba(255,220,150,${p.opacity}) 0%, transparent 70%)`,
-            animation: `sparkleFloat ${4 + p.duration}s ease-in-out infinite`,
-            animationDelay: `${p.delay}s`,
-          }}
-        />
+            animation: `sparkleFloat ${4 + p.duration}s ease-in-out infinite`, animationDelay: `${p.delay}s` }} />
       ))}
-      <style>{`
-        @keyframes sparkleFloat {
-          0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; }
-          25% { transform: translateY(-15px) scale(1.3); opacity: 0.6; }
-          50% { transform: translateY(-5px) scale(0.8); opacity: 0.3; }
-          75% { transform: translateY(-20px) scale(1.1); opacity: 0.5; }
-        }
-      `}</style>
+      <style>{`@keyframes sparkleFloat { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; } 25% { transform: translateY(-15px) scale(1.3); opacity: 0.6; } 50% { transform: translateY(-5px) scale(0.8); opacity: 0.3; } 75% { transform: translateY(-20px) scale(1.1); opacity: 0.5; } }`}</style>
     </div>
   );
 }
@@ -203,6 +148,7 @@ export function StudyWithMeView() {
   const [studyTimer, setStudyTimer] = useState(0);
   const [isStudyTimerRunning, setIsStudyTimerRunning] = useState(false);
   const [customBg, setCustomBg] = useState<string | null>(null);
+  const [bgLoaded, setBgLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bgInputRef = useRef<HTMLInputElement>(null);
@@ -214,6 +160,15 @@ export function StudyWithMeView() {
     reader.onload = () => setCustomBg(reader.result as string);
     reader.readAsDataURL(file);
   }, []);
+
+  // Preload background image
+  useEffect(() => {
+    if (customBg) { setBgLoaded(true); return; }
+    setBgLoaded(false);
+    const img = new Image();
+    img.onload = () => setBgLoaded(true);
+    img.src = selectedScene.bgImage;
+  }, [selectedScene, customBg]);
 
   useEffect(() => {
     if (isStudyTimerRunning) {
@@ -245,17 +200,28 @@ export function StudyWithMeView() {
   };
 
   const embedUrl = getYoutubeEmbedUrl(youtubeUrl);
+  const bgUrl = customBg || selectedScene.bgImage;
 
   return (
     <div ref={containerRef} className={cn(
       "relative min-h-[80vh] rounded-2xl overflow-hidden transition-all duration-700",
-      !customBg && `bg-gradient-to-br ${selectedScene.gradient}`,
       deepStudyMode && "fixed inset-0 z-[100] min-h-screen rounded-none"
     )}
-    style={customBg ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+    style={{
+      backgroundImage: bgLoaded ? `url(${bgUrl})` : undefined,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }}
     >
-      {/* Ambient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
+      {/* Gradient fallback */}
+      <div className={cn(
+        "absolute inset-0 transition-opacity duration-700",
+        bgLoaded ? "opacity-0" : "opacity-100",
+        `bg-gradient-to-br ${selectedScene.gradient}`
+      )} />
+
+      {/* Ambient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/40 pointer-events-none" />
 
       {/* Animated particles */}
       <Particles type={selectedScene.particleType} />
@@ -282,7 +248,6 @@ export function StudyWithMeView() {
 
       {/* Scene Selector */}
       <div className="relative z-10 flex items-center gap-2 px-4 md:px-6 overflow-x-auto pb-2 scrollbar-hide">
-        {/* Custom wallpaper button */}
         <input ref={bgInputRef} type="file" accept="image/*" onChange={handleBgUpload} className="hidden" />
         <button onClick={() => bgInputRef.current?.click()}
           className={cn("flex items-center gap-2 px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-300",
@@ -344,15 +309,11 @@ export function StudyWithMeView() {
               )}
             >
               {isStudyTimerRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-              {isStudyTimerRunning
-                ? (language === 'bn' ? 'বিরতি' : 'Pause')
-                : (language === 'bn' ? 'শুরু' : 'Start')
-              }
+              {isStudyTimerRunning ? (language === 'bn' ? 'বিরতি' : 'Pause') : (language === 'bn' ? 'শুরু' : 'Start')}
             </Button>
             <Button
               onClick={() => { setStudyTimer(0); setIsStudyTimerRunning(false); }}
-              size="lg"
-              variant="ghost"
+              size="lg" variant="ghost"
               className="rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all"
             >
               <RotateCcw className="w-5 h-5" />
@@ -366,12 +327,9 @@ export function StudyWithMeView() {
             <Coffee className="w-5 h-5 text-white/70 animate-bounce-soft" />
             <div>
               <p className="text-white/60 text-xs font-bengali">
-                {pomodoro.phase === 'focus'
-                  ? (language === 'bn' ? 'ফোকাস সেশন' : 'Focus Session')
-                  : pomodoro.phase === 'break'
-                    ? (language === 'bn' ? 'ছোট বিরতি' : 'Short Break')
-                    : (language === 'bn' ? 'দীর্ঘ বিরতি' : 'Long Break')
-                }
+                {pomodoro.phase === 'focus' ? (language === 'bn' ? 'ফোকাস সেশন' : 'Focus Session')
+                  : pomodoro.phase === 'break' ? (language === 'bn' ? 'ছোট বিরতি' : 'Short Break')
+                  : (language === 'bn' ? 'দীর্ঘ বিরতি' : 'Long Break')}
               </p>
               <p className="text-2xl font-mono text-white/90">{pomodoro.formattedTime}</p>
             </div>
@@ -392,34 +350,21 @@ export function StudyWithMeView() {
           <div className="flex gap-2">
             <Input
               placeholder={language === 'bn' ? 'YouTube লিংক পেস্ট করুন...' : 'Paste YouTube link...'}
-              value={youtubeUrl}
-              onChange={e => setYoutubeUrl(e.target.value)}
+              value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/30 font-bengali focus:bg-white/15 transition-colors"
             />
-            <Button
-              onClick={() => setShowYoutube(!!embedUrl)}
-              disabled={!embedUrl}
-              className="bg-white/20 hover:bg-white/30 text-white"
-            >
+            <Button onClick={() => setShowYoutube(!!embedUrl)} disabled={!embedUrl} className="bg-white/20 hover:bg-white/30 text-white">
               <Play className="w-4 h-4" />
             </Button>
           </div>
           {showYoutube && embedUrl && (
             <div className="relative rounded-xl overflow-hidden bg-black/30 animate-scale-in">
-              <Button
-                size="icon"
-                variant="ghost"
+              <Button size="icon" variant="ghost"
                 className="absolute top-2 right-2 z-10 text-white/70 hover:text-white bg-black/50 rounded-full"
-                onClick={() => setShowYoutube(false)}
-              >
+                onClick={() => setShowYoutube(false)}>
                 <X className="w-4 h-4" />
               </Button>
-              <iframe
-                src={embedUrl}
-                className="w-full aspect-video"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
+              <iframe src={embedUrl} className="w-full aspect-video" allow="autoplay; encrypted-media" allowFullScreen />
             </div>
           )}
         </div>
@@ -430,10 +375,7 @@ export function StudyWithMeView() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md rounded-full px-6 py-3 flex items-center gap-3 z-20 animate-fade-in-up border border-white/10">
           <Moon className="w-4 h-4 text-white/70" />
           <span className="text-white/70 text-sm font-bengali">
-            {language === 'bn'
-              ? '🔕 ডিপ স্টাডি মোড — ফোনে DND চালু করুন'
-              : '🔕 Deep Study Mode — Enable DND on your phone'
-            }
+            {language === 'bn' ? '🔕 ডিপ স্টাডি মোড — ফোনে DND চালু করুন' : '🔕 Deep Study Mode — Enable DND on your phone'}
           </span>
           <Button size="sm" variant="ghost" className="text-white/60 hover:text-white" onClick={() => setDeepStudyMode(false)}>
             <X className="w-4 h-4" />

@@ -12,7 +12,7 @@ interface TimerPresetsProps {
 
 const presets = [
   { minutes: 25, icon: Timer, label: 'Classic', labelBn: 'ক্লাসিক', color: 'text-primary' },
-  { minutes: 45, icon: Zap, label: 'Power', labelBn: 'পাওয়ার', color: 'text-accent' },
+  { minutes: 40, icon: Zap, label: 'Power', labelBn: 'পাওয়ার', color: 'text-accent' },
   { minutes: 60, icon: Flame, label: 'Beast', labelBn: 'বীস্ট', color: 'text-destructive' },
 ];
 

@@ -155,10 +155,10 @@ const features = [
   },
   {
     icon: Calendar,
-    title: 'ফ্ল্যাশকার্ড ও ক্যালেন্ডার',
-    titleEn: 'Flashcards & Calendar',
-    description: 'চ্যাপ্টার অনুযায়ী ফ্ল্যাশকার্ড তৈরি করুন। ক্যালেন্ডারে সেশন, পরীক্ষা ও রুটিন দেখুন।',
-    descEn: 'Create flashcards by chapter. View sessions, exams & routines on calendar.',
+    title: 'টাইমটেবিল ও ক্যালেন্ডার',
+    titleEn: 'Timetable & Calendar',
+    description: 'সাপ্তাহিক স্টাডি রুটিন সেট করুন এবং ক্যালেন্ডারে সেশন, পরীক্ষা ও রুটিন দেখুন। দিনের স্কেজুল ম্যানেজ করুন।',
+    descEn: 'Set weekly study routines and view sessions, exams & schedules on calendar.',
     color: 'text-primary',
     bgColor: 'bg-primary/10',
   },
@@ -330,8 +330,8 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
           <div className="glass-card p-4 bg-gradient-to-br from-primary/5 to-accent/5">
             <p className="text-foreground font-bengali leading-relaxed">
               {isBn 
-                ? <><strong>Study Tracker</strong> হলো বাংলাদেশি শিক্ষার্থীদের জন্য তৈরি একটি পূর্ণাঙ্গ স্টাডি ম্যানেজমেন্ট অ্যাপ। মাল্টি সিলেবাস, স্ট্রিক সিস্টেম, পমোডোরো টাইমার, স্টপওয়াচ, ড্যাশবোর্ড কাস্টমাইজেশন, ডেইলি অটো থিম সহ ১২+ ফিচার।</>
-                : <><strong>Study Tracker</strong> is a complete study management app for Bangladeshi students. Multi-syllabus, streak system, pomodoro timer, stopwatch, dashboard customization, daily auto theme, and 12+ features.</>
+                ? <><strong>Study Tracker</strong> হলো বাংলাদেশি শিক্ষার্থীদের জন্য তৈরি একটি পূর্ণাঙ্গ স্টাডি ম্যানেজমেন্ট অ্যাপ। মাল্টি সিলেবাস, স্ট্রিক সিস্টেম, পমোডোরো টাইমার, টাইমটেবিল, ড্যাশবোর্ড কাস্টমাইজেশন, ডেইলি অটো থিম সহ ১৫+ ফিচার। এই অ্যাপে Google Gemini AI ও NotebookLM ব্যবহার করা হয়েছে।</>
+                : <><strong>Study Tracker</strong> is a complete study management app for Bangladeshi students with 15+ features including multi-syllabus, streak system, pomodoro, timetable, and more. Powered by Google Gemini AI & NotebookLM.</>
               }
             </p>
           </div>
@@ -375,11 +375,11 @@ export function AboutApp({ open, onOpenChange }: AboutAppProps) {
             <p className="text-foreground font-semibold mt-1 font-bengali">মাজহারুল ইসলাম</p>
             <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
               <Code2 className="w-3 h-3" />
-              <span>Study Tracker v4.8.6</span>
+              <span>Study Tracker v5.0</span>
               <span className="ml-2 font-bengali">• {features.length}+ ফিচার</span>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {isBn ? 'সর্বশেষ আপডেট: মার্চ ২০২৬' : 'Last updated: March 2026'}
+              {isBn ? 'Powered by Gemini AI & NotebookLM • মার্চ ২০২৬' : 'Powered by Gemini AI & NotebookLM • March 2026'}
             </p>
           </div>
         </div>
