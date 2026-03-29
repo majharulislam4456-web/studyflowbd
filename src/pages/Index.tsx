@@ -19,13 +19,13 @@ import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
-import { FlashcardView } from '@/components/views/FlashcardView';
 import { CalendarView } from '@/components/views/CalendarView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { applyDailyTheme } from '@/utils/dailyTheme';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -34,14 +34,24 @@ const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const pomodoro = useGlobalPomodoro();
+  const [examReminders, setExamReminders] = useState<{ id: string; title: string; title_bn: string | null; exam_date: string }[]>([]);
 
-  // Apply daily auto-theme on mount
   useEffect(() => {
     applyDailyTheme();
   }, []);
+
+  // Fetch exam reminders for dashboard
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('exam_reminders').select('id, title, title_bn, exam_date')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .order('exam_date', { ascending: true })
+      .then(({ data }) => { if (data) setExamReminders(data); });
+  }, [user]);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, flashcards, profile,
+    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
@@ -52,7 +62,6 @@ const Index = () => {
     addDailyTask, updateDailyTask, deleteDailyTask,
     addNote, updateNote, deleteNote,
     addRoutine, deleteRoutine,
-    addFlashcard, updateFlashcard, deleteFlashcard,
     updateProfile, getTodayStudyTime, getWeekStudyTime,
   } = useSupabaseData();
 
@@ -73,11 +82,10 @@ const Index = () => {
 
   if (!user) return null;
 
-  // Show onboarding if no student_class set
   const needsOnboarding = profile && !(profile as any).student_class;
 
-  const handleOnboardingComplete = async (studentClass: string, division: string | null) => {
-    await updateProfile({ student_class: studentClass, division } as any);
+  const handleOnboardingComplete = async (studentClass: string, division: string | null, dream: string | null) => {
+    await updateProfile({ student_class: studentClass, division, dream } as any);
   };
 
   if (needsOnboarding) {
@@ -95,7 +103,7 @@ const Index = () => {
         return (
           <DashboardView
             subjects={subjects} syllabuses={syllabuses} goals={goals} quotes={quotes}
-            todos={todos} dailyTasks={dailyTasks} sessions={sessions}
+            todos={todos} dailyTasks={dailyTasks} sessions={sessions} examReminders={examReminders}
             getTodayStudyTime={getTodayStudyTime} getWeekStudyTime={getWeekStudyTime}
             updateSubject={updateSubject} deleteSubject={deleteSubject}
             updateGoal={updateGoal} deleteGoal={deleteGoal}
@@ -138,12 +146,10 @@ const Index = () => {
         return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
       case 'timetable':
         return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
-      case 'flashcards':
-        return <FlashcardView flashcards={flashcards} subjects={subjects} addFlashcard={addFlashcard} updateFlashcard={updateFlashcard} deleteFlashcard={deleteFlashcard} />;
       case 'calendar':
         return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
       case 'profile':
-        return <ProfileView profile={profile} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
+        return <ProfileView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
     }
   };
