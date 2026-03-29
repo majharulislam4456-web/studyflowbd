@@ -4,34 +4,43 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { 
   User, Settings, LogOut, Mail, Info, Shield, Moon, Sun, 
-  Languages, Lock, Upload, Flame, Calendar
+  Languages, Lock, Upload, Flame, GraduationCap, Star, Heart
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AboutApp } from '@/components/about/AboutApp';
 import { AvatarSelector, getAvatarDisplay } from './AvatarSelector';
 import { ThemeColorSelector, initializeThemeColor } from './ThemeColorSelector';
-import type { Profile } from '@/hooks/useSupabaseData';
+import type { Profile, StudySession } from '@/hooks/useSupabaseData';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { calculateStreak } from '@/utils/streak';
 import logoImg from '@/assets/logo.jpg';
 
 interface ProfileViewProps {
   profile: Profile | null;
+  sessions: StudySession[];
   onUpdateProfile: (updates: Partial<Profile>) => void;
   isDark: boolean;
   toggleTheme: () => void;
 }
 
-export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: ProfileViewProps) {
+const CLASS_LABELS: Record<string, string> = {
+  '6': '৬ষ্ঠ শ্রেণি', '7': '৭ম শ্রেণি', '8': '৮ম শ্রেণি',
+  '9': '৯ম শ্রেণি', '10': '১০ম শ্রেণি', '11': '১১শ শ্রেণি', '12': '১২শ শ্রেণি',
+  'other': 'অন্যান্য',
+};
+
+const DIVISION_LABELS: Record<string, string> = {
+  'science': 'বিজ্ঞান', 'arts': 'মানবিক', 'commerce': 'ব্যবসায় শিক্ষা',
+};
+
+export function ProfileView({ profile, sessions, onUpdateProfile, isDark, toggleTheme }: ProfileViewProps) {
   const { user, signOut } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const { toast } = useToast();
@@ -39,6 +48,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
   const [aboutOpen, setAboutOpen] = useState(false);
   const [securityOpen, setSecurityOpen] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
+  const [dream, setDream] = useState((profile as any)?.dream || '');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,7 +59,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
   });
 
   const handleSave = () => {
-    onUpdateProfile({ display_name: displayName.trim() || null });
+    onUpdateProfile({ display_name: displayName.trim() || null, dream: dream.trim() || null } as any);
     setEditOpen(false);
   };
 
@@ -82,6 +92,11 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
   };
 
   const avatarDisplay = getAvatarDisplay(profile?.avatar_url);
+  const currentStreak = calculateStreak(sessions);
+  const studentClass = (profile as any)?.student_class;
+  const division = (profile as any)?.division;
+  const profileDream = (profile as any)?.dream;
+  const needsDivision = ['9', '10', '11', '12'].includes(studentClass);
 
   const renderAvatar = (size: 'sm' | 'lg' = 'lg') => {
     const sizeClass = size === 'lg' ? 'w-24 h-24' : 'w-16 h-16';
@@ -107,9 +122,6 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
     );
   };
 
-  const joinDate = new Date(profile?.created_at || Date.now());
-  const daysSinceJoined = Math.floor((Date.now() - joinDate.getTime()) / 86400000);
-
   const menuItems = [
     { icon: Settings, label: t('settings'), onClick: () => setEditOpen(true), color: 'text-foreground' },
     { icon: Languages, label: language === 'bn' ? 'English' : 'বাংলা', onClick: () => setLanguage(language === 'bn' ? 'en' : 'bn'), color: 'text-foreground' },
@@ -121,7 +133,6 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <User className="w-8 h-8 text-primary" />
@@ -133,7 +144,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
       </div>
 
       <div className="max-w-lg space-y-6">
-        {/* Profile Card - Enhanced */}
+        {/* Profile Card */}
         <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5">
           <div className="flex items-center gap-5 mb-6">
             {renderAvatar('lg')}
@@ -151,37 +162,70 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
             </div>
           </div>
 
-          {/* Quick Stats - Enhanced */}
+          {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-3">
+            {/* Class */}
             <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              <Calendar className="w-5 h-5 mx-auto mb-1 text-primary" />
-              <p className="text-sm font-bold text-foreground">
-                {joinDate.toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', { month: 'short', year: 'numeric' })}
+              <GraduationCap className="w-5 h-5 mx-auto mb-1 text-primary" />
+              <p className="text-sm font-bold text-foreground font-bengali">
+                {studentClass ? (CLASS_LABELS[studentClass] || studentClass) : '—'}
               </p>
               <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'যোগদান' : 'Joined'}
+                {language === 'bn' ? 'ক্লাস' : 'Class'}
               </p>
             </div>
+
+            {/* Streak / Division */}
             <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              <Flame className="w-5 h-5 mx-auto mb-1 text-destructive" />
-              <p className="text-sm font-bold text-foreground">
-                {daysSinceJoined} {language === 'bn' ? 'দিন' : 'days'}
-              </p>
-              <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'অ্যাক্টিভ' : 'Active'}
-              </p>
+              {needsDivision && division ? (
+                <>
+                  <Star className="w-5 h-5 mx-auto mb-1 text-accent" />
+                  <p className="text-sm font-bold text-foreground font-bengali">
+                    {DIVISION_LABELS[division] || division}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-bengali">
+                    {language === 'bn' ? 'বিভাগ' : 'Division'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Flame className="w-5 h-5 mx-auto mb-1 text-destructive" />
+                  <p className="text-sm font-bold text-foreground">
+                    {currentStreak} {language === 'bn' ? 'দিন' : 'days'}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-bengali">
+                    {language === 'bn' ? 'স্ট্রিক 🔥' : 'Streak 🔥'}
+                  </p>
+                </>
+              )}
             </div>
+
+            {/* Dream */}
             <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              <p className="text-lg font-bold text-foreground">🇧🇩</p>
-              <p className="text-sm font-bold text-foreground">Pro</p>
+              <Heart className="w-5 h-5 mx-auto mb-1 text-destructive" />
+              <p className="text-sm font-bold text-foreground font-bengali truncate">
+                {profileDream || '—'}
+              </p>
               <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'প্ল্যান' : 'Plan'}
+                {language === 'bn' ? 'ড্রিম' : 'Dream'}
               </p>
             </div>
           </div>
+
+          {/* Active days if division shown in middle */}
+          {needsDivision && division && (
+            <div className="mt-3 text-center p-2 rounded-lg bg-gradient-to-r from-destructive/10 to-accent/10 border border-destructive/20">
+              <div className="flex items-center justify-center gap-2">
+                <Flame className="w-4 h-4 text-destructive" />
+                <span className="text-sm font-bold font-bengali">
+                  {currentStreak} {language === 'bn' ? 'দিন স্ট্রিক 🔥' : 'day streak 🔥'}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Menu Items - Enhanced */}
+        {/* Menu Items */}
         <div className="glass-card overflow-hidden">
           {menuItems.map((item, index) => (
             <button key={index} onClick={item.onClick}
@@ -198,7 +242,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
           ))}
         </div>
 
-        {/* App Info - Enhanced */}
+        {/* App Info */}
         <div className="glass-card p-4 bg-gradient-to-r from-primary/5 to-transparent">
           <div className="flex items-center gap-3 mb-3">
             <img src={logoImg} alt="Study Tracker" className="w-10 h-10 rounded-xl object-cover" />
@@ -208,7 +252,7 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
             </div>
           </div>
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>{t('version')} 4.8.6</p>
+            <p>{t('version')} 5.0</p>
             <p className="font-bengali">{t('createdBy')}: মাজহারুল ইসলাম</p>
           </div>
         </div>
@@ -241,6 +285,16 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
                   placeholder={language === 'bn' ? 'আপনার নাম লিখুন' : 'Enter your name'} className="pl-10"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dream" className="font-bengali flex items-center gap-2">
+                <Heart className="w-4 h-4 text-destructive" />
+                {language === 'bn' ? 'তোমার ড্রিম কি?' : 'What is your dream?'}
+              </Label>
+              <Input id="dream" value={dream} onChange={(e) => setDream(e.target.value)}
+                placeholder={language === 'bn' ? 'যেমন: ডাক্তার, ইঞ্জিনিয়ার, বিসিএস ক্যাডার...' : 'e.g. Doctor, Engineer, BCS Cadre...'}
+              />
             </div>
 
             <div className="space-y-2">
@@ -284,7 +338,6 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
               </div>
             </div>
 
-            {/* Password Change */}
             <PasswordChangeSection language={language} />
 
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
@@ -296,10 +349,6 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
                 {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
               </Button>
             </div>
-
-            <p className="text-xs text-muted-foreground text-center font-bengali">
-              {language === 'bn' ? 'আপনার ডাটা এনক্রিপ্টেড এবং সুরক্ষিত' : 'Your data is encrypted and secure'}
-            </p>
           </div>
         </DialogContent>
       </Dialog>
@@ -311,7 +360,6 @@ export function ProfileView({ profile, onUpdateProfile, isDark, toggleTheme }: P
 
 function PasswordChangeSection({ language }: { language: string }) {
   const [isChanging, setIsChanging] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -332,7 +380,7 @@ function PasswordChangeSection({ language }: { language: string }) {
       if (error) throw error;
       toast({ title: language === 'bn' ? '✅ পাসওয়ার্ড পরিবর্তন হয়েছে!' : '✅ Password changed!' });
       setIsChanging(false);
-      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      setNewPassword(''); setConfirmPassword('');
     } catch (err: any) {
       toast({ title: err.message || 'Error', variant: 'destructive' });
     } finally {
@@ -363,23 +411,10 @@ function PasswordChangeSection({ language }: { language: string }) {
         </div>
         <Button variant="ghost" size="sm" onClick={() => setIsChanging(false)}>✕</Button>
       </div>
-      <Input
-        type="password"
-        placeholder={language === 'bn' ? 'নতুন পাসওয়ার্ড' : 'New password'}
-        value={newPassword}
-        onChange={e => setNewPassword(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder={language === 'bn' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm password'}
-        value={confirmPassword}
-        onChange={e => setConfirmPassword(e.target.value)}
-      />
+      <Input type="password" placeholder={language === 'bn' ? 'নতুন পাসওয়ার্ড' : 'New password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+      <Input type="password" placeholder={language === 'bn' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
       <Button onClick={handleChangePassword} className="w-full" disabled={loading || !newPassword || !confirmPassword}>
-        {loading
-          ? (language === 'bn' ? 'পরিবর্তন হচ্ছে...' : 'Changing...')
-          : (language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Update Password')
-        }
+        {loading ? (language === 'bn' ? 'পরিবর্তন হচ্ছে...' : 'Changing...') : (language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Update Password')}
       </Button>
     </div>
   );

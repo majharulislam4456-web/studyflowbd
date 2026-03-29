@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Bell, BellRing, Plus, Trash2, Calendar, Clock, BookOpen, RotateCcw, X } from 'lucide-react';
+import { Bell, BellRing, Plus, Trash2, Calendar, Clock, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -54,7 +54,6 @@ export function ExamReminderView() {
 
   useEffect(() => { fetchReminders(); }, [fetchReminders]);
 
-  // Check reminders every minute
   useEffect(() => {
     const checkReminders = () => {
       const now = new Date();
@@ -63,7 +62,7 @@ export function ExamReminderView() {
         const examTime = new Date(r.exam_date);
         const reminderTime = new Date(examTime.getTime() - r.reminder_minutes_before * 60000);
         const diff = Math.abs(now.getTime() - reminderTime.getTime());
-        if (diff < 60000) { // within 1 minute
+        if (diff < 60000) {
           playTimerAlarm();
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(r.reminder_type === 'revision' ? '📖 Revision Reminder!' : '📝 Exam Reminder!', {
@@ -155,33 +154,25 @@ export function ExamReminderView() {
             </DialogHeader>
             <div className="space-y-4">
               <Select value={reminderType} onValueChange={setReminderType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="exam">📝 {language === 'bn' ? 'পরীক্ষা' : 'Exam'}</SelectItem>
                   <SelectItem value="revision">📖 {language === 'bn' ? 'রিভিশন' : 'Revision'}</SelectItem>
                 </SelectContent>
               </Select>
-              <Input placeholder={language === 'bn' ? 'শিরোনাম (English)' : 'Title'} value={title} onChange={e => setTitle(e.target.value)} />
+              <Input placeholder={language === 'bn' ? 'শিরোনাম' : 'Title'} value={title} onChange={e => setTitle(e.target.value)} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground font-bengali mb-1 block">
-                    {language === 'bn' ? 'তারিখ' : 'Date'}
-                  </label>
+                  <label className="text-xs text-muted-foreground font-bengali mb-1 block">{language === 'bn' ? 'তারিখ' : 'Date'}</label>
                   <Input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground font-bengali mb-1 block">
-                    {language === 'bn' ? 'সময়' : 'Time'}
-                  </label>
+                  <label className="text-xs text-muted-foreground font-bengali mb-1 block">{language === 'bn' ? 'সময়' : 'Time'}</label>
                   <Input type="time" value={examTime} onChange={e => setExamTime(e.target.value)} />
                 </div>
               </div>
               <Select value={reminderMinutes} onValueChange={setReminderMinutes}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="15">{language === 'bn' ? '১৫ মিনিট আগে' : '15 min before'}</SelectItem>
                   <SelectItem value="30">{language === 'bn' ? '৩০ মিনিট আগে' : '30 min before'}</SelectItem>
@@ -199,8 +190,8 @@ export function ExamReminderView() {
         </Dialog>
       </div>
 
-      {/* Upcoming */}
-      <div className="space-y-3">
+      {/* Upcoming with big countdown */}
+      <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground font-bengali flex items-center gap-2">
           <Calendar className="w-5 h-5 text-primary" />
           {language === 'bn' ? 'আসন্ন রিমাইন্ডার' : 'Upcoming'}
@@ -211,7 +202,7 @@ export function ExamReminderView() {
           </Card>
         )}
         {upcomingReminders.map(r => (
-          <ReminderCard key={r.id} reminder={r} language={language} onToggle={toggleActive} onDelete={deleteReminder} />
+          <ReminderCardEnhanced key={r.id} reminder={r} language={language} onToggle={toggleActive} onDelete={deleteReminder} />
         ))}
       </div>
 
@@ -223,7 +214,7 @@ export function ExamReminderView() {
             {language === 'bn' ? 'পূর্ববর্তী' : 'Past'}
           </h2>
           {pastReminders.slice(0, 5).map(r => (
-            <ReminderCard key={r.id} reminder={r} language={language} onToggle={toggleActive} onDelete={deleteReminder} isPast />
+            <ReminderCardEnhanced key={r.id} reminder={r} language={language} onToggle={toggleActive} onDelete={deleteReminder} isPast />
           ))}
         </div>
       )}
@@ -231,7 +222,7 @@ export function ExamReminderView() {
   );
 }
 
-function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
+function ReminderCardEnhanced({ reminder, language, onToggle, onDelete, isPast }: {
   reminder: ExamReminder;
   language: string;
   onToggle: (id: string, active: boolean) => void;
@@ -255,29 +246,30 @@ function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
     const hours = Math.floor((totalSecs % 86400) / 3600);
     const mins = Math.floor((totalSecs % 3600) / 60);
     const secs = totalSecs % 60;
-    if (days > 0) return `${days}d ${hours}h ${mins}m ${secs}s`;
-    return `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    return { days, hours, mins, secs };
   }, [examDate, now, isPast]);
 
+  const boxes = countdown ? [
+    { value: countdown.days.toString().padStart(2, '0'), label: language === 'bn' ? 'দিন' : 'DAYS' },
+    { value: countdown.hours.toString().padStart(2, '0'), label: language === 'bn' ? 'ঘণ্টা' : 'HOURS' },
+    { value: countdown.mins.toString().padStart(2, '0'), label: language === 'bn' ? 'মিনিট' : 'MINS' },
+    { value: countdown.secs.toString().padStart(2, '0'), label: language === 'bn' ? 'সেকেন্ড' : 'SECS' },
+  ] : null;
+
   return (
-    <Card className={`p-4 transition-all ${isPast ? 'opacity-60' : 'hover:shadow-md'} ${!reminder.is_active ? 'opacity-40' : ''}`}>
-      <div className="flex items-start justify-between gap-3">
+    <Card className={`overflow-hidden transition-all ${isPast ? 'opacity-60' : 'hover:shadow-lg'} ${!reminder.is_active ? 'opacity-40' : ''}`}>
+      {/* Header */}
+      <div className="p-4 flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${reminder.reminder_type === 'revision' ? 'bg-accent/20' : 'bg-primary/20'}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 ${reminder.reminder_type === 'revision' ? 'bg-accent/20' : 'bg-primary/20'}`}>
             {reminder.reminder_type === 'revision' ? '📖' : '📝'}
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-foreground truncate">{reminder.title}</p>
-            {reminder.title_bn && <p className="text-sm text-muted-foreground font-bengali truncate">{reminder.title_bn}</p>}
-            <div className="flex flex-wrap items-center gap-2 mt-1">
-              <Badge variant="outline" className="text-xs">
-                {format(examDate, 'dd MMM yyyy, hh:mm a')}
-              </Badge>
-              <Badge variant="secondary" className="text-xs font-bengali">
-                {!isPast && countdown ? `⏱️ ${countdown}` : !isPast ? formatDistanceToNow(examDate, { addSuffix: true, locale: language === 'bn' ? bn : undefined }) : null}
-                {isPast && (language === 'bn' ? 'সম্পন্ন' : 'Done')}
-              </Badge>
-            </div>
+            <p className="font-bold text-foreground text-lg">{reminder.title}</p>
+            {reminder.title_bn && <p className="text-sm text-muted-foreground font-bengali">{reminder.title_bn}</p>}
+            <Badge variant="outline" className="text-xs mt-1">
+              {format(examDate, 'dd MMM yyyy, hh:mm a')}
+            </Badge>
             {reminder.notes && <p className="text-xs text-muted-foreground mt-1 font-bengali">{reminder.notes}</p>}
           </div>
         </div>
@@ -288,6 +280,32 @@ function ReminderCard({ reminder, language, onToggle, onDelete, isPast }: {
           </Button>
         </div>
       </div>
+
+      {/* Big countdown boxes */}
+      {!isPast && boxes && (
+        <div className="px-4 pb-4">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20">
+            <div className="flex justify-center gap-3">
+              {boxes.map((box, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-primary/30 bg-background flex items-center justify-center shadow-sm">
+                    <span className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums">{box.value}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-muted-foreground mt-1.5 uppercase tracking-wider">{box.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPast && (
+        <div className="px-4 pb-4">
+          <Badge variant="secondary" className="font-bengali">
+            {language === 'bn' ? '✅ সম্পন্ন' : '✅ Done'}
+          </Badge>
+        </div>
+      )}
     </Card>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { GraduationCap, BookOpen, FlaskConical, Palette, Briefcase, ArrowRight, Sparkles } from 'lucide-react';
+import { GraduationCap, BookOpen, FlaskConical, Palette, Briefcase, ArrowRight, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import logoImg from '@/assets/logo.jpg';
 
@@ -25,37 +26,37 @@ const NEEDS_DIVISION = ['9', '10', '11', '12'];
 
 interface OnboardingFlowProps {
   displayName: string | null;
-  onComplete: (studentClass: string, division: string | null) => void;
+  onComplete: (studentClass: string, division: string | null, dream: string | null) => void;
 }
 
 export function OnboardingFlow({ displayName, onComplete }: OnboardingFlowProps) {
-  const [step, setStep] = useState<'class' | 'division'>('class');
+  const [step, setStep] = useState<'class' | 'division' | 'dream'>('class');
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
+  const [dream, setDream] = useState('');
 
   const handleClassSelect = (cls: string) => {
     setSelectedClass(cls);
     if (NEEDS_DIVISION.includes(cls)) {
       setStep('division');
     } else {
-      onComplete(cls, null);
+      setStep('dream');
     }
   };
 
-  const handleDivisionSelect = (div: string) => {
-    setSelectedDivision(div);
+  const handleDivisionNext = () => {
+    if (selectedDivision) setStep('dream');
   };
 
   const handleFinish = () => {
-    if (selectedClass && selectedDivision) {
-      onComplete(selectedClass, selectedDivision);
+    if (selectedClass) {
+      onComplete(selectedClass, selectedDivision, dream.trim() || null);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-lg animate-fade-in">
-        {/* Logo & Welcome */}
         <div className="text-center mb-8">
           <div className="relative inline-block">
             <img src={logoImg} alt="Study Tracker" className="w-20 h-20 mx-auto rounded-2xl shadow-lg mb-4 object-cover" />
@@ -65,7 +66,7 @@ export function OnboardingFlow({ displayName, onComplete }: OnboardingFlowProps)
             {displayName ? `স্বাগতম, ${displayName}! 🎉` : 'স্বাগতম! 🎉'}
           </h1>
           <p className="text-muted-foreground mt-1 font-bengali">
-            {step === 'class' ? 'তুমি কোন ক্লাসে পড়ো?' : 'তোমার বিভাগ কোনটি?'}
+            {step === 'class' ? 'তুমি কোন ক্লাসে পড়ো?' : step === 'division' ? 'তোমার বিভাগ কোনটি?' : 'তুমি কি হতে চাও? 💭'}
           </p>
         </div>
 
@@ -78,13 +79,10 @@ export function OnboardingFlow({ displayName, onComplete }: OnboardingFlowProps)
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {CLASS_OPTIONS.map((cls, i) => (
-                  <button
-                    key={cls.value}
-                    onClick={() => handleClassSelect(cls.value)}
+                  <button key={cls.value} onClick={() => handleClassSelect(cls.value)}
                     className={cn(
                       "p-4 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
-                      "border-border hover:border-primary/50 bg-card",
-                      `animate-fade-in`
+                      "border-border hover:border-primary/50 bg-card", `animate-fade-in`
                     )}
                     style={{ animationDelay: `${i * 0.05}s` }}
                   >
@@ -110,15 +108,10 @@ export function OnboardingFlow({ displayName, onComplete }: OnboardingFlowProps)
                   const Icon = div.icon;
                   const isSelected = selectedDivision === div.value;
                   return (
-                    <button
-                      key={div.value}
-                      onClick={() => handleDivisionSelect(div.value)}
+                    <button key={div.value} onClick={() => setSelectedDivision(div.value)}
                       className={cn(
                         "w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all duration-200 hover:shadow-md",
-                        isSelected
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-border hover:border-primary/40 bg-card",
-                        `animate-fade-in`
+                        isSelected ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/40 bg-card",
                       )}
                       style={{ animationDelay: `${i * 0.1}s` }}
                     >
@@ -138,12 +131,37 @@ export function OnboardingFlow({ displayName, onComplete }: OnboardingFlowProps)
                   );
                 })}
               </div>
-
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" onClick={() => { setStep('class'); setSelectedDivision(null); }} className="flex-1 font-bengali">
                   পেছনে যাও
                 </Button>
-                <Button onClick={handleFinish} disabled={!selectedDivision} className="flex-1 gap-2 font-bengali">
+                <Button onClick={handleDivisionNext} disabled={!selectedDivision} className="flex-1 gap-2 font-bengali">
+                  পরবর্তী <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 'dream' && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-5 h-5 text-destructive" />
+                <h2 className="text-lg font-semibold text-foreground font-bengali">তোমার স্বপ্ন কি?</h2>
+              </div>
+              <p className="text-sm text-muted-foreground font-bengali">
+                তুমি বড় হয়ে কি হতে চাও? এটি তোমার প্রোফাইলে দেখাবে।
+              </p>
+              <Input
+                value={dream}
+                onChange={e => setDream(e.target.value)}
+                placeholder="যেমন: ডাক্তার, ইঞ্জিনিয়ার, বিসিএস ক্যাডার..."
+                className="font-bengali text-lg py-6"
+              />
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={() => setStep(NEEDS_DIVISION.includes(selectedClass!) ? 'division' : 'class')} className="flex-1 font-bengali">
+                  পেছনে যাও
+                </Button>
+                <Button onClick={handleFinish} className="flex-1 gap-2 font-bengali">
                   শুরু করো <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
