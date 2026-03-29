@@ -60,11 +60,6 @@ const navItems = [{
   labelBn: 'রুটিন',
   icon: CalendarDays
 }, {
-  id: 'flashcards',
-  label: 'Flashcards',
-  labelBn: 'ফ্ল্যাশকার্ড',
-  icon: Layers
-}, {
   id: 'calendar',
   label: 'Calendar',
   labelBn: 'ক্যালেন্ডার',
