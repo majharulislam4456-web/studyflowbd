@@ -243,6 +243,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           division: string | null
+          dream: string | null
           id: string
           language: string
           student_class: string | null
@@ -255,6 +256,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           division?: string | null
+          dream?: string | null
           id?: string
           language?: string
           student_class?: string | null
@@ -267,6 +269,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           division?: string | null
+          dream?: string | null
           id?: string
           language?: string
           student_class?: string | null

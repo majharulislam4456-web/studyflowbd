@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy, Bell } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
@@ -14,7 +14,15 @@ import { WeeklyStudyChart } from '@/components/dashboard/WeeklyStudyChart';
 import { DashboardSettings, useDashboardConfig } from '@/components/settings/DashboardSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { calculateStreak } from '@/utils/streak';
+import { differenceInSeconds } from 'date-fns';
 import type { Subject, Goal, Quote, StudySession, Syllabus } from '@/hooks/useSupabaseData';
+
+interface ExamReminder {
+  id: string;
+  title: string;
+  title_bn: string | null;
+  exam_date: string;
+}
 
 interface DashboardViewProps {
   subjects: Subject[];
@@ -24,6 +32,7 @@ interface DashboardViewProps {
   todos: Todo[];
   dailyTasks: DailyTask[];
   sessions: StudySession[];
+  examReminders: ExamReminder[];
   getTodayStudyTime: () => number;
   getWeekStudyTime: () => number;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
@@ -38,8 +47,55 @@ interface DashboardViewProps {
   deleteDailyTask: (id: string) => Promise<void>;
 }
 
+function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
+  const [now, setNow] = useState(new Date());
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const examDate = new Date(reminder.exam_date);
+  const totalSecs = differenceInSeconds(examDate, now);
+  if (totalSecs <= 0) return null;
+
+  const days = Math.floor(totalSecs / 86400);
+  const hours = Math.floor((totalSecs % 86400) / 3600);
+  const mins = Math.floor((totalSecs % 3600) / 60);
+  const secs = totalSecs % 60;
+
+  const boxes = [
+    { value: days.toString().padStart(2, '0'), label: language === 'bn' ? 'দিন' : 'DAYS' },
+    { value: hours.toString().padStart(2, '0'), label: language === 'bn' ? 'ঘণ্টা' : 'HOURS' },
+    { value: mins.toString().padStart(2, '0'), label: language === 'bn' ? 'মিনিট' : 'MINS' },
+    { value: secs.toString().padStart(2, '0'), label: language === 'bn' ? 'সেকেন্ড' : 'SECS' },
+  ];
+
+  return (
+    <div className="glass-card p-5 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+      <div className="text-center mb-4">
+        <p className="text-sm font-semibold text-primary font-bengali flex items-center justify-center gap-2">
+          <Bell className="w-4 h-4" />
+          {language === 'bn' ? 'আসন্ন পরীক্ষা:' : 'Next Exam:'} {reminder.title_bn || reminder.title}
+        </p>
+      </div>
+      <div className="flex justify-center gap-3">
+        {boxes.map((box, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-xl border-2 border-primary/30 bg-background/80 flex items-center justify-center shadow-sm">
+              <span className="text-2xl font-bold text-foreground tabular-nums">{box.value}</span>
+            </div>
+            <span className="text-[10px] font-medium text-muted-foreground mt-1 uppercase tracking-wider">{box.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function DashboardView({
-  subjects, syllabuses, goals, quotes, todos, dailyTasks, sessions,
+  subjects, syllabuses, goals, quotes, todos, dailyTasks, sessions, examReminders,
   getTodayStudyTime, getWeekStudyTime,
   updateSubject, deleteSubject, updateGoal, deleteGoal,
   updateQuote, deleteQuote, updateTodo,
@@ -65,8 +121,19 @@ export function DashboardView({
   const activeGoals = goals.filter(g => !g.is_completed);
   const completedGoals = goals.filter(g => g.is_completed);
 
-  // Calculate real streak from sessions
   const currentStreak = calculateStreak(sessions);
+
+  // Find nearest upcoming exam
+  const upcomingExam = useMemo(() => {
+    const now = new Date();
+    return examReminders
+      .filter(r => new Date(r.exam_date) > now)
+      .sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())[0] || null;
+  }, [examReminders]);
+
+  const featuredQuote = useMemo(() => {
+    return quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
+  }, [quotes]);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -74,8 +141,6 @@ export function DashboardView({
     if (hours === 0) return `${mins}${language === 'bn' ? 'মি' : 'm'}`;
     return `${hours}${language === 'bn' ? 'ঘ' : 'h'} ${mins}${language === 'bn' ? 'মি' : 'm'}`;
   };
-
-  const featuredQuote = quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
 
   const topSubjects = [...dashboardSubjects]
     .sort((a, b) => {
@@ -117,7 +182,6 @@ export function DashboardView({
             <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
-          {/* Real Streak Display */}
           <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm border border-primary/10">
             <Flame className="w-4 h-4 text-destructive" />
             <span className="font-bengali font-semibold">
@@ -145,9 +209,6 @@ export function DashboardView({
                 </p>
               </div>
             </ProgressRing>
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white shadow-lg">
-              {Math.floor(overallProgress / 10) + 1}
-            </div>
           </div>
         </div>
       </div>
@@ -177,23 +238,42 @@ export function DashboardView({
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
-            <BookOpen className="w-5 h-5 text-primary" />
-            {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {topSubjects.map((subject, index) => (
-              <div key={subject.id} className={`stagger-${index + 1}`}>
-                <SubjectCard subject={subject}
-                  onUpdateProgress={(id, completed) => updateSubject(id, { completed_chapters: completed })}
-                  onDelete={deleteSubject} onEdit={setEditSubject}
-                />
-              </div>
-            ))}
+        {/* Left column - subjects + motivation + upcoming exam */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
+              <BookOpen className="w-5 h-5 text-primary" />
+              {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {topSubjects.map((subject, index) => (
+                <div key={subject.id} className={`stagger-${index + 1}`}>
+                  <SubjectCard subject={subject}
+                    onUpdateProgress={(id, completed) => updateSubject(id, { completed_chapters: completed })}
+                    onDelete={deleteSubject} onEdit={setEditSubject}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* Motivation below subjects */}
+          {config.showQuotes && featuredQuote && (
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold text-foreground font-bengali">
+                ✨ {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
+              </h2>
+              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
+            </div>
+          )}
+
+          {/* Upcoming Exam Countdown */}
+          {upcomingExam && (
+            <UpcomingExamCountdown reminder={upcomingExam} />
+          )}
         </div>
 
+        {/* Right column */}
         <div className="space-y-6">
           {config.showDailyTasks && (
             <div className="glass-card p-4">
@@ -219,15 +299,6 @@ export function DashboardView({
                   onDelete={deleteGoal} onEdit={setEditGoal}
                 />
               ))}
-            </div>
-          )}
-
-          {config.showQuotes && featuredQuote && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground font-bengali">
-                {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
-              </h2>
-              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
             </div>
           )}
         </div>

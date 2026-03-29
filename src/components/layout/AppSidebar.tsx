@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User, BellRing, Brain, FileText, CalendarDays, Layers, Calendar } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, User, BellRing, Brain, FileText, CalendarDays, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -59,11 +59,6 @@ const navItems = [{
   label: 'Timetable',
   labelBn: 'রুটিন',
   icon: CalendarDays
-}, {
-  id: 'flashcards',
-  label: 'Flashcards',
-  labelBn: 'ফ্ল্যাশকার্ড',
-  icon: Layers
 }, {
   id: 'calendar',
   label: 'Calendar',
