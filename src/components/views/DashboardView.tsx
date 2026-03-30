@@ -60,11 +60,11 @@ interface DashboardViewProps {
 
 function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
   const [now, setNow] = useState(new Date());
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const examDate = new Date(reminder.exam_date);
@@ -77,10 +77,10 @@ function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
   const secs = totalSecs % 60;
 
   const boxes = [
-    { value: days.toString().padStart(2, '0'), label: language === 'bn' ? 'দিন' : 'DAYS' },
-    { value: hours.toString().padStart(2, '0'), label: language === 'bn' ? 'ঘণ্টা' : 'HOURS' },
-    { value: mins.toString().padStart(2, '0'), label: language === 'bn' ? 'মিনিট' : 'MINS' },
-    { value: secs.toString().padStart(2, '0'), label: language === 'bn' ? 'সেকেন্ড' : 'SECS' },
+    { value: days.toString().padStart(2, '0'), label: t('days') },
+    { value: hours.toString().padStart(2, '0'), label: t('hours') },
+    { value: mins.toString().padStart(2, '0'), label: t('minutes') },
+    { value: secs.toString().padStart(2, '0'), label: t('seconds') },
   ];
 
   return (
@@ -88,7 +88,7 @@ function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
       <div className="text-center mb-4">
         <p className="text-sm font-semibold text-primary font-bengali flex items-center justify-center gap-2">
           <Bell className="w-4 h-4" />
-          {language === 'bn' ? 'আসন্ন পরীক্ষা:' : 'Next Exam:'} {reminder.title_bn || reminder.title}
+          {t('nextExam')}: {reminder.title_bn || reminder.title}
         </p>
       </div>
       <div className="flex justify-center gap-3">

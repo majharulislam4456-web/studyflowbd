@@ -83,6 +83,11 @@ export const translations: Translations = {
   weekly: { en: 'Weekly (7 days)', bn: 'সাপ্তাহিক (৭ দিন)' },
   shortTerm: { en: 'Short Term (3 days)', bn: 'স্বল্পমেয়াদী (৩ দিন)' },
   daysRemaining: { en: 'Days Remaining', bn: 'বাকি দিন' },
+  days: { en: 'DAYS', bn: 'দিন' },
+  hours: { en: 'HOURS', bn: 'ঘণ্টা' },
+  minutes: { en: 'MINS', bn: 'মিনিট' },
+  seconds: { en: 'SECS', bn: 'সেকেন্ড' },
+  nextExam: { en: 'Next Exam', bn: 'আসন্ন পরীক্ষা' },
   
   // Todo
   todoList: { en: 'To-Do List', bn: 'করণীয় তালিকা' },
