@@ -233,16 +233,16 @@ export function DashboardView({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title={t('subjects')} value={dashboardSubjects.length}
-          subtitle={`${completedChapters}/${totalChapters} ${language === 'bn' ? 'অধ্যায়' : 'chapters'}`}
+        <StatsCard title={t('totalSubjects')} value={dashboardSubjects.length}
+          subtitle={`${completedChapters}/${totalChapters} ${t('chapters')}`}
           icon={BookOpen}
         />
         <StatsCard title={t('todayStudyTime')} value={formatTime(todayTime)}
           icon={Timer} iconClassName="bg-accent/10 text-accent"
         />
-        <StatsCard title={language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+        <StatsCard title={t('activeGoals')}
           value={activeGoals.length}
-          subtitle={`${completedGoals.length} ${language === 'bn' ? 'সম্পন্ন' : 'completed'}`}
+          subtitle={`${completedGoals.length} ${t('completed')}`}
           icon={Target} iconClassName="bg-success/10 text-success"
         />
         <StatsCard title={t('weekStudyTime')} value={formatTime(weekTime)}
@@ -258,7 +258,7 @@ export function DashboardView({
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
               <BookOpen className="w-5 h-5 text-primary" />
-              {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
+              {t('yourSubjects')}
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {topSubjects.map((subject, index) => (
