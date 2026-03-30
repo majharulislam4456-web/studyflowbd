@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy, Bell } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
