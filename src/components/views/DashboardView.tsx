@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy, Bell } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
@@ -16,6 +17,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { calculateStreak } from '@/utils/streak';
 import { differenceInSeconds } from 'date-fns';
 import type { Subject, Goal, Quote, StudySession, Syllabus } from '@/hooks/useSupabaseData';
+
+const DEFAULT_QUOTES: Quote[] = [
+  { id: 'default-1', user_id: '', text: 'সফলতা চূড়ান্ত নয়, ব্যর্থতা মারাত্মক নয়: চালিয়ে যাওয়ার সাহসই গুরুত্বপূর্ণ।', author: 'Winston Churchill', is_bengali: true, created_at: '' },
+  { id: 'default-2', user_id: '', text: 'শিক্ষার শেকড়ের স্বাদ তিক্ত হলেও এর ফল মিষ্টি।', author: 'Aristotle', is_bengali: true, created_at: '' },
+  { id: 'default-3', user_id: '', text: 'তুমি যদি স্বপ্ন দেখতে পারো, তুমি তা করতেও পারো।', author: 'Walt Disney', is_bengali: true, created_at: '' },
+  { id: 'default-4', user_id: '', text: 'কঠোর পরিশ্রম প্রতিভাকে হারায় যখন প্রতিভা কঠোর পরিশ্রম করে না।', author: 'Tim Notke', is_bengali: true, created_at: '' },
+  { id: 'default-5', user_id: '', text: 'আজকের পড়াশোনা আগামীর সাফল্য।', author: '', is_bengali: true, created_at: '' },
+  { id: 'default-6', user_id: '', text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs', is_bengali: false, created_at: '' },
+  { id: 'default-7', user_id: '', text: 'Education is the most powerful weapon which you can use to change the world.', author: 'Nelson Mandela', is_bengali: false, created_at: '' },
+];
 
 interface ExamReminder {
   id: string;
@@ -49,11 +60,11 @@ interface DashboardViewProps {
 
 function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
   const [now, setNow] = useState(new Date());
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const examDate = new Date(reminder.exam_date);
@@ -66,10 +77,10 @@ function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
   const secs = totalSecs % 60;
 
   const boxes = [
-    { value: days.toString().padStart(2, '0'), label: language === 'bn' ? 'দিন' : 'DAYS' },
-    { value: hours.toString().padStart(2, '0'), label: language === 'bn' ? 'ঘণ্টা' : 'HOURS' },
-    { value: mins.toString().padStart(2, '0'), label: language === 'bn' ? 'মিনিট' : 'MINS' },
-    { value: secs.toString().padStart(2, '0'), label: language === 'bn' ? 'সেকেন্ড' : 'SECS' },
+    { value: days.toString().padStart(2, '0'), label: t('days') },
+    { value: hours.toString().padStart(2, '0'), label: t('hours') },
+    { value: mins.toString().padStart(2, '0'), label: t('minutes') },
+    { value: secs.toString().padStart(2, '0'), label: t('seconds') },
   ];
 
   return (
@@ -77,7 +88,7 @@ function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
       <div className="text-center mb-4">
         <p className="text-sm font-semibold text-primary font-bengali flex items-center justify-center gap-2">
           <Bell className="w-4 h-4" />
-          {language === 'bn' ? 'আসন্ন পরীক্ষা:' : 'Next Exam:'} {reminder.title_bn || reminder.title}
+          {t('nextExam')}: {reminder.title_bn || reminder.title}
         </p>
       </div>
       <div className="flex justify-center gap-3">
@@ -131,15 +142,19 @@ export function DashboardView({
       .sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())[0] || null;
   }, [examReminders]);
 
+  // Pick one quote per day consistently, use defaults if no user quotes
   const featuredQuote = useMemo(() => {
-    return quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
+    const allQuotes = quotes.length > 0 ? quotes : DEFAULT_QUOTES;
+    const today = new Date();
+    const dayIndex = (today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate()) % allQuotes.length;
+    return allQuotes[dayIndex];
   }, [quotes]);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    if (hours === 0) return `${mins}${language === 'bn' ? 'মি' : 'm'}`;
-    return `${hours}${language === 'bn' ? 'ঘ' : 'h'} ${mins}${language === 'bn' ? 'মি' : 'm'}`;
+    if (hours === 0) return `${mins}${t('minute')}`;
+    return `${hours}${t('hour')} ${mins}${t('minute')}`;
   };
 
   const topSubjects = [...dashboardSubjects]
@@ -152,10 +167,10 @@ export function DashboardView({
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return language === 'bn' ? '🌅 সুপ্রভাত!' : '🌅 Good morning!';
-    if (hour < 17) return language === 'bn' ? '☀️ শুভ দুপুর!' : '☀️ Good afternoon!';
-    if (hour < 21) return language === 'bn' ? '🌙 শুভ সন্ধ্যা!' : '🌙 Good evening!';
-    return language === 'bn' ? '🌟 রাতের পড়াশোনা?' : '🌟 Late night grind?';
+    if (hour < 12) return t('morningGreeting');
+    if (hour < 17) return t('afternoonGreeting');
+    if (hour < 21) return t('eveningGreeting');
+    return t('nightGreeting');
   };
 
   return (
@@ -177,8 +192,8 @@ export function DashboardView({
           <h1 className="text-3xl font-bold text-foreground font-bengali">
             {getGreeting()}
           </h1>
-          <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
-            {language === 'bn' ? 'আজকে কি প্ল্যান?' : "What's the plan today?"}
+           <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
+            {t('whatsPlan')}
             <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
@@ -186,14 +201,14 @@ export function DashboardView({
             <Flame className="w-4 h-4 text-destructive" />
             <span className="font-bengali font-semibold">
               {currentStreak > 0 
-                ? (language === 'bn' ? `${currentStreak} দিন স্ট্রিক! 🔥` : `${currentStreak} day streak! 🔥`)
-                : (language === 'bn' ? 'আজ পড়া শুরু করো! 💪' : 'Start studying today! 💪')
+                ? `${currentStreak} ${t('dayStreak')} 🔥`
+                : t('startStudying')
               }
             </span>
           </div>
           {currentStreak === 0 && (
             <p className="text-xs text-muted-foreground mt-1 font-bengali">
-              {language === 'bn' ? '⚠️ স্টাডি লগে সময় যোগ করলে স্ট্রিক শুরু হবে' : '⚠️ Add time in Study Log to start streak'}
+              {t('streakHint')}
             </p>
           )}
         </div>
@@ -205,7 +220,7 @@ export function DashboardView({
               <div className="text-center">
                 <p className="text-xl font-bold text-foreground">{overallProgress.toFixed(0)}%</p>
                 <p className="text-[10px] text-muted-foreground font-bengali">
-                  {language === 'bn' ? 'সম্পূর্ণ' : 'Overall'}
+                  {t('overall')}
                 </p>
               </div>
             </ProgressRing>
@@ -218,16 +233,16 @@ export function DashboardView({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title={language === 'bn' ? 'মোট বিষয়' : 'Total Subjects'} value={subjects.length}
-          subtitle={`${completedChapters}/${totalChapters} ${language === 'bn' ? 'অধ্যায়' : 'chapters'}`}
+        <StatsCard title={t('totalSubjects')} value={dashboardSubjects.length}
+          subtitle={`${completedChapters}/${totalChapters} ${t('chapters')}`}
           icon={BookOpen}
         />
         <StatsCard title={t('todayStudyTime')} value={formatTime(todayTime)}
           icon={Timer} iconClassName="bg-accent/10 text-accent"
         />
-        <StatsCard title={language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+        <StatsCard title={t('activeGoals')}
           value={activeGoals.length}
-          subtitle={`${completedGoals.length} ${language === 'bn' ? 'সম্পন্ন' : 'completed'}`}
+          subtitle={`${completedGoals.length} ${t('completed')}`}
           icon={Target} iconClassName="bg-success/10 text-success"
         />
         <StatsCard title={t('weekStudyTime')} value={formatTime(weekTime)}
@@ -243,7 +258,7 @@ export function DashboardView({
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
               <BookOpen className="w-5 h-5 text-primary" />
-              {language === 'bn' ? 'আপনার বিষয়সমূহ' : 'Your Subjects'}
+              {t('yourSubjects')}
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {topSubjects.map((subject, index) => (
@@ -261,9 +276,20 @@ export function DashboardView({
           {config.showQuotes && featuredQuote && (
             <div className="space-y-3">
               <h2 className="text-xl font-semibold text-foreground font-bengali">
-                ✨ {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
+                ✨ {t('dailyMotivation')}
               </h2>
-              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
+              {featuredQuote.id.startsWith('default-') ? (
+                <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5 animate-glow-pulse relative overflow-hidden">
+                  <p className={cn("text-xl font-medium leading-relaxed", featuredQuote.is_bengali ? "font-bengali" : "")}>
+                    "{featuredQuote.text}"
+                  </p>
+                  {featuredQuote.author && (
+                    <p className="mt-4 text-sm text-muted-foreground">— {featuredQuote.author}</p>
+                  )}
+                </div>
+              ) : (
+                <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
+              )}
             </div>
           )}
 
@@ -291,7 +317,7 @@ export function DashboardView({
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
                 <Target className="w-5 h-5 text-primary" />
-                {language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+                {t('activeGoals')}
               </h2>
               {activeGoals.slice(0, 2).map((goal) => (
                 <GoalCard key={goal.id} goal={goal}
