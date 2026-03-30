@@ -153,8 +153,8 @@ export function DashboardView({
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    if (hours === 0) return `${mins}${language === 'bn' ? 'মি' : 'm'}`;
-    return `${hours}${language === 'bn' ? 'ঘ' : 'h'} ${mins}${language === 'bn' ? 'মি' : 'm'}`;
+    if (hours === 0) return `${mins}${t('minute')}`;
+    return `${hours}${t('hour')} ${mins}${t('minute')}`;
   };
 
   const topSubjects = [...dashboardSubjects]
@@ -167,10 +167,10 @@ export function DashboardView({
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return language === 'bn' ? '🌅 সুপ্রভাত!' : '🌅 Good morning!';
-    if (hour < 17) return language === 'bn' ? '☀️ শুভ দুপুর!' : '☀️ Good afternoon!';
-    if (hour < 21) return language === 'bn' ? '🌙 শুভ সন্ধ্যা!' : '🌙 Good evening!';
-    return language === 'bn' ? '🌟 রাতের পড়াশোনা?' : '🌟 Late night grind?';
+    if (hour < 12) return t('morningGreeting');
+    if (hour < 17) return t('afternoonGreeting');
+    if (hour < 21) return t('eveningGreeting');
+    return t('nightGreeting');
   };
 
   return (
