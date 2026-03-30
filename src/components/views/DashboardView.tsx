@@ -277,7 +277,18 @@ export function DashboardView({
               <h2 className="text-xl font-semibold text-foreground font-bengali">
                 ✨ {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
               </h2>
-              <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
+              {featuredQuote.id.startsWith('default-') ? (
+                <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5 animate-glow-pulse relative overflow-hidden">
+                  <p className={cn("text-xl font-medium leading-relaxed", featuredQuote.is_bengali ? "font-bengali" : "")}>
+                    "{featuredQuote.text}"
+                  </p>
+                  {featuredQuote.author && (
+                    <p className="mt-4 text-sm text-muted-foreground">— {featuredQuote.author}</p>
+                  )}
+                </div>
+              ) : (
+                <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
+              )}
             </div>
           )}
 
