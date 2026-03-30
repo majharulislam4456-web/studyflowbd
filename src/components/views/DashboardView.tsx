@@ -192,8 +192,8 @@ export function DashboardView({
           <h1 className="text-3xl font-bold text-foreground font-bengali">
             {getGreeting()}
           </h1>
-          <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
-            {language === 'bn' ? 'আজকে কি প্ল্যান?' : "What's the plan today?"}
+           <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
+            {t('whatsPlan')}
             <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
@@ -201,14 +201,14 @@ export function DashboardView({
             <Flame className="w-4 h-4 text-destructive" />
             <span className="font-bengali font-semibold">
               {currentStreak > 0 
-                ? (language === 'bn' ? `${currentStreak} দিন স্ট্রিক! 🔥` : `${currentStreak} day streak! 🔥`)
-                : (language === 'bn' ? 'আজ পড়া শুরু করো! 💪' : 'Start studying today! 💪')
+                ? `${currentStreak} ${t('dayStreak')} 🔥`
+                : t('startStudying')
               }
             </span>
           </div>
           {currentStreak === 0 && (
             <p className="text-xs text-muted-foreground mt-1 font-bengali">
-              {language === 'bn' ? '⚠️ স্টাডি লগে সময় যোগ করলে স্ট্রিক শুরু হবে' : '⚠️ Add time in Study Log to start streak'}
+              {t('streakHint')}
             </p>
           )}
         </div>
@@ -220,7 +220,7 @@ export function DashboardView({
               <div className="text-center">
                 <p className="text-xl font-bold text-foreground">{overallProgress.toFixed(0)}%</p>
                 <p className="text-[10px] text-muted-foreground font-bengali">
-                  {language === 'bn' ? 'সম্পূর্ণ' : 'Overall'}
+                  {t('overall')}
                 </p>
               </div>
             </ProgressRing>
