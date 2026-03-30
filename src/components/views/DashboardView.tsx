@@ -131,8 +131,12 @@ export function DashboardView({
       .sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())[0] || null;
   }, [examReminders]);
 
+  // Pick one quote per day consistently
   const featuredQuote = useMemo(() => {
-    return quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : null;
+    if (quotes.length === 0) return null;
+    const today = new Date();
+    const dayIndex = (today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate()) % quotes.length;
+    return quotes[dayIndex];
   }, [quotes]);
 
   const formatTime = (minutes: number) => {
