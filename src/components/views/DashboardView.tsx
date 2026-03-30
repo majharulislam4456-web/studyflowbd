@@ -317,7 +317,7 @@ export function DashboardView({
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
                 <Target className="w-5 h-5 text-primary" />
-                {language === 'bn' ? 'সক্রিয় লক্ষ্য' : 'Active Goals'}
+                {t('activeGoals')}
               </h2>
               {activeGoals.slice(0, 2).map((goal) => (
                 <GoalCard key={goal.id} goal={goal}
