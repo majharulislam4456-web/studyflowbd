@@ -17,6 +17,16 @@ import { calculateStreak } from '@/utils/streak';
 import { differenceInSeconds } from 'date-fns';
 import type { Subject, Goal, Quote, StudySession, Syllabus } from '@/hooks/useSupabaseData';
 
+const DEFAULT_QUOTES: Quote[] = [
+  { id: 'default-1', user_id: '', text: 'সফলতা চূড়ান্ত নয়, ব্যর্থতা মারাত্মক নয়: চালিয়ে যাওয়ার সাহসই গুরুত্বপূর্ণ।', author: 'Winston Churchill', is_bengali: true, created_at: '' },
+  { id: 'default-2', user_id: '', text: 'শিক্ষার শেকড়ের স্বাদ তিক্ত হলেও এর ফল মিষ্টি।', author: 'Aristotle', is_bengali: true, created_at: '' },
+  { id: 'default-3', user_id: '', text: 'তুমি যদি স্বপ্ন দেখতে পারো, তুমি তা করতেও পারো।', author: 'Walt Disney', is_bengali: true, created_at: '' },
+  { id: 'default-4', user_id: '', text: 'কঠোর পরিশ্রম প্রতিভাকে হারায় যখন প্রতিভা কঠোর পরিশ্রম করে না।', author: 'Tim Notke', is_bengali: true, created_at: '' },
+  { id: 'default-5', user_id: '', text: 'আজকের পড়াশোনা আগামীর সাফল্য।', author: '', is_bengali: true, created_at: '' },
+  { id: 'default-6', user_id: '', text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs', is_bengali: false, created_at: '' },
+  { id: 'default-7', user_id: '', text: 'Education is the most powerful weapon which you can use to change the world.', author: 'Nelson Mandela', is_bengali: false, created_at: '' },
+];
+
 interface ExamReminder {
   id: string;
   title: string;
