@@ -141,12 +141,12 @@ export function DashboardView({
       .sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())[0] || null;
   }, [examReminders]);
 
-  // Pick one quote per day consistently
+  // Pick one quote per day consistently, use defaults if no user quotes
   const featuredQuote = useMemo(() => {
-    if (quotes.length === 0) return null;
+    const allQuotes = quotes.length > 0 ? quotes : DEFAULT_QUOTES;
     const today = new Date();
-    const dayIndex = (today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate()) % quotes.length;
-    return quotes[dayIndex];
+    const dayIndex = (today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate()) % allQuotes.length;
+    return allQuotes[dayIndex];
   }, [quotes]);
 
   const formatTime = (minutes: number) => {
