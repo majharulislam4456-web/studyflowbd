@@ -276,7 +276,7 @@ export function DashboardView({
           {config.showQuotes && featuredQuote && (
             <div className="space-y-3">
               <h2 className="text-xl font-semibold text-foreground font-bengali">
-                ✨ {language === 'bn' ? 'দৈনিক অনুপ্রেরণা' : 'Daily Motivation'}
+                ✨ {t('dailyMotivation')}
               </h2>
               {featuredQuote.id.startsWith('default-') ? (
                 <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5 animate-glow-pulse relative overflow-hidden">
