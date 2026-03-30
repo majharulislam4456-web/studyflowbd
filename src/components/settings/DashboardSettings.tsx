@@ -74,26 +74,19 @@ export function DashboardSettings({ syllabuses, config, onUpdateConfig }: Dashbo
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  const toggleSyllabus = (id: string) => {
-    const current = config.selectedSyllabusIds;
-    if (current.length === 0) {
-      // Currently showing all, now select only all except this one
-      const allIds = syllabuses.map(s => s.id).filter(sid => sid !== id);
-      onUpdateConfig({ selectedSyllabusIds: allIds });
-    } else if (current.includes(id)) {
-      const next = current.filter(sid => sid !== id);
-      // If removing last one, reset to show all
-      onUpdateConfig({ selectedSyllabusIds: next.length === 0 ? [] : next });
-    } else {
-      const next = [...current, id];
-      // If all selected, reset to empty (means all)
-      onUpdateConfig({ selectedSyllabusIds: next.length === syllabuses.length ? [] : next });
-    }
+  const selectAll = () => {
+    onUpdateConfig({ selectedSyllabusIds: [] });
+  };
+
+  const selectSyllabus = (id: string) => {
+    onUpdateConfig({ selectedSyllabusIds: [id] });
   };
 
   const isSyllabusSelected = (id: string) => {
-    return config.selectedSyllabusIds.length === 0 || config.selectedSyllabusIds.includes(id);
+    return config.selectedSyllabusIds.length === 1 && config.selectedSyllabusIds[0] === id;
   };
+
+  const isAllSelected = config.selectedSyllabusIds.length === 0;
 
   const sections = [
     { key: 'showWeeklyChart' as const, label: language === 'bn' ? 'সাপ্তাহিক চার্ট' : 'Weekly Chart' },
