@@ -222,7 +222,7 @@ export function DashboardView({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title={language === 'bn' ? 'মোট বিষয়' : 'Total Subjects'} value={subjects.length}
+        <StatsCard title={t('subjects')} value={dashboardSubjects.length}
           subtitle={`${completedChapters}/${totalChapters} ${language === 'bn' ? 'অধ্যায়' : 'chapters'}`}
           icon={BookOpen}
         />
