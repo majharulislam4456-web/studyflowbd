@@ -21,9 +21,11 @@ import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
 import { CalendarView } from '@/components/views/CalendarView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
+import { FloatingStopwatch } from '@/components/logger/FloatingStopwatch';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { useGlobalStopwatch } from '@/contexts/StopwatchContext';
 import { applyDailyTheme } from '@/utils/dailyTheme';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -34,6 +36,7 @@ const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const pomodoro = useGlobalPomodoro();
+  const stopwatch = useGlobalStopwatch();
   const [examReminders, setExamReminders] = useState<{ id: string; title: string; title_bn: string | null; exam_date: string }[]>([]);
 
   useEffect(() => {
@@ -169,6 +172,9 @@ const Index = () => {
           onStart={pomodoro.start} onPause={pomodoro.pause} onClose={pomodoro.close}
           onExpand={() => { pomodoro.maximize(); setActiveTab('pomodoro'); }}
         />
+      )}
+      {activeTab !== 'logger' && (stopwatch.isRunning || stopwatch.time > 0) && (
+        <FloatingStopwatch onExpand={() => setActiveTab('logger')} />
       )}
     </div>
   );
