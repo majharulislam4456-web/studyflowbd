@@ -67,7 +67,7 @@ export function ExamReminderView() {
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(r.reminder_type === 'revision' ? '📖 Revision Reminder!' : '📝 Exam Reminder!', {
               body: `${r.title} - ${format(examTime, 'PPp')}`,
-              icon: '/logo.jpg',
+              icon: '/favicon.png',
             });
           }
           toast({
