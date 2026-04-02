@@ -173,6 +173,9 @@ const Index = () => {
           onExpand={() => { pomodoro.maximize(); setActiveTab('pomodoro'); }}
         />
       )}
+      {activeTab !== 'logger' && (stopwatch.isRunning || stopwatch.time > 0) && (
+        <FloatingStopwatch onExpand={() => setActiveTab('logger')} />
+      )}
     </div>
   );
 };
