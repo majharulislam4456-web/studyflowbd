@@ -21,9 +21,11 @@ import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
 import { CalendarView } from '@/components/views/CalendarView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
+import { FloatingStopwatch } from '@/components/logger/FloatingStopwatch';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { useGlobalStopwatch } from '@/contexts/StopwatchContext';
 import { applyDailyTheme } from '@/utils/dailyTheme';
 import { supabase } from '@/integrations/supabase/client';
 
