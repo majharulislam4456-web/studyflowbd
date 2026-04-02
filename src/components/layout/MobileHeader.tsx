@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import logoImg from '@/assets/logo.jpg';
+import logoImg from '@/assets/logo.png';
 
 interface MobileHeaderProps {
   isDark: boolean;

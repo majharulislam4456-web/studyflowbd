@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
-import logoImg from '@/assets/logo.jpg';
+import logoImg from '@/assets/logo.png';
 
 interface AboutAppProps {
   open: boolean;

@@ -3,7 +3,7 @@ import { GraduationCap, BookOpen, FlaskConical, Palette, Briefcase, ArrowRight, 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import logoImg from '@/assets/logo.jpg';
+import logoImg from '@/assets/logo.png';
 
 const CLASS_OPTIONS = [
   { value: '6', label: 'Class 6', labelBn: '৬ষ্ঠ শ্রেণি' },

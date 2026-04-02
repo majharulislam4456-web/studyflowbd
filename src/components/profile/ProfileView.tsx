@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { calculateStreak } from '@/utils/streak';
-import logoImg from '@/assets/logo.jpg';
+import logoImg from '@/assets/logo.png';
 
 interface ProfileViewProps {
   profile: Profile | null;
