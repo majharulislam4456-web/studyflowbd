@@ -36,6 +36,7 @@ const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const pomodoro = useGlobalPomodoro();
+  const stopwatch = useGlobalStopwatch();
   const [examReminders, setExamReminders] = useState<{ id: string; title: string; title_bn: string | null; exam_date: string }[]>([]);
 
   useEffect(() => {
