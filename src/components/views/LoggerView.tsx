@@ -19,17 +19,11 @@ interface LoggerViewProps {
 }
 
 export function LoggerView({
-  subjects,
-  sessions,
-  addSession,
-  updateSession,
-  deleteSession,
-  getTodayStudyTime,
-  getWeekStudyTime,
+  subjects, sessions, addSession, updateSession, deleteSession,
+  getTodayStudyTime, getWeekStudyTime,
 }: LoggerViewProps) {
   const { language } = useLanguage();
 
-  // Only show current week sessions (Sat-Fri)
   const weekSessions = filterCurrentWeekSessions(sessions);
   const weekStart = getWeekStartSaturday();
   const weekEnd = getWeekEndFriday();
@@ -44,14 +38,16 @@ export function LoggerView({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="page-container">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <PenTool className="w-8 h-8 text-primary" />
+        <h1 className="page-title">
+          <div className="p-2 rounded-xl bg-primary/10">
+            <PenTool className="w-5 h-5 text-primary" />
+          </div>
           {language === 'bn' ? 'স্টাডি লগার' : 'Study Logger'}
         </h1>
-        <p className="text-muted-foreground mt-1 font-bengali">
+        <p className="page-subtitle">
           {language === 'bn' ? 'আপনার পড়াশোনার সময় রেকর্ড করুন' : 'Record your study time'}
         </p>
       </div>
@@ -85,10 +81,10 @@ export function LoggerView({
         
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-foreground font-bengali">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-bengali">
               {language === 'bn' ? 'এই সপ্তাহের সেশন' : "This Week's Sessions"}
             </h3>
-            <span className="text-xs text-muted-foreground font-bengali">
+            <span className="text-[11px] text-muted-foreground font-bengali bg-muted px-2 py-0.5 rounded-md">
               {format(weekStart, 'dd/MM')} - {format(weekEnd, 'dd/MM')}
               {' '}({language === 'bn' ? 'শনি-শুক্র' : 'Sat-Fri'})
             </span>
