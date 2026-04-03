@@ -84,22 +84,25 @@ function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
   ];
 
   return (
-    <div className="glass-card p-5 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
-      <div className="text-center mb-4">
-        <p className="text-sm font-semibold text-primary font-bengali flex items-center justify-center gap-2">
-          <Bell className="w-4 h-4" />
-          {t('nextExam')}: {reminder.title_bn || reminder.title}
-        </p>
-      </div>
-      <div className="flex justify-center gap-3">
-        {boxes.map((box, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-xl border-2 border-primary/30 bg-background/80 flex items-center justify-center shadow-sm">
-              <span className="text-2xl font-bold text-foreground tabular-nums">{box.value}</span>
+    <div className="glass-card p-5 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+      <div className="relative">
+        <div className="text-center mb-4">
+          <p className="text-xs font-semibold text-primary font-bengali flex items-center justify-center gap-2 uppercase tracking-wider">
+            <Bell className="w-3.5 h-3.5" />
+            {t('nextExam')}: {reminder.title_bn || reminder.title}
+          </p>
+        </div>
+        <div className="flex justify-center gap-3">
+          {boxes.map((box, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="w-14 h-14 rounded-xl border border-border/80 bg-background/60 flex items-center justify-center">
+                <span className="text-xl font-bold text-foreground tabular-nums">{box.value}</span>
+              </div>
+              <span className="text-[9px] font-semibold text-muted-foreground mt-1.5 uppercase tracking-widest">{box.label}</span>
             </div>
-            <span className="text-[10px] font-medium text-muted-foreground mt-1 uppercase tracking-wider">{box.label}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -131,10 +134,8 @@ export function DashboardView({
 
   const activeGoals = goals.filter(g => !g.is_completed);
   const completedGoals = goals.filter(g => g.is_completed);
-
   const currentStreak = calculateStreak(sessions);
 
-  // Find nearest upcoming exam
   const upcomingExam = useMemo(() => {
     const now = new Date();
     return examReminders
@@ -142,7 +143,6 @@ export function DashboardView({
       .sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())[0] || null;
   }, [examReminders]);
 
-  // Pick one quote per day consistently, use defaults if no user quotes
   const featuredQuote = useMemo(() => {
     const allQuotes = quotes.length > 0 ? quotes : DEFAULT_QUOTES;
     const today = new Date();
@@ -174,52 +174,40 @@ export function DashboardView({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="page-container">
       {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div className="relative">
-          {todayTime > 60 && (
-            <div className="absolute -top-2 -left-6 animate-float">
-              <Flame className="w-6 h-6 text-destructive" />
-            </div>
-          )}
-          {completedGoals.length > 0 && (
-            <div className="absolute -top-2 -right-2 animate-bounce">
-              <Trophy className="w-5 h-5 text-warning" />
-            </div>
-          )}
-          
-          <h1 className="text-3xl font-bold text-foreground font-bengali">
-            {getGreeting()}
-          </h1>
-           <p className="text-muted-foreground mt-1 font-bengali flex items-center gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground font-bengali tracking-tight">
+              {getGreeting()}
+            </h1>
+            {completedGoals.length > 0 && (
+              <Trophy className="w-5 h-5 text-accent animate-bounce" />
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground font-bengali flex items-center gap-2">
             {t('whatsPlan')}
-            <Sparkles className="w-4 h-4 text-accent animate-pulse" />
           </p>
           
-          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-accent/20 to-primary/20 text-sm border border-primary/10">
-            <Flame className="w-4 h-4 text-destructive" />
-            <span className="font-bengali font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-card border border-border/60" style={{ boxShadow: 'var(--shadow-sm)' }}>
+            <Flame className="w-3.5 h-3.5 text-destructive" />
+            <span className="font-bengali">
               {currentStreak > 0 
                 ? `${currentStreak} ${t('dayStreak')} 🔥`
                 : t('startStudying')
               }
             </span>
           </div>
-          {currentStreak === 0 && (
-            <p className="text-xs text-muted-foreground mt-1 font-bengali">
-              {t('streakHint')}
-            </p>
-          )}
         </div>
         
         <div className="flex items-center gap-4">
           <DashboardSettings syllabuses={syllabuses} config={config} onUpdateConfig={updateConfig} />
-          <div className="relative group">
-            <ProgressRing progress={overallProgress} size={100} strokeWidth={8}>
+          <div className="relative">
+            <ProgressRing progress={overallProgress} size={90} strokeWidth={7}>
               <div className="text-center">
-                <p className="text-xl font-bold text-foreground">{overallProgress.toFixed(0)}%</p>
-                <p className="text-[10px] text-muted-foreground font-bengali">
+                <p className="text-lg font-bold text-foreground tabular-nums">{overallProgress.toFixed(0)}%</p>
+                <p className="text-[9px] text-muted-foreground font-bengali uppercase tracking-wider">
                   {t('overall')}
                 </p>
               </div>
@@ -253,12 +241,14 @@ export function DashboardView({
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left column - subjects + motivation + upcoming exam */}
+        {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
-              <BookOpen className="w-5 h-5 text-primary" />
-              {t('yourSubjects')}
+            <h2 className="section-header">
+              <BookOpen className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground uppercase tracking-wider font-bengali">
+                {t('yourSubjects')}
+              </span>
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {topSubjects.map((subject, index) => (
@@ -272,20 +262,26 @@ export function DashboardView({
             </div>
           </div>
 
-          {/* Motivation below subjects */}
+          {/* Motivation */}
           {config.showQuotes && featuredQuote && (
             <div className="space-y-3">
-              <h2 className="text-xl font-semibold text-foreground font-bengali">
-                ✨ {t('dailyMotivation')}
+              <h2 className="section-header">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-sm font-semibold text-foreground uppercase tracking-wider font-bengali">
+                  {t('dailyMotivation')}
+                </span>
               </h2>
               {featuredQuote.id.startsWith('default-') ? (
-                <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5 animate-glow-pulse relative overflow-hidden">
-                  <p className={cn("text-xl font-medium leading-relaxed", featuredQuote.is_bengali ? "font-bengali" : "")}>
-                    "{featuredQuote.text}"
-                  </p>
-                  {featuredQuote.author && (
-                    <p className="mt-4 text-sm text-muted-foreground">— {featuredQuote.author}</p>
-                  )}
+                <div className="glass-card p-6 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+                  <div className="relative">
+                    <p className={cn("text-lg font-medium leading-relaxed", featuredQuote.is_bengali ? "font-bengali" : "")}>
+                      "{featuredQuote.text}"
+                    </p>
+                    {featuredQuote.author && (
+                      <p className="mt-3 text-xs text-muted-foreground font-medium">— {featuredQuote.author}</p>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <QuoteCard quote={featuredQuote} onDelete={deleteQuote} onEdit={setEditQuote} featured />
@@ -294,30 +290,30 @@ export function DashboardView({
           )}
 
           {/* Upcoming Exam Countdown */}
-          {upcomingExam && (
-            <UpcomingExamCountdown reminder={upcomingExam} />
-          )}
+          {upcomingExam && <UpcomingExamCountdown reminder={upcomingExam} />}
         </div>
 
         {/* Right column */}
         <div className="space-y-6">
           {config.showDailyTasks && (
-            <div className="glass-card p-4">
+            <div className="glass-card p-5">
               <DailyTaskList dailyTasks={dailyTasks} addDailyTask={addDailyTask} updateDailyTask={updateDailyTask} deleteDailyTask={deleteDailyTask} />
             </div>
           )}
 
           {config.showTodos && (
-            <div className="glass-card p-4">
+            <div className="glass-card p-5">
               <TodoList todos={todos} addTodo={async () => {}} updateTodo={updateTodo} deleteTodo={async () => {}} compact />
             </div>
           )}
 
           {config.showGoals && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2 font-bengali">
-                <Target className="w-5 h-5 text-primary" />
-                {t('activeGoals')}
+              <h2 className="section-header">
+                <Target className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground uppercase tracking-wider font-bengali">
+                  {t('activeGoals')}
+                </span>
               </h2>
               {activeGoals.slice(0, 2).map((goal) => (
                 <GoalCard key={goal.id} goal={goal}

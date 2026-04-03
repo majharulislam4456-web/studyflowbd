@@ -9,14 +9,15 @@ interface AnalyticsViewProps {
 
 export function AnalyticsView({ sessions, subjects }: AnalyticsViewProps) {
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header */}
+    <div className="page-container">
       <div>
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <BarChart3 className="w-8 h-8 text-primary" />
+        <h1 className="page-title">
+          <div className="p-2 rounded-xl bg-primary/10">
+            <BarChart3 className="w-5 h-5 text-primary" />
+          </div>
           Analytics
         </h1>
-        <p className="text-muted-foreground mt-1 font-bengali">
+        <p className="page-subtitle">
           পরিসংখ্যান - আপনার পড়াশোনার বিশ্লেষণ দেখুন
         </p>
       </div>
