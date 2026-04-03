@@ -162,7 +162,7 @@ const Index = () => {
       <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab} isDark={isDark} toggleTheme={toggleTheme} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} profile={profile} />
       <main className={cn("flex-1 min-h-screen", "pb-24 md:pb-0")}>
         <MobileHeader isDark={isDark} toggleTheme={toggleTheme} setActiveTab={setActiveTab} />
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">{renderView()}</div>
+        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">{renderView()}</div>
       </main>
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
       {pomodoro.isMinimized && (pomodoro.isRunning || pomodoro.phase !== 'idle') && (
