@@ -27,30 +27,32 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <div className={cn(
-      "glass-card p-5 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 group animate-fade-in-up",
+      "stat-card group animate-fade-in-up",
       className
     )}>
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {title}
-            {titleBn && <span className="font-bengali ml-1 opacity-70">({titleBn})</span>}
+            {titleBn && <span className="font-bengali ml-1 opacity-70 normal-case">({titleBn})</span>}
           </p>
-          <p className="text-2xl font-bold text-foreground">{value}</p>
+          <p className="text-3xl font-bold text-foreground tracking-tight">{value}</p>
           {subtitle && (
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           )}
           {trend && (
-            <p className={cn(
-              "text-xs font-medium",
-              trend.isPositive ? "text-success" : "text-destructive"
+            <div className={cn(
+              "inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full",
+              trend.isPositive 
+                ? "bg-success/10 text-success" 
+                : "bg-destructive/10 text-destructive"
             )}>
-              {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}% from last week
-            </p>
+              {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+            </div>
           )}
         </div>
         <div className={cn(
-          "p-3 rounded-xl bg-primary/10 text-primary transition-smooth group-hover:scale-110",
+          "p-3 rounded-2xl bg-primary/8 text-primary transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
           iconClassName
         )}>
           <Icon className="w-5 h-5" />
