@@ -316,9 +316,10 @@ export function DashboardView({
                 </span>
               </h2>
               {activeGoals.slice(0, 2).map((goal) => (
-                <GoalCard key={goal.id} goal={goal}
+                <GoalCard key={goal.id} goal={goal} milestones={[]}
                   onUpdateProgress={(id, progress) => updateGoal(id, { progress, is_completed: progress >= 100 })}
                   onDelete={deleteGoal} onEdit={setEditGoal}
+                  onAddMilestone={() => {}} onUpdateMilestone={() => {}} onDeleteMilestone={() => {}}
                 />
               ))}
             </div>
