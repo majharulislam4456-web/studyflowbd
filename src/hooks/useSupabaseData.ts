@@ -38,6 +38,20 @@ export interface Goal {
   days_remaining: number;
   progress: number;
   is_completed: boolean;
+  deadline: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Milestone {
+  id: string;
+  goal_id: string;
+  user_id: string;
+  title: string;
+  title_bn: string | null;
+  is_completed: boolean;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }
