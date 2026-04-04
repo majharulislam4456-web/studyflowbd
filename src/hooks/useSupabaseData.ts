@@ -198,6 +198,7 @@ export function useSupabaseData() {
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
       if (syllabusesRes.data) setSyllabuses(syllabusesRes.data as Syllabus[]);
       if (goalsRes.data) setGoals(goalsRes.data as Goal[]);
+      if (milestonesRes.data) setMilestones(milestonesRes.data as Milestone[]);
       if (sessionsRes.data) setSessions(sessionsRes.data);
       if (quotesRes.data) setQuotes(quotesRes.data);
       if (todosRes.data) setTodos(todosRes.data as Todo[]);
