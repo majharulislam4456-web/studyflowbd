@@ -156,6 +156,7 @@ export function useSupabaseData() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [syllabuses, setSyllabuses] = useState<Syllabus[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
