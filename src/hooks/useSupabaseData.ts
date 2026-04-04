@@ -606,58 +606,48 @@ export function useSupabaseData() {
     setFlashcards(prev => prev.filter(f => f.id !== id));
   };
 
+  // MILESTONES
+  const addMilestone = async (milestone: Omit<Milestone, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase.from('milestones').insert({ ...milestone, user_id: user.id } as any).select().single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setMilestones(prev => [...prev, data as Milestone]);
+  };
+
+  const updateMilestone = async (id: string, updates: Partial<Milestone>) => {
+    const { error } = await supabase.from('milestones').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setMilestones(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+  };
+
+  const deleteMilestone = async (id: string) => {
+    const { error } = await supabase.from('milestones').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setMilestones(prev => prev.filter(m => m.id !== id));
+  };
+
   return useMemo(() => ({
-    subjects: sortedSubjects,
-    syllabuses,
-    goals,
-    sessions,
-    quotes,
-    todos,
-    dailyTasks,
-    notes,
-    routines,
-    flashcards,
-    profile,
-    loading,
-    addSyllabus,
-    updateSyllabus,
-    deleteSyllabus,
-    addSubject,
-    updateSubject,
-    deleteSubject,
-    addGoal,
-    updateGoal,
-    deleteGoal,
-    addSession,
-    updateSession,
-    deleteSession,
-    addQuote,
-    updateQuote,
-    deleteQuote,
-    addTodo,
-    updateTodo,
-    deleteTodo,
-    addDailyTask,
-    updateDailyTask,
-    deleteDailyTask,
-    addNote,
-    updateNote,
-    deleteNote,
-    addRoutine,
-    deleteRoutine,
-    addFlashcard,
-    updateFlashcard,
-    deleteFlashcard,
-    updateProfile,
-    getTodayStudyTime,
-    getWeekStudyTime,
-    refetch: fetchData,
-  }), [
-    sortedSubjects, syllabuses, goals, sessions, quotes, todos, dailyTasks,
+    subjects: sortedSubjects, syllabuses, goals, milestones, sessions, quotes, todos, dailyTasks,
     notes, routines, flashcards, profile, loading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
     addGoal, updateGoal, deleteGoal,
+    addMilestone, updateMilestone, deleteMilestone,
+    addSession, updateSession, deleteSession,
+    addQuote, updateQuote, deleteQuote,
+    addTodo, updateTodo, deleteTodo,
+    addDailyTask, updateDailyTask, deleteDailyTask,
+    addNote, updateNote, deleteNote,
+    addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
+    updateProfile, getTodayStudyTime, getWeekStudyTime, refetch: fetchData,
+  }), [
+    sortedSubjects, syllabuses, goals, milestones, sessions, quotes, todos, dailyTasks,
+    notes, routines, flashcards, profile, loading,
+    addSyllabus, updateSyllabus, deleteSyllabus,
+    addSubject, updateSubject, deleteSubject,
+    addGoal, updateGoal, deleteGoal,
+    addMilestone, updateMilestone, deleteMilestone,
     addSession, updateSession, deleteSession,
     addQuote, updateQuote, deleteQuote,
     addTodo, updateTodo, deleteTodo,
