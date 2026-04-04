@@ -2,21 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Calendar } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Goal } from '@/hooks/useSupabaseData';
 
 interface AddGoalDialogProps {
@@ -24,98 +13,101 @@ interface AddGoalDialogProps {
 }
 
 export function AddGoalDialog({ onAdd }: AddGoalDialogProps) {
+  const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [titleBn, setTitleBn] = useState('');
-  const [type, setType] = useState<'mission' | 'weekly' | 'short'>('weekly');
-
-  const getDaysForType = (t: string) => {
-    switch (t) {
-      case 'mission': return 30;
-      case 'weekly': return 7;
-      case 'short': return 3;
-      default: return 7;
-    }
-  };
+  const [description, setDescription] = useState('');
+  const [deadline, setDeadline] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const daysTotal = getDaysForType(type);
+    const deadlineDate = deadline ? new Date(deadline) : null;
+    const now = new Date();
+    const daysTotal = deadlineDate ? Math.max(1, Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 30;
 
     onAdd({
       title: title.trim(),
       title_bn: titleBn.trim() || null,
-      type,
+      type: daysTotal <= 3 ? 'short' : daysTotal <= 7 ? 'weekly' : 'mission',
       days_total: daysTotal,
       days_remaining: daysTotal,
       progress: 0,
       is_completed: false,
+      deadline: deadline || null,
+      description: description.trim() || null,
     });
 
-    setTitle('');
-    setTitleBn('');
-    setType('weekly');
+    setTitle(''); setTitleBn(''); setDescription(''); setDeadline('');
     setOpen(false);
   };
+
+  const isBn = language === 'bn';
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="gradient" className="gap-2">
           <Plus className="w-4 h-4" />
-          Add Goal / <span className="font-bengali">লক্ষ্য যোগ করুন</span>
+          {isBn ? 'লক্ষ্য যোগ করুন' : 'Add Goal'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            Create New Goal / <span className="font-bengali">নতুন লক্ষ্য তৈরি করুন</span>
+          <DialogTitle className="font-bengali">
+            {isBn ? 'নতুন লক্ষ্য তৈরি করুন' : 'Create New Goal'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Goal Title (English)</Label>
+            <Label>{isBn ? 'লক্ষ্যের শিরোনাম' : 'Goal Title'}</Label>
             <Input
-              id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Complete Physics Syllabus"
+              placeholder={isBn ? 'যেমন: বিসিএস প্রিপারেশন' : 'e.g., BCS Preparation'}
               required
             />
           </div>
+          {language === 'en' && (
+            <div className="space-y-2">
+              <Label className="font-bengali">শিরোনাম (বাংলা)</Label>
+              <Input
+                value={titleBn}
+                onChange={(e) => setTitleBn(e.target.value)}
+                placeholder="বাংলায় শিরোনাম (ঐচ্ছিক)"
+                className="font-bengali"
+              />
+            </div>
+          )}
           <div className="space-y-2">
-            <Label htmlFor="titleBn" className="font-bengali">লক্ষ্যের শিরোনাম (বাংলা)</Label>
-            <Input
-              id="titleBn"
-              value={titleBn}
-              onChange={(e) => setTitleBn(e.target.value)}
-              placeholder="যেমন: পদার্থবিজ্ঞান সিলেবাস সম্পূর্ণ করুন"
-              className="font-bengali"
+            <Label>{isBn ? 'বিবরণ (ঐচ্ছিক)' : 'Description (optional)'}</Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={isBn ? 'লক্ষ্য সম্পর্কে বিস্তারিত...' : 'Details about this goal...'}
+              rows={2}
+              className="resize-none"
             />
           </div>
           <div className="space-y-2">
-            <Label>Goal Type / <span className="font-bengali">লক্ষ্যের ধরন</span></Label>
-            <Select value={type} onValueChange={(v) => setType(v as any)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mission">
-                  Mission (30 days) / <span className="font-bengali">মিশন (৩০ দিন)</span>
-                </SelectItem>
-                <SelectItem value="weekly">
-                  Weekly (7 days) / <span className="font-bengali">সাপ্তাহিক (৭ দিন)</span>
-                </SelectItem>
-                <SelectItem value="short">
-                  Short-term (3 days) / <span className="font-bengali">স্বল্পমেয়াদী (৩ দিন)</span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              {isBn ? 'ডেডলাইন' : 'Deadline'}
+            </Label>
+            <Input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+            />
+            <p className="text-xs text-muted-foreground font-bengali">
+              {isBn ? 'ডেডলাইন না দিলে ৩০ দিন ধরা হবে' : 'Defaults to 30 days if no deadline set'}
+            </p>
           </div>
           <Button type="submit" className="w-full" variant="gradient">
-            Create Goal / <span className="font-bengali">লক্ষ্য তৈরি করুন</span>
+            {isBn ? 'লক্ষ্য তৈরি করুন' : 'Create Goal'}
           </Button>
         </form>
       </DialogContent>

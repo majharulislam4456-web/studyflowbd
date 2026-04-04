@@ -9,14 +9,14 @@ import { MobileNav } from '@/components/layout/MobileNav';
 import { MobileHeader } from '@/components/layout/MobileHeader';
 import { DashboardView } from '@/components/views/DashboardView';
 import { SyllabusView } from '@/components/views/SyllabusView';
-import { PomodoroView } from '@/components/views/PomodoroView';
+import { TimerView } from '@/components/views/TimerView';
 import { GoalsView } from '@/components/views/GoalsView';
 import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
 import { AnalyticsView } from '@/components/analytics/AnalyticsView';
-import { ProfileView } from '@/components/profile/ProfileView';
+import { SettingsView } from '@/components/views/SettingsView';
+import { TodosView } from '@/components/views/TodosView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
-import { StudyWithMeView } from '@/components/views/StudyWithMeView';
 import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
 import { CalendarView } from '@/components/views/CalendarView';
@@ -39,26 +39,23 @@ const Index = () => {
   const stopwatch = useGlobalStopwatch();
   const [examReminders, setExamReminders] = useState<{ id: string; title: string; title_bn: string | null; exam_date: string }[]>([]);
 
-  useEffect(() => {
-    applyDailyTheme();
-  }, []);
+  useEffect(() => { applyDailyTheme(); }, []);
 
-  // Fetch exam reminders for dashboard
   useEffect(() => {
     if (!user) return;
     supabase.from('exam_reminders').select('id, title, title_bn, exam_date')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
+      .eq('user_id', user.id).eq('is_active', true)
       .order('exam_date', { ascending: true })
       .then(({ data }) => { if (data) setExamReminders(data); });
   }, [user]);
   
   const {
-    subjects, syllabuses, goals, quotes, sessions, todos, dailyTasks, notes, routines, profile,
+    subjects, syllabuses, goals, milestones, quotes, sessions, todos, dailyTasks, notes, routines, profile,
     loading: dataLoading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
     addGoal, updateGoal, deleteGoal,
+    addMilestone, updateMilestone, deleteMilestone,
     addSession, updateSession, deleteSession,
     addQuote, updateQuote, deleteQuote,
     addTodo, updateTodo, deleteTodo,
@@ -86,18 +83,12 @@ const Index = () => {
   if (!user) return null;
 
   const needsOnboarding = profile && !(profile as any).student_class;
-
   const handleOnboardingComplete = async (studentClass: string, division: string | null, dream: string | null) => {
     await updateProfile({ student_class: studentClass, division, dream } as any);
   };
 
   if (needsOnboarding) {
-    return (
-      <OnboardingFlow
-        displayName={profile?.display_name || null}
-        onComplete={handleOnboardingComplete}
-      />
-    );
+    return <OnboardingFlow displayName={profile?.display_name || null} onComplete={handleOnboardingComplete} />;
   }
 
   const renderView = () => {
@@ -122,14 +113,16 @@ const Index = () => {
             addSyllabus={addSyllabus} updateSyllabus={updateSyllabus} deleteSyllabus={deleteSyllabus}
           />
         );
-      case 'pomodoro': return <PomodoroView />;
+      case 'timer': return <TimerView />;
       case 'goals':
         return (
-          <GoalsView goals={goals} todos={todos}
+          <GoalsView goals={goals} milestones={milestones}
             addGoal={addGoal} updateGoal={updateGoal} deleteGoal={deleteGoal}
-            addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo}
+            addMilestone={addMilestone} updateMilestone={updateMilestone} deleteMilestone={deleteMilestone}
           />
         );
+      case 'todos':
+        return <TodosView todos={todos} addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo} />;
       case 'logger':
         return (
           <LoggerView subjects={subjects} sessions={sessions}
@@ -143,16 +136,14 @@ const Index = () => {
         return <AnalyticsView sessions={sessions} subjects={subjects} />;
       case 'reminders':
         return <ExamReminderView />;
-      case 'studywithme':
-        return <StudyWithMeView />;
       case 'notes':
         return <NotesView notes={notes} subjects={subjects} addNote={addNote} updateNote={updateNote} deleteNote={deleteNote} />;
       case 'timetable':
         return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
       case 'calendar':
         return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
-      case 'profile':
-        return <ProfileView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
+      case 'settings':
+        return <SettingsView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
     }
   };
@@ -165,15 +156,15 @@ const Index = () => {
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">{renderView()}</div>
       </main>
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
-      {pomodoro.isMinimized && (pomodoro.isRunning || pomodoro.phase !== 'idle') && (
+      {pomodoro.isMinimized && (pomodoro.isRunning || pomodoro.phase !== 'idle') && activeTab !== 'timer' && (
         <FloatingPomodoroTimer
           phase={pomodoro.phase} formattedTime={pomodoro.formattedTime}
           isRunning={pomodoro.isRunning} progress={pomodoro.progress}
           onStart={pomodoro.start} onPause={pomodoro.pause} onClose={pomodoro.close}
-          onExpand={() => { pomodoro.maximize(); setActiveTab('pomodoro'); }}
+          onExpand={() => { pomodoro.maximize(); setActiveTab('timer'); }}
         />
       )}
-      {activeTab !== 'logger' && (stopwatch.isRunning || stopwatch.time > 0) && (
+      {activeTab !== 'logger' && activeTab !== 'timer' && (stopwatch.isRunning || stopwatch.time > 0) && (
         <FloatingStopwatch onExpand={() => setActiveTab('logger')} />
       )}
     </div>

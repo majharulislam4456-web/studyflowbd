@@ -38,6 +38,20 @@ export interface Goal {
   days_remaining: number;
   progress: number;
   is_completed: boolean;
+  deadline: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Milestone {
+  id: string;
+  goal_id: string;
+  user_id: string;
+  title: string;
+  title_bn: string | null;
+  is_completed: boolean;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }
@@ -142,6 +156,7 @@ export function useSupabaseData() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [syllabuses, setSyllabuses] = useState<Syllabus[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -165,10 +180,11 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, milestonesRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
+        supabase.from('milestones').select('*').order('sort_order', { ascending: true }),
         supabase.from('study_sessions').select('*').order('session_date', { ascending: false }),
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
@@ -182,6 +198,7 @@ export function useSupabaseData() {
       if (subjectsRes.data) setSubjects(subjectsRes.data as Subject[]);
       if (syllabusesRes.data) setSyllabuses(syllabusesRes.data as Syllabus[]);
       if (goalsRes.data) setGoals(goalsRes.data as Goal[]);
+      if (milestonesRes.data) setMilestones(milestonesRes.data as Milestone[]);
       if (sessionsRes.data) setSessions(sessionsRes.data);
       if (quotesRes.data) setQuotes(quotesRes.data);
       if (todosRes.data) setTodos(todosRes.data as Todo[]);
@@ -589,58 +606,48 @@ export function useSupabaseData() {
     setFlashcards(prev => prev.filter(f => f.id !== id));
   };
 
+  // MILESTONES
+  const addMilestone = async (milestone: Omit<Milestone, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    const { data, error } = await supabase.from('milestones').insert({ ...milestone, user_id: user.id } as any).select().single();
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (data) setMilestones(prev => [...prev, data as Milestone]);
+  };
+
+  const updateMilestone = async (id: string, updates: Partial<Milestone>) => {
+    const { error } = await supabase.from('milestones').update(updates as any).eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setMilestones(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+  };
+
+  const deleteMilestone = async (id: string) => {
+    const { error } = await supabase.from('milestones').delete().eq('id', id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setMilestones(prev => prev.filter(m => m.id !== id));
+  };
+
   return useMemo(() => ({
-    subjects: sortedSubjects,
-    syllabuses,
-    goals,
-    sessions,
-    quotes,
-    todos,
-    dailyTasks,
-    notes,
-    routines,
-    flashcards,
-    profile,
-    loading,
-    addSyllabus,
-    updateSyllabus,
-    deleteSyllabus,
-    addSubject,
-    updateSubject,
-    deleteSubject,
-    addGoal,
-    updateGoal,
-    deleteGoal,
-    addSession,
-    updateSession,
-    deleteSession,
-    addQuote,
-    updateQuote,
-    deleteQuote,
-    addTodo,
-    updateTodo,
-    deleteTodo,
-    addDailyTask,
-    updateDailyTask,
-    deleteDailyTask,
-    addNote,
-    updateNote,
-    deleteNote,
-    addRoutine,
-    deleteRoutine,
-    addFlashcard,
-    updateFlashcard,
-    deleteFlashcard,
-    updateProfile,
-    getTodayStudyTime,
-    getWeekStudyTime,
-    refetch: fetchData,
-  }), [
-    sortedSubjects, syllabuses, goals, sessions, quotes, todos, dailyTasks,
+    subjects: sortedSubjects, syllabuses, goals, milestones, sessions, quotes, todos, dailyTasks,
     notes, routines, flashcards, profile, loading,
     addSyllabus, updateSyllabus, deleteSyllabus,
     addSubject, updateSubject, deleteSubject,
     addGoal, updateGoal, deleteGoal,
+    addMilestone, updateMilestone, deleteMilestone,
+    addSession, updateSession, deleteSession,
+    addQuote, updateQuote, deleteQuote,
+    addTodo, updateTodo, deleteTodo,
+    addDailyTask, updateDailyTask, deleteDailyTask,
+    addNote, updateNote, deleteNote,
+    addRoutine, deleteRoutine,
+    addFlashcard, updateFlashcard, deleteFlashcard,
+    updateProfile, getTodayStudyTime, getWeekStudyTime, refetch: fetchData,
+  }), [
+    sortedSubjects, syllabuses, goals, milestones, sessions, quotes, todos, dailyTasks,
+    notes, routines, flashcards, profile, loading,
+    addSyllabus, updateSyllabus, deleteSyllabus,
+    addSubject, updateSubject, deleteSubject,
+    addGoal, updateGoal, deleteGoal,
+    addMilestone, updateMilestone, deleteMilestone,
     addSession, updateSession, deleteSession,
     addQuote, updateQuote, deleteQuote,
     addTodo, updateTodo, deleteTodo,

@@ -141,6 +141,8 @@ export type Database = {
           created_at: string
           days_remaining: number
           days_total: number
+          deadline: string | null
+          description: string | null
           id: string
           is_completed: boolean
           progress: number
@@ -154,6 +156,8 @@ export type Database = {
           created_at?: string
           days_remaining?: number
           days_total?: number
+          deadline?: string | null
+          description?: string | null
           id?: string
           is_completed?: boolean
           progress?: number
@@ -167,6 +171,8 @@ export type Database = {
           created_at?: string
           days_remaining?: number
           days_total?: number
+          deadline?: string | null
+          description?: string | null
           id?: string
           is_completed?: boolean
           progress?: number
@@ -177,6 +183,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      milestones: {
+        Row: {
+          created_at: string
+          goal_id: string
+          id: string
+          is_completed: boolean
+          sort_order: number
+          title: string
+          title_bn: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_id: string
+          id?: string
+          is_completed?: boolean
+          sort_order?: number
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_id?: string
+          id?: string
+          is_completed?: boolean
+          sort_order?: number
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notes: {
         Row: {
