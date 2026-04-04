@@ -180,10 +180,11 @@ export function useSupabaseData() {
     }
 
     try {
-      const [subjectsRes, syllabusesRes, goalsRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
+      const [subjectsRes, syllabusesRes, goalsRes, milestonesRes, sessionsRes, quotesRes, todosRes, dailyTasksRes, profileRes, notesRes, routinesRes, flashcardsRes] = await Promise.all([
         supabase.from('subjects').select('*').order('created_at', { ascending: false }),
         supabase.from('syllabuses').select('*').order('created_at', { ascending: false }),
         supabase.from('goals').select('*').order('created_at', { ascending: false }),
+        supabase.from('milestones').select('*').order('sort_order', { ascending: true }),
         supabase.from('study_sessions').select('*').order('session_date', { ascending: false }),
         supabase.from('quotes').select('*').order('created_at', { ascending: false }),
         supabase.from('todos').select('*').order('created_at', { ascending: false }),
