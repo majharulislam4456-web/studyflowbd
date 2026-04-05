@@ -197,7 +197,7 @@ export function TimerView() {
 
   return (
     <div ref={containerRef} className={cn(
-      "relative min-h-[85vh] rounded-2xl overflow-hidden transition-all duration-700",
+      "relative min-h-[85vh] rounded-2xl overflow-y-auto overflow-x-hidden transition-all duration-700 scrollbar-hide",
       deepStudyMode && "fixed inset-0 z-[100] min-h-screen rounded-none"
     )} style={{ backgroundImage: bgLoaded ? `url(${bgUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       {/* Gradient fallback */}
