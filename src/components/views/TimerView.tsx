@@ -334,7 +334,7 @@ export function TimerView() {
       </div>
 
       {/* Center Timer */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-4 md:py-16">
+      <div className="relative z-10 flex flex-col items-center justify-center px-3 py-2 md:py-16">
         {/* Live Clock */}
         {showClock && (
           <div className="mb-3">
