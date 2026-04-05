@@ -170,37 +170,41 @@ function RealWatchTimer({ time, isRunning, mode, progress }: { time: string; isR
   useEffect(() => {
     if (!isRunning) return;
     const interval = setInterval(() => {
-      setRotateY(prev => {
-        // Gentle oscillation
-        const t = Date.now() / 3000;
-        return Math.sin(t) * 8;
-      });
+      const t = Date.now() / 3000;
+      setRotateY(Math.sin(t) * 8);
     }, 50);
     return () => clearInterval(interval);
   }, [isRunning]);
 
   const seconds = parseInt(time.split(':').pop() || '0');
   const secondAngle = (seconds / 60) * 360;
+  const parts = time.split(':').map(Number);
+  const totalMinutes = parts.length === 3 ? parts[0] * 60 + parts[1] : parts[0];
+  const minuteAngle = (totalMinutes % 60 / 60) * 360;
+  const hourAngle = (totalMinutes / 720) * 360;
+
+  const size = 256; // w-64
+  const center = size / 2;
+  const secondHandLen = center * 0.75;
+  const minuteHandLen = center * 0.6;
+  const hourHandLen = center * 0.4;
 
   return (
     <div style={{ perspective: '600px' }}>
       <div
-        className="relative w-64 h-64 md:w-80 md:h-80 transition-transform"
+        className="relative w-56 h-56 md:w-72 md:h-72 transition-transform"
         style={{ transform: `rotateY(${rotateY}deg) rotateX(${isRunning ? 2 : 0}deg)`, transformStyle: 'preserve-3d' }}
       >
         {/* Watch body */}
         <div className="absolute inset-0 rounded-full border-[6px] border-slate-600 bg-gradient-to-br from-slate-800 via-slate-900 to-black shadow-2xl"
-          style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.5)' }}>
+          style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1)' }}>
           
           {/* Inner bezel */}
           <div className="absolute inset-3 rounded-full border border-white/5">
             {/* Hour marks */}
             {Array.from({ length: 12 }).map((_, i) => (
               <div key={i} className="absolute left-1/2 top-0 -translate-x-1/2" style={{ height: '100%', transform: `rotate(${i * 30}deg)` }}>
-                <div className={cn(
-                  "mx-auto bg-white/40",
-                  i % 3 === 0 ? "w-[2px] h-4" : "w-[1px] h-2"
-                )} style={{ marginTop: '4px' }} />
+                <div className={cn(i % 3 === 0 ? "w-[2px] h-4 bg-white/50" : "w-[1px] h-2 bg-white/30", "mx-auto")} style={{ marginTop: '4px' }} />
               </div>
             ))}
 
@@ -212,23 +216,48 @@ function RealWatchTimer({ time, isRunning, mode, progress }: { time: string; isR
                 </div>
               )
             ))}
+          </div>
 
+          {/* SVG hands - rotating from center */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 256 256">
+            {/* Hour hand */}
+            <line
+              x1={center} y1={center}
+              x2={center + hourHandLen * Math.sin(hourAngle * Math.PI / 180)}
+              y2={center - hourHandLen * Math.cos(hourAngle * Math.PI / 180)}
+              stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.7"
+            />
+            {/* Minute hand */}
+            <line
+              x1={center} y1={center}
+              x2={center + minuteHandLen * Math.sin(minuteAngle * Math.PI / 180)}
+              y2={center - minuteHandLen * Math.cos(minuteAngle * Math.PI / 180)}
+              stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.8"
+            />
             {/* Second hand */}
             {isRunning && (
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 origin-bottom w-[1px] h-[40%] bg-red-500 -translate-y-full z-10 transition-transform"
-                style={{ transform: `translateX(-50%) rotate(${secondAngle}deg)`, transformOrigin: 'bottom center' }}>
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-red-500" />
-              </div>
+              <line
+                x1={center} y1={center + 15}
+                x2={center + secondHandLen * Math.sin(secondAngle * Math.PI / 180)}
+                y2={center - secondHandLen * Math.cos(secondAngle * Math.PI / 180)}
+                stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"
+                className="transition-all duration-300"
+              />
             )}
+            {/* Center dot */}
+            <circle cx={center} cy={center} r="4" fill="#ef4444" />
+            <circle cx={center} cy={center} r="2" fill="white" />
+          </svg>
 
-            {/* Center content */}
-            <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <p className="text-white/25 text-[9px] uppercase tracking-[0.4em] mb-1 font-medium">{mode}</p>
-              <div className="text-3xl md:text-4xl font-mono font-bold text-white tabular-nums tracking-wider">{time}</div>
+          {/* Digital time display */}
+          <div className="absolute inset-0 flex items-center justify-center flex-col">
+            <div className="mt-16">
+              <p className="text-white/25 text-[9px] uppercase tracking-[0.4em] mb-0.5 font-medium text-center">{mode}</p>
+              <div className="text-lg md:text-xl font-mono font-bold text-white/60 tabular-nums tracking-wider text-center">{time}</div>
             </div>
           </div>
 
-          {/* Crown (side button) */}
+          {/* Crown */}
           <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 w-3 h-6 bg-slate-600 rounded-r-sm border border-slate-500"
             style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.3)' }} />
         </div>
@@ -237,14 +266,8 @@ function RealWatchTimer({ time, isRunning, mode, progress }: { time: string; isR
         {progress !== undefined && progress > 0 && (
           <svg className="absolute inset-0 w-full h-full -rotate-90 z-10 pointer-events-none">
             <circle cx="50%" cy="50%" r="46%" stroke="rgba(255,255,255,0.05)" strokeWidth="3" fill="none" />
-            <circle cx="50%" cy="50%" r="46%" stroke="url(#watchGrad)" strokeWidth="3" fill="none" strokeLinecap="round"
+            <circle cx="50%" cy="50%" r="46%" stroke="hsl(var(--primary))" strokeWidth="3" fill="none" strokeLinecap="round"
               style={{ strokeDasharray: `${2 * Math.PI * 46}%`, strokeDashoffset: `${2 * Math.PI * 46 * (1 - progress / 100)}%`, transition: 'stroke-dashoffset 0.5s' }} />
-            <defs>
-              <linearGradient id="watchGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" />
-                <stop offset="100%" stopColor="hsl(var(--primary) / 0.5)" />
-              </linearGradient>
-            </defs>
           </svg>
         )}
 

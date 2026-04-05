@@ -197,33 +197,30 @@ export function TimerView() {
 
   return (
     <div ref={containerRef} className={cn(
-      "relative min-h-[85vh] rounded-2xl overflow-hidden transition-all duration-700",
-      deepStudyMode && "fixed inset-0 z-[100] min-h-screen rounded-none"
+      "relative rounded-2xl overflow-y-auto overflow-x-hidden transition-all duration-700 scrollbar-hide",
+      deepStudyMode ? "fixed inset-0 z-[100] rounded-none" : "min-h-[85vh]"
     )} style={{ backgroundImage: bgLoaded ? `url(${bgUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       {/* Gradient fallback */}
       <div className={cn("absolute inset-0 transition-opacity duration-700", bgLoaded ? "opacity-0" : "opacity-100", `bg-gradient-to-br ${selectedScene.gradient}`)} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/50 pointer-events-none" />
       <Particles type={selectedScene.particleType} />
 
-      {/* Top Bar */}
-      <div className="relative z-10 flex items-center justify-between p-4 md:p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
-            <Timer className="w-5 h-5 text-white/80" />
+      {/* Top Bar - compact on mobile */}
+      <div className="relative z-10 flex items-center justify-between p-3 md:p-6">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
+            <Timer className="w-4 h-4 md:w-5 md:h-5 text-white/80" />
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-white/90">{isBn ? 'টাইমার' : 'Timer'}</h1>
-            <p className="text-white/40 text-xs">{isBn ? 'মনোযোগ দিয়ে পড়ুন' : 'Focus & Flow'}</p>
-          </div>
+          <h1 className="text-base md:text-lg font-semibold text-white/90">{isBn ? 'টাইমার' : 'Timer'}</h1>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowSettings(!showSettings)}
-            className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 text-white/60 hover:text-white transition-all">
-            <Settings className="w-4 h-4" />
+            className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 text-white/60 hover:text-white transition-all">
+            <Settings className="w-3.5 h-3.5 md:w-4 md:h-4" />
           </button>
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10">
-            <Moon className="w-3.5 h-3.5 text-white/60" />
-            <Switch checked={deepStudyMode} onCheckedChange={setDeepStudyMode} className="scale-75" />
+          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md rounded-full px-2 py-1 md:px-3 md:py-1.5 border border-white/10">
+            <Moon className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />
+            <Switch checked={deepStudyMode} onCheckedChange={setDeepStudyMode} className="scale-[0.65] md:scale-75" />
           </div>
         </div>
       </div>
@@ -312,8 +309,8 @@ export function TimerView() {
         </div>
       )}
 
-      {/* Scene selector */}
-      <div className="relative z-10 flex items-center gap-1.5 px-4 md:px-6 overflow-x-auto pb-3 scrollbar-hide">
+      {/* Scene selector - hidden on mobile, shown on desktop */}
+      <div className="relative z-10 hidden md:flex items-center gap-1.5 px-3 md:px-6 overflow-x-auto pb-2 scrollbar-hide">
         <input ref={bgInputRef} type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) { const r = new FileReader(); r.onload = () => setCustomBg(r.result as string); r.readAsDataURL(f); } }} className="hidden" />
         <button onClick={() => bgInputRef.current?.click()}
           className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all border",
@@ -337,20 +334,20 @@ export function TimerView() {
       </div>
 
       {/* Center Timer */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-8 md:py-16">
+      <div className="relative z-10 flex flex-col items-center px-3 py-2 md:py-8">
         {/* Live Clock */}
         {showClock && (
-          <div className="mb-3">
+          <div className="mb-2">
             <LiveClock format={clockFormat} />
           </div>
         )}
 
         {/* Mode label */}
-        <div className="mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10">
-          {mode === 'pomodoro' && <Coffee className="w-3.5 h-3.5 text-white/60" />}
-          {mode === 'timer' && <Clock className="w-3.5 h-3.5 text-white/60" />}
-          {mode === 'stopwatch' && <Zap className="w-3.5 h-3.5 text-white/60" />}
-          <span className="text-white/60 text-xs uppercase tracking-wider">
+        <div className="mb-2 md:mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-3 py-1 md:px-4 md:py-1.5 border border-white/10">
+          {mode === 'pomodoro' && <Coffee className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          {mode === 'timer' && <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          {mode === 'stopwatch' && <Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          <span className="text-white/60 text-[11px] md:text-xs uppercase tracking-wider">
             {mode === 'pomodoro' ? (pomodoro.phase === 'focus' ? (isBn ? 'ফোকাস' : 'Focus') : pomodoro.phase === 'break' ? (isBn ? 'বিরতি' : 'Break') : pomodoro.phase === 'longBreak' ? (isBn ? 'দীর্ঘ বিরতি' : 'Long Break') : (isBn ? 'পমোডোরো' : 'Pomodoro'))
             : mode === 'timer' ? (isBn ? 'কাউন্টডাউন' : 'Countdown')
             : (isBn ? 'স্টপওয়াচ' : 'Stopwatch')}
@@ -362,13 +359,13 @@ export function TimerView() {
 
         {/* Timer presets for pomodoro idle */}
         {mode === 'pomodoro' && pomodoro.phase === 'idle' && (
-          <div className="mb-6">
+          <div className="mb-3 md:mb-6">
             <TimerPresets selectedDuration={pomodoro.focusDuration} onSelectDuration={pomodoro.setFocusDuration} />
           </div>
         )}
 
         {/* Timer Display */}
-        <div className="mb-8">
+        <div className="mb-4 md:mb-8">
           {timerStyle === 'realwatch' ? (
             <TimerDisplay time={getCurrentTime()} style={timerStyle} isRunning={isActive} mode={mode} progress={getProgress()} />
           ) : (
