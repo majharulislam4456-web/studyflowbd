@@ -291,6 +291,23 @@ export function TimerView() {
                 <PomodoroSettings />
               </div>
             )}
+
+            {/* Clock Settings */}
+            <div>
+              <p className="text-white/50 text-xs mb-2 uppercase tracking-wider">{isBn ? 'ঘড়ি' : 'Clock'}</p>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-white/50 text-xs cursor-pointer">
+                  <Switch checked={showClock} onCheckedChange={setShowClock} className="scale-75" />
+                  {isBn ? 'সময় দেখান' : 'Show Clock'}
+                </label>
+                {showClock && (
+                  <button onClick={() => setClockFormat(f => f === '12h' ? '24h' : '12h')}
+                    className="px-2 py-1 rounded-lg text-xs bg-white/10 text-white/50 border border-white/10 hover:bg-white/15">
+                    {clockFormat}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
