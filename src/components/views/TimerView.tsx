@@ -82,6 +82,11 @@ export function TimerView() {
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [bgLoaded, setBgLoaded] = useState(false);
   const [musicMinimized, setMusicMinimized] = useState(true);
+  const [showClock, setShowClock] = useState(() => localStorage.getItem('timerShowClock') !== 'false');
+  const [clockFormat, setClockFormat] = useState<'12h' | '24h'>(() => (localStorage.getItem('timerClockFormat') as '12h' | '24h') || '12h');
+
+  useEffect(() => { localStorage.setItem('timerShowClock', String(showClock)); }, [showClock]);
+  useEffect(() => { localStorage.setItem('timerClockFormat', clockFormat); }, [clockFormat]);
 
   // Custom countdown timer state
   const [countdownMinutes, setCountdownMinutes] = useState(25);
