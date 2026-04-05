@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Play, Pause, RotateCcw, SkipForward, Moon, X, Coffee, Brain, Headphones, ImagePlus, Volume2, Minimize2, Maximize2, Settings, Timer, Clock, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Play, Pause, RotateCcw, SkipForward, Moon, X, Coffee, Headphones, ImagePlus, Minimize2, Settings, Timer, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { useGlobalStopwatch } from '@/contexts/StopwatchContext';
 import { PomodoroSettings } from '@/components/pomodoro/PomodoroSettings';
 import { TimerPresets } from '@/components/pomodoro/TimerPresets';
+import { TimerDisplay } from '@/components/timer/TimerDisplay';
+import { LiveClock } from '@/components/timer/LiveClock';
 import { cn } from '@/lib/utils';
 import { playStart, playPause, playTimerAlarm } from '@/utils/sounds';
 
@@ -59,93 +60,7 @@ function Particles({ type }: { type: string }) {
   );
 }
 
-function TimerDisplay({ time, style, isRunning, mode, progress }: { time: string; style: TimerStyle; isRunning: boolean; mode: TimerMode; progress?: number }) {
-  const digits = time.split('');
-
-  if (style === 'flipping') {
-    return (
-      <div className="flex items-center gap-1">
-        {digits.map((d, i) => (
-          <div key={i} className={cn(
-            "relative overflow-hidden rounded-lg",
-            d === ':' ? "w-6 text-center" : "w-14 h-20 md:w-20 md:h-28",
-            d !== ':' && "bg-black/40 backdrop-blur-md border border-white/10 shadow-xl"
-          )}>
-            {d === ':' ? (
-              <span className="text-4xl md:text-5xl font-bold text-white/60 animate-pulse">:</span>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">{d}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (style === 'futuristic') {
-    return (
-      <div className="relative">
-        <div className="text-6xl md:text-8xl font-mono font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-cyan-300 via-blue-400 to-purple-500 tabular-nums">
-          {time}
-        </div>
-        <div className="absolute inset-0 text-6xl md:text-8xl font-mono font-bold tracking-widest text-cyan-400/10 blur-lg tabular-nums">
-          {time}
-        </div>
-        {isRunning && <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />}
-      </div>
-    );
-  }
-
-  if (style === 'realwatch') {
-    return (
-      <div className="relative w-64 h-64 md:w-80 md:h-80">
-        <div className="absolute inset-0 rounded-full border-4 border-white/10 bg-black/30 backdrop-blur-xl shadow-2xl">
-          {/* Hour marks */}
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="absolute w-0.5 h-3 bg-white/30 left-1/2 -translate-x-1/2" style={{ top: '8px', transform: `rotate(${i * 30}deg)`, transformOrigin: `0 ${128}px` }} />
-          ))}
-          <div className="absolute inset-0 flex items-center justify-center flex-col">
-            <p className="text-white/30 text-[10px] uppercase tracking-[0.3em] mb-1">{mode}</p>
-            <div className="text-4xl md:text-5xl font-mono font-bold text-white tabular-nums">{time}</div>
-          </div>
-        </div>
-        {progress !== undefined && (
-          <svg className="absolute inset-0 w-full h-full -rotate-90">
-            <circle cx="50%" cy="50%" r="47%" stroke="currentColor" strokeWidth="3" fill="none" className="text-white/5" />
-            <circle cx="50%" cy="50%" r="47%" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" className="text-primary transition-all duration-500"
-              style={{ strokeDasharray: `${2 * Math.PI * 47}%`, strokeDashoffset: `${2 * Math.PI * 47 * (1 - (progress || 0) / 100)}%` }} />
-          </svg>
-        )}
-      </div>
-    );
-  }
-
-  if (style === 'funny') {
-    return (
-      <div className="text-center">
-        <div className={cn(
-          "text-6xl md:text-8xl font-black tabular-nums transition-all",
-          isRunning ? "text-yellow-300 animate-bounce" : "text-white/70"
-        )} style={{ textShadow: '3px 3px 0 rgba(0,0,0,0.3), -1px -1px 0 rgba(255,255,255,0.1)' }}>
-          {time}
-        </div>
-        {isRunning && <p className="text-2xl mt-2 animate-pulse">🔥📚💪</p>}
-      </div>
-    );
-  }
-
-  // Normal
-  return (
-    <div className={cn(
-      "text-5xl md:text-7xl font-mono font-bold tracking-wider transition-all tabular-nums",
-      isRunning ? "text-white" : "text-white/70"
-    )}>
-      {time}
-    </div>
-  );
-}
+// TimerDisplay is now imported from @/components/timer/TimerDisplay
 
 export function TimerView() {
   const { language } = useLanguage();
@@ -167,6 +82,11 @@ export function TimerView() {
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [bgLoaded, setBgLoaded] = useState(false);
   const [musicMinimized, setMusicMinimized] = useState(true);
+  const [showClock, setShowClock] = useState(() => localStorage.getItem('timerShowClock') !== 'false');
+  const [clockFormat, setClockFormat] = useState<'12h' | '24h'>(() => (localStorage.getItem('timerClockFormat') as '12h' | '24h') || '12h');
+
+  useEffect(() => { localStorage.setItem('timerShowClock', String(showClock)); }, [showClock]);
+  useEffect(() => { localStorage.setItem('timerClockFormat', clockFormat); }, [clockFormat]);
 
   // Custom countdown timer state
   const [countdownMinutes, setCountdownMinutes] = useState(25);
@@ -371,6 +291,23 @@ export function TimerView() {
                 <PomodoroSettings />
               </div>
             )}
+
+            {/* Clock Settings */}
+            <div>
+              <p className="text-white/50 text-xs mb-2 uppercase tracking-wider">{isBn ? 'ঘড়ি' : 'Clock'}</p>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-white/50 text-xs cursor-pointer">
+                  <Switch checked={showClock} onCheckedChange={setShowClock} className="scale-75" />
+                  {isBn ? 'সময় দেখান' : 'Show Clock'}
+                </label>
+                {showClock && (
+                  <button onClick={() => setClockFormat(f => f === '12h' ? '24h' : '12h')}
+                    className="px-2 py-1 rounded-lg text-xs bg-white/10 text-white/50 border border-white/10 hover:bg-white/15">
+                    {clockFormat}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -401,6 +338,13 @@ export function TimerView() {
 
       {/* Center Timer */}
       <div className="relative z-10 flex flex-col items-center justify-center px-4 py-8 md:py-16">
+        {/* Live Clock */}
+        {showClock && (
+          <div className="mb-3">
+            <LiveClock format={clockFormat} />
+          </div>
+        )}
+
         {/* Mode label */}
         <div className="mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10">
           {mode === 'pomodoro' && <Coffee className="w-3.5 h-3.5 text-white/60" />}
