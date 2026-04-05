@@ -337,17 +337,17 @@ export function TimerView() {
       <div className="relative z-10 flex flex-col items-center justify-center px-3 py-2 md:py-16">
         {/* Live Clock */}
         {showClock && (
-          <div className="mb-3">
+          <div className="mb-2">
             <LiveClock format={clockFormat} />
           </div>
         )}
 
         {/* Mode label */}
-        <div className="mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10">
-          {mode === 'pomodoro' && <Coffee className="w-3.5 h-3.5 text-white/60" />}
-          {mode === 'timer' && <Clock className="w-3.5 h-3.5 text-white/60" />}
-          {mode === 'stopwatch' && <Zap className="w-3.5 h-3.5 text-white/60" />}
-          <span className="text-white/60 text-xs uppercase tracking-wider">
+        <div className="mb-2 md:mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-3 py-1 md:px-4 md:py-1.5 border border-white/10">
+          {mode === 'pomodoro' && <Coffee className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          {mode === 'timer' && <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          {mode === 'stopwatch' && <Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-white/60" />}
+          <span className="text-white/60 text-[11px] md:text-xs uppercase tracking-wider">
             {mode === 'pomodoro' ? (pomodoro.phase === 'focus' ? (isBn ? 'ফোকাস' : 'Focus') : pomodoro.phase === 'break' ? (isBn ? 'বিরতি' : 'Break') : pomodoro.phase === 'longBreak' ? (isBn ? 'দীর্ঘ বিরতি' : 'Long Break') : (isBn ? 'পমোডোরো' : 'Pomodoro'))
             : mode === 'timer' ? (isBn ? 'কাউন্টডাউন' : 'Countdown')
             : (isBn ? 'স্টপওয়াচ' : 'Stopwatch')}
@@ -359,13 +359,13 @@ export function TimerView() {
 
         {/* Timer presets for pomodoro idle */}
         {mode === 'pomodoro' && pomodoro.phase === 'idle' && (
-          <div className="mb-6">
+          <div className="mb-3 md:mb-6">
             <TimerPresets selectedDuration={pomodoro.focusDuration} onSelectDuration={pomodoro.setFocusDuration} />
           </div>
         )}
 
         {/* Timer Display */}
-        <div className="mb-8">
+        <div className="mb-4 md:mb-8">
           {timerStyle === 'realwatch' ? (
             <TimerDisplay time={getCurrentTime()} style={timerStyle} isRunning={isActive} mode={mode} progress={getProgress()} />
           ) : (
