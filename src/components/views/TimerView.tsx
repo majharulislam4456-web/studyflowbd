@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Play, Pause, RotateCcw, SkipForward, Moon, X, Coffee, Brain, Headphones, ImagePlus, Volume2, Minimize2, Maximize2, Settings, Timer, Clock, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Play, Pause, RotateCcw, SkipForward, Moon, X, Coffee, Headphones, ImagePlus, Minimize2, Settings, Timer, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlobalPomodoro } from '@/contexts/PomodoroContext';
 import { useGlobalStopwatch } from '@/contexts/StopwatchContext';
 import { PomodoroSettings } from '@/components/pomodoro/PomodoroSettings';
 import { TimerPresets } from '@/components/pomodoro/TimerPresets';
+import { TimerDisplay } from '@/components/timer/TimerDisplay';
+import { LiveClock } from '@/components/timer/LiveClock';
 import { cn } from '@/lib/utils';
 import { playStart, playPause, playTimerAlarm } from '@/utils/sounds';
 
