@@ -197,8 +197,8 @@ export function TimerView() {
 
   return (
     <div ref={containerRef} className={cn(
-      "relative flex flex-col rounded-2xl overflow-y-auto overflow-x-hidden transition-all duration-700 scrollbar-hide",
-      deepStudyMode ? "fixed inset-0 z-[100] rounded-none h-screen" : "h-[85vh]"
+      "relative rounded-2xl overflow-y-auto overflow-x-hidden transition-all duration-700 scrollbar-hide",
+      deepStudyMode ? "fixed inset-0 z-[100] rounded-none" : "min-h-[85vh]"
     )} style={{ backgroundImage: bgLoaded ? `url(${bgUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       {/* Gradient fallback */}
       <div className={cn("absolute inset-0 transition-opacity duration-700", bgLoaded ? "opacity-0" : "opacity-100", `bg-gradient-to-br ${selectedScene.gradient}`)} />
