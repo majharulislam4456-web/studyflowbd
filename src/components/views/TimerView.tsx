@@ -309,8 +309,8 @@ export function TimerView() {
         </div>
       )}
 
-      {/* Scene selector */}
-      <div className="relative z-10 flex items-center gap-1.5 px-3 md:px-6 overflow-x-auto pb-2 scrollbar-hide">
+      {/* Scene selector - hidden on mobile, shown on desktop */}
+      <div className="relative z-10 hidden md:flex items-center gap-1.5 px-3 md:px-6 overflow-x-auto pb-2 scrollbar-hide">
         <input ref={bgInputRef} type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) { const r = new FileReader(); r.onload = () => setCustomBg(r.result as string); r.readAsDataURL(f); } }} className="hidden" />
         <button onClick={() => bgInputRef.current?.click()}
           className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all border",
