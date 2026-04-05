@@ -338,6 +338,13 @@ export function TimerView() {
 
       {/* Center Timer */}
       <div className="relative z-10 flex flex-col items-center justify-center px-4 py-8 md:py-16">
+        {/* Live Clock */}
+        {showClock && (
+          <div className="mb-3">
+            <LiveClock format={clockFormat} />
+          </div>
+        )}
+
         {/* Mode label */}
         <div className="mb-4 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10">
           {mode === 'pomodoro' && <Coffee className="w-3.5 h-3.5 text-white/60" />}
