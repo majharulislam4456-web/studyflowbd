@@ -6,11 +6,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
- import { Plus, Trash2, Calendar, Flag, PartyPopper } from 'lucide-react';
+import { Plus, Trash2, Calendar, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { getRandomMessage } from '@/utils/congratulations';
 import { playComplete, playCelebration, playDelete, playSuccess } from '@/utils/sounds';
+import { QuickAddTodo } from './QuickAddTodo';
 
 export interface Todo {
   id: string;
@@ -147,6 +148,9 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
 
   return (
     <div className="space-y-4">
+      {/* Quick Add Input */}
+      <QuickAddTodo addTodo={addTodo} />
+      
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold font-bengali">{t('todoList')}</h2>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
