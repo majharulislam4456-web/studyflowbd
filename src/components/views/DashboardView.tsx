@@ -119,6 +119,7 @@ export function DashboardView({
   onNavigate,
 }: DashboardViewProps) {
   const { t, language } = useLanguage();
+  const isBn = language === 'bn';
   const { config, updateConfig } = useDashboardConfig();
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
