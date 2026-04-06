@@ -6,87 +6,101 @@ type TimerMode = 'pomodoro' | 'timer' | 'stopwatch';
 
 // ─── Flip Card ────────────────────────────────────────────
 function FlipDigit({ digit, prevDigit }: { digit: string; prevDigit: string }) {
-  const [flipping, setFlipping] = useState(false);
+  const [flipKey, setFlipKey] = useState(0);
+  const [displayPrev, setDisplayPrev] = useState(prevDigit);
 
   useEffect(() => {
     if (digit !== prevDigit) {
-      setFlipping(true);
-      const t = setTimeout(() => setFlipping(false), 500);
-      return () => clearTimeout(t);
+      setDisplayPrev(prevDigit);
+      setFlipKey(k => k + 1);
     }
   }, [digit, prevDigit]);
 
+  const isFlipping = digit !== displayPrev || flipKey > 0;
+
   return (
-    <div className="relative w-14 h-20 md:w-20 md:h-28" style={{ perspective: '300px' }}>
-      {/* Static bottom half (new digit) */}
+    <div className="relative w-14 h-20 md:w-20 md:h-28" style={{ perspective: '400px' }}>
+      {/* Bottom half - shows NEW digit */}
       <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-slate-800 to-slate-900 border border-white/10 overflow-hidden shadow-xl">
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">{digit}</span>
         </div>
-        {/* Center split line */}
         <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-black/40 z-10" />
         <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-white/5 z-10 translate-y-[1px]" />
       </div>
 
-      {/* Flipping top half (old digit flipping away) */}
-      {flipping && (
-        <div
-          className="absolute inset-x-0 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-slate-700 to-slate-800 border border-white/10 border-b-0 overflow-hidden z-20"
-          style={{
-            animation: 'flipDown 0.5s ease-in forwards',
-            transformOrigin: 'bottom center',
-            backfaceVisibility: 'hidden',
-          }}
-        >
-          <div className="absolute inset-0 flex items-center justify-center" style={{ height: '200%' }}>
-            <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">{prevDigit}</span>
-          </div>
+      {/* Flipping top half - OLD digit flips down */}
+      <div
+        key={flipKey}
+        className="absolute inset-x-0 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-slate-700 to-slate-800 border border-white/10 border-b-0 overflow-hidden z-20"
+        style={{
+          animation: flipKey > 0 ? 'flipDown 0.5s ease-in forwards' : 'none',
+          transformOrigin: 'bottom center',
+          backfaceVisibility: 'hidden',
+        }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center" style={{ height: '200%' }}>
+          <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">{displayPrev}</span>
         </div>
-      )}
+      </div>
 
-      {/* Static top half (new digit underneath) */}
+      {/* Static top half - NEW digit (visible after flip) */}
       <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-slate-700 to-slate-800 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center" style={{ height: '200%' }}>
           <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">{digit}</span>
         </div>
       </div>
 
-      {/* Subtle inner shadow / reflections */}
+      {/* Bottom half reveal - NEW digit slides up */}
+      <div
+        key={`bottom-${flipKey}`}
+        className="absolute inset-x-0 bottom-0 h-1/2 rounded-b-lg bg-gradient-to-b from-slate-800 to-slate-900 overflow-hidden z-15"
+        style={{
+          animation: flipKey > 0 ? 'flipUp 0.5s ease-out 0.25s forwards' : 'none',
+          transformOrigin: 'top center',
+          transform: flipKey > 0 ? 'rotateX(90deg)' : 'rotateX(0deg)',
+          backfaceVisibility: 'hidden',
+        }}
+      >
+        <div className="absolute inset-0 flex items-end justify-center" style={{ height: '200%' }}>
+          <span className="text-4xl md:text-6xl font-bold text-white tabular-nums" style={{ transform: 'translateY(-50%)' }}>{digit}</span>
+        </div>
+      </div>
+
       <div className="absolute inset-0 rounded-lg pointer-events-none" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)' }} />
     </div>
   );
 }
 
 function FlippingTimer({ time }: { time: string }) {
-  const prevTimeRef = useRef(time);
-  const [prevTime, setPrevTime] = useState(time);
+  const prevRef = useRef(time);
+  const [prev, setPrev] = useState(time);
 
   useEffect(() => {
-    setPrevTime(prevTimeRef.current);
-    prevTimeRef.current = time;
+    setPrev(prevRef.current);
+    prevRef.current = time;
   }, [time]);
-
-  const pairs: { digit: string; prev: string }[] = [];
-  for (let i = 0; i < time.length; i++) {
-    pairs.push({ digit: time[i], prev: prevTime[i] || time[i] });
-  }
 
   return (
     <div className="flex items-center gap-1 md:gap-2">
-      {pairs.map((p, i) =>
-        p.digit === ':' ? (
-          <div key={i} className="flex flex-col items-center gap-2 px-1">
+      {time.split('').map((char, i) =>
+        char === ':' ? (
+          <div key={`sep-${i}`} className="flex flex-col items-center gap-2 px-1">
             <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />
             <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />
           </div>
         ) : (
-          <FlipDigit key={i} digit={p.digit} prevDigit={p.prev} />
+          <FlipDigit key={`d-${i}`} digit={char} prevDigit={prev[i] || char} />
         )
       )}
       <style>{`
         @keyframes flipDown {
           0% { transform: rotateX(0deg); }
           100% { transform: rotateX(-90deg); opacity: 0; }
+        }
+        @keyframes flipUp {
+          0% { transform: rotateX(90deg); }
+          100% { transform: rotateX(0deg); }
         }
       `}</style>
     </div>
