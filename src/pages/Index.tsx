@@ -104,6 +104,7 @@ const Index = () => {
             updateQuote={updateQuote} deleteQuote={deleteQuote}
             updateTodo={updateTodo}
             addDailyTask={addDailyTask} updateDailyTask={updateDailyTask} deleteDailyTask={deleteDailyTask}
+            onNavigate={setActiveTab}
           />
         );
       case 'syllabus':
