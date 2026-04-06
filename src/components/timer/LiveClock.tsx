@@ -23,7 +23,7 @@ export function LiveClock({ format = '12h', className }: LiveClockProps) {
   const timeStr = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
   return (
-    <div className={`flex items-center gap-1.5 bg-white/8 backdrop-blur-md rounded-full px-3 py-1 border border-white/10 ${className || ''}`}>
+    <div className={`flex items-center gap-1.5 bg-white/[0.08] backdrop-blur-md rounded-full px-3 py-1 border border-white/10 ${className || ''}`}>
       <Clock className="w-3 h-3 text-white/40" />
       <span className="text-white/50 text-xs font-mono tabular-nums">{timeStr}</span>
       {ampm && <span className="text-white/30 text-[10px]">{ampm}</span>}

@@ -305,6 +305,22 @@ export function TimerView() {
                 )}
               </div>
             </div>
+
+            {/* Scene Selector (for mobile) */}
+            <div className="md:hidden">
+              <p className="text-white/50 text-xs mb-2 uppercase tracking-wider">{isBn ? 'ওয়ালপেপার' : 'Wallpaper'}</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {SCENES.map(scene => (
+                  <button key={scene.id} onClick={() => { setSelectedScene(scene); setCustomBg(null); }}
+                    className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs transition-all border",
+                      selectedScene.id === scene.id ? "bg-white/15 text-white border-white/20" : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10"
+                    )}>
+                    <span>{scene.emoji}</span>
+                    <span>{isBn ? scene.labelBn : scene.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

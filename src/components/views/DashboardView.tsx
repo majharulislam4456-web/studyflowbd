@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy, Bell } from 'lucide-react';
+import { BookOpen, Timer, Target, TrendingUp, Sparkles, Flame, Trophy, Bell, Zap, ListTodo, PenLine } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 import { SubjectCard } from '@/components/syllabus/SubjectCard';
@@ -56,6 +57,7 @@ interface DashboardViewProps {
   addDailyTask: (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<void>;
   updateDailyTask: (id: string, updates: Partial<DailyTask>) => Promise<void>;
   deleteDailyTask: (id: string) => Promise<void>;
+  onNavigate?: (view: string) => void;
 }
 
 function UpcomingExamCountdown({ reminder }: { reminder: ExamReminder }) {
@@ -114,8 +116,10 @@ export function DashboardView({
   updateSubject, deleteSubject, updateGoal, deleteGoal,
   updateQuote, deleteQuote, updateTodo,
   addDailyTask, updateDailyTask, deleteDailyTask,
+  onNavigate,
 }: DashboardViewProps) {
   const { t, language } = useLanguage();
+  const isBn = language === 'bn';
   const { config, updateConfig } = useDashboardConfig();
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
@@ -175,6 +179,36 @@ export function DashboardView({
 
   return (
     <div className="page-container">
+      {/* Quick Actions Strip */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {[
+          { icon: PenLine, label: isBn ? '📝 লগ করুন' : '📝 Log Study', view: 'logger', color: 'bg-primary/10 text-primary hover:bg-primary/20' },
+          { icon: Timer, label: isBn ? '⏱️ টাইমার' : '⏱️ Timer', view: 'timer', color: 'bg-accent/10 text-accent hover:bg-accent/20' },
+          { icon: ListTodo, label: isBn ? '✅ কাজ যোগ' : '✅ Add Task', view: 'todos', color: 'bg-success/10 text-success hover:bg-success/20' },
+        ].map((action) => (
+          <Button
+            key={action.view}
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate?.(action.view)}
+            className={cn("rounded-full whitespace-nowrap px-4 py-2 text-xs font-semibold border border-border/50 transition-all hover:scale-105 active:scale-95", action.color)}
+          >
+            {action.label}
+          </Button>
+        ))}
+        
+        {/* Motivational nudge */}
+        {todayTime > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/30 whitespace-nowrap">
+            <Flame className="w-3.5 h-3.5 text-destructive" />
+            <span className="text-xs text-muted-foreground font-bengali">
+              {isBn ? `আজ ${formatTime(todayTime)} পড়েছো` : `${formatTime(todayTime)} studied today`}
+              {todayTime < 60 ? (isBn ? ' — আরেকটু!' : ' — keep going!') : (isBn ? ' — দারুণ! 🔥' : ' — great! 🔥')}
+            </span>
+          </div>
+        )}
+      </div>
+
       {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div className="space-y-2">
