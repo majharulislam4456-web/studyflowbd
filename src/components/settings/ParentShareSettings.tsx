@@ -27,16 +27,17 @@ export function ParentShareSettings() {
     if (!user) return;
     supabase
       .from('parent_share_codes')
-      .select('share_code, is_active, whatsapp_number, send_time')
+      .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setShareCode(data[0].share_code);
-          setIsActive(data[0].is_active);
-          setWhatsappNumber((data[0] as any).whatsapp_number || '');
-          setSendTime((data[0] as any).send_time || '20:00');
+          const row = data[0] as any;
+          setShareCode(row.share_code);
+          setIsActive(row.is_active);
+          setWhatsappNumber(row.whatsapp_number || '');
+          setSendTime(row.send_time || '20:00');
         }
         setLoading(false);
       });
