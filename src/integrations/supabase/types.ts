@@ -292,22 +292,28 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          send_time: string
           share_code: string
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           is_active?: boolean
+          send_time?: string
           share_code: string
           user_id: string
+          whatsapp_number?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           is_active?: boolean
+          send_time?: string
           share_code?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }

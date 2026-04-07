@@ -52,7 +52,7 @@ export function StatsCard({
           )}
         </div>
         <div className={cn(
-          "p-3 rounded-2xl bg-primary/8 text-primary transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
+          "p-3 rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
           iconClassName
         )}>
           <Icon className="w-5 h-5" />

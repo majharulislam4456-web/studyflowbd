@@ -142,7 +142,7 @@ export function SyllabusView({
               {language === 'bn' ? 'সামগ্রিক অগ্রগতি' : 'Overall Progress'}
             </h3>
             <p className="text-sm text-foreground mt-1 font-medium">
-              {completedChapters} / {totalChapters} {language === 'bn' ? 'অধ্যায় সম্পন্ন' : 'chapters completed'}
+              {completedChapters} / {totalChapters} {language === 'bn' ? 'অধ্যায়' : 'chapters'}
             </p>
           </div>
           <div className="flex items-center gap-4">
