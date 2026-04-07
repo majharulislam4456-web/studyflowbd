@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { BookOpen, Clock, Flame, Target, CheckCircle2, GraduationCap, Heart, BarChart3, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ParentData {
   student: { name: string; avatar_url: string | null; class: string | null; division: string | null; dream: string | null };
