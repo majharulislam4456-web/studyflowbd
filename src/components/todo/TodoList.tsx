@@ -50,6 +50,11 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
        const message = getRandomMessage('todoComplete', language);
        toast({ title: message, duration: 3000 });
        
+       // Auto-delete after 24 hours
+       setTimeout(() => {
+         deleteTodo(todo.id);
+       }, 24 * 60 * 60 * 1000);
+       
        const todayTodos = todos.filter(t => {
          if (!t.due_date) return false;
          const today = new Date().toISOString().split('T')[0];
@@ -103,7 +108,9 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
     return todo.due_date === today;
   });
 
-  const displayTodos = compact ? todayTodos : todos;
+  const activeTodos = todos.filter(t => !t.is_completed);
+  const completedTodos = todos.filter(t => t.is_completed);
+  const displayTodos = compact ? todayTodos : [...activeTodos, ...completedTodos];
 
   if (compact) {
     return (
