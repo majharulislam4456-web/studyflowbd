@@ -1,72 +1,80 @@
 
 
-## Plan: Bug Fixes + UX Improvements for Student Engagement
+## পরিকল্পনা: অভিভাবক ড্যাশবোর্ড (Guardian/Parent Tracking)
 
-### Issues Found
+### ধারণা
+স্টুডেন্ট তার অ্যাপ থেকে একটি **শেয়ার কোড/লিংক** জেনারেট করবে। অভিভাবক সেই কোড দিয়ে একটি **রিড-অনলি ড্যাশবোর্ড** দেখতে পারবেন — কোনো অ্যাকাউন্ট বানানো ছাড়াই।
 
-**Critical Bugs:**
-1. **Textarea component is broken** — `src/components/ui/textarea.tsx` does NOT spread `{...props}`, so `value`, `onChange`, `placeholder`, `rows` are all ignored. This is why study log notes don't save and other textareas malfunction across the entire app.
-2. **LiveClock uses `bg-white/8`** — invalid Tailwind class, should be `bg-white/[0.08]`.
+### অভিভাবক যা দেখতে পাবেন
+- আজ কতক্ষণ পড়েছে (মিনিট/ঘণ্টা)
+- কোন কোন বিষয় পড়েছে
+- এই সপ্তাহের মোট পড়ার সময়
+- সিলেবাস প্রগ্রেস (কত % শেষ)
+- স্ট্রিক (কতদিন একটানা পড়ছে)
+- টু-ডু কমপ্লিশন রেট
 
-**Minor Issues:**
-3. Timer settings panel scene selector hidden on mobile — no way to change wallpaper on phone.
-4. Todo add dialog requires both English and Bengali title fields — tedious for students.
-5. Study Logger form has plain English labels mixed with Bengali — inconsistent UX.
-6. No quick-add shortcuts for common tasks (e.g., one-tap subject logging).
+### কিভাবে কাজ করবে
 
----
+```text
+Student App                    Guardian
+┌──────────┐                 ┌──────────────┐
+│ Settings  │──share code──▶│ /parent/CODE  │
+│ "Share    │                │ Read-only     │
+│  with     │                │ Dashboard     │
+│  Parent"  │                │ (no login)    │
+└──────────┘                 └──────────────┘
+```
 
-### Implementation Plan
+1. **স্টুডেন্ট** Settings পেজে "Share with Parent" বাটনে ক্লিক করবে
+2. একটি **ইউনিক ৬-ডিজিট কোড** জেনারেট হবে (যেমন: `ABC123`)
+3. স্টুডেন্ট কোডটি কপি করে অভিভাবককে দেবে
+4. অভিভাবক ব্রাউজারে `/parent/ABC123` লিংকে যাবে
+5. **কোনো লগইন ছাড়াই** স্টুডেন্টের আজকের ও সাপ্তাহিক ডেটা দেখতে পাবে
 
-#### Step 1: Fix Textarea Component (Critical)
-**File:** `src/components/ui/textarea.tsx`
-- Spread `{...props}` on the `<textarea>` element and remove the hardcoded placeholder.
-- This single fix will restore notes in Study Logger, Goal descriptions, and all other text areas.
+### নতুন ডাটাবেস টেবিল
 
-#### Step 2: Fix LiveClock Invalid Class
-**File:** `src/components/timer/LiveClock.tsx`
-- Change `bg-white/8` to `bg-white/[0.08]`.
+**`parent_share_codes`** টেবিল:
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| user_id | uuid | স্টুডেন্টের ID |
+| share_code | text (unique) | ৬-ডিজিট কোড |
+| is_active | boolean | চালু/বন্ধ |
+| created_at | timestamp | তৈরির সময় |
 
-#### Step 3: Make Data Input Less Boring for Students
-Reduce friction and add delight:
+RLS: স্টুডেন্ট নিজের কোড CRUD করতে পারবে। পাবলিক SELECT পলিসি দিয়ে কোড দিয়ে ডেটা খুঁজবে।
 
-**A. Quick-add mode for To-Do** (`src/components/todo/TodoList.tsx`)
-- Add an inline quick-add input at the top (just type and press Enter) instead of forcing a dialog for every task.
-- Auto-detect Bengali text and fill `title_bn` automatically.
-- Default priority to "medium", auto-set today's date.
+### নতুন Edge Function
 
-**B. Simplify Study Logger** (`src/components/logger/StudyLoggerPanel.tsx`)
-- Add quick-log buttons: "15 min", "30 min", "1 hr" that log instantly with one tap.
-- Add emoji reactions after logging (🔥, 💪, 🎯) for gamification.
-- Show encouraging streak message ("3 দিন ধরে পড়ছো! 🔥").
+**`parent-dashboard`** — শেয়ার কোড দিয়ে রিড-অনলি ডেটা রিটার্ন করবে:
+- আজকের সেশন লিস্ট ও মোট সময়
+- এই সপ্তাহের সময়
+- সিলেবাস প্রগ্রেস
+- স্ট্রিক কাউন্ট
+- কমপ্লিটেড টু-ডু
 
-**C. Simplify Goal creation** (`src/components/goals/AddGoalDialog.tsx`)
-- Add preset goal templates: "পরীক্ষার প্রস্তুতি", "নতুন বিষয় শেখা", "সিলেবাস শেষ করা" — one tap to create.
-- Remove the separate Bengali title field (auto-use the main title).
+এটি `service_role_key` ব্যবহার করবে যাতে RLS বাইপাস করে শুধু সেই স্টুডেন্টের ডেটা ফেচ করতে পারে।
 
-**D. Add Quick Actions to Dashboard** (`src/components/views/DashboardView.tsx`)
-- Add a "Quick Actions" strip at top: "📝 Log Study", "⏱️ Start Timer", "✅ Add Task" — one-tap shortcuts.
-- Show motivational progress: "আজ ৪৫ মিনিট পড়েছো — আরেকটু!" 
+### নতুন ফাইল ও পরিবর্তন
 
-**E. Mobile scene selector** (`src/components/views/TimerView.tsx`)
-- Add scene selector inside the Settings panel so mobile users can change wallpaper too.
+| ফাইল | কাজ |
+|------|------|
+| `supabase/functions/parent-dashboard/index.ts` | Edge function — কোড দিয়ে ডেটা ফেচ |
+| `supabase/migrations/...parent_share_codes.sql` | নতুন টেবিল তৈরি |
+| `src/pages/ParentDashboard.tsx` | অভিভাবকের রিড-অনলি পেজ |
+| `src/components/settings/ParentShareSettings.tsx` | কোড জেনারেট/ম্যানেজ UI |
+| `src/components/views/SettingsView.tsx` | Parent Share সেকশন যোগ |
+| `src/App.tsx` | `/parent/:code` রাউট যোগ |
 
-#### Step 4: Add Micro-animations & Feedback
-- Add confetti/celebration animation when completing a goal milestone.
-- Add subtle haptic-like visual feedback (scale bounce) on checkbox taps.
-- Add progress encouragement toasts based on daily study streaks.
+### সিকিউরিটি ফিচার
+- কোড **যেকোনো সময় বন্ধ** করা যাবে (is_active = false)
+- কোড **রিজেনারেট** করা যাবে (পুরোনো কোড অকেজো হয়ে যাবে)
+- অভিভাবক **শুধু দেখতে** পারবে, কিছু এডিট/ডিলিট করতে পারবে না
+- Edge function-এ rate limiting থাকবে
+- কোনো API key বা সিক্রেট অভিভাবককে দিতে হবে না
 
----
-
-### Technical Details
-
-| File | Change |
-|------|--------|
-| `src/components/ui/textarea.tsx` | Spread `{...props}`, remove hardcoded placeholder |
-| `src/components/timer/LiveClock.tsx` | Fix `bg-white/8` → `bg-white/[0.08]` |
-| `src/components/todo/TodoList.tsx` | Add inline quick-add input with Enter-to-submit |
-| `src/components/logger/StudyLoggerPanel.tsx` | Quick-log buttons, streak display, emoji feedback |
-| `src/components/goals/AddGoalDialog.tsx` | Goal templates, simplified form |
-| `src/components/views/DashboardView.tsx` | Quick action strip at top |
-| `src/components/views/TimerView.tsx` | Scene selector in settings panel for mobile |
+### অতিরিক্ত ফিচার (ঐচ্ছিক)
+- **WhatsApp/SMS নোটিফিকেশন**: প্রতিদিন সন্ধ্যায় অভিভাবককে সারাংশ পাঠানো (এটি আলাদা API key লাগবে)
+- **দৈনিক রিপোর্ট**: পিডিএফ ডাউনলোড অপশন
+- **লক্ষ্যমাত্রা সেটিং**: অভিভাবক দৈনিক ন্যূনতম পড়ার সময় সেট করতে পারবে
 
