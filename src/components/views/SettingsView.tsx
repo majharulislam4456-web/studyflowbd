@@ -12,6 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AvatarSelector, getAvatarDisplay } from '@/components/profile/AvatarSelector';
 import { ThemeColorSelector, initializeThemeColor } from '@/components/profile/ThemeColorSelector';
 import { AboutApp } from '@/components/about/AboutApp';
+import { ParentShareSettings } from '@/components/settings/ParentShareSettings';
 import type { Profile, StudySession } from '@/hooks/useSupabaseData';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -154,6 +155,9 @@ export function SettingsView({ profile, sessions, onUpdateProfile, isDark, toggl
               <Button onClick={handleSave} variant="gradient" className="w-full">{t('save')}</Button>
             </div>
           </div>
+
+          {/* Parent Share */}
+          <ParentShareSettings />
 
           {/* Security */}
           <div className="glass-card p-6 max-w-lg">

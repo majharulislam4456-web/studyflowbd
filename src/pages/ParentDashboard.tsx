@@ -22,12 +22,6 @@ export default function ParentDashboard() {
     if (!code) return;
     const fetchData = async () => {
       try {
-        const { data: result, error: fnError } = await supabase.functions.invoke('parent-dashboard', {
-          body: null,
-          method: 'GET',
-          headers: {},
-        });
-        // supabase.functions.invoke doesn't support query params easily, use fetch instead
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
         const url = `https://${projectId}.supabase.co/functions/v1/parent-dashboard?code=${code}`;
         const res = await fetch(url, {
