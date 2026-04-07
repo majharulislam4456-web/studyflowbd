@@ -219,12 +219,12 @@ export function TodoList({ todos, addTodo, updateTodo, deleteTodo, compact = fal
       </div>
 
       <div className="space-y-2">
-        {todos.length === 0 ? (
+        {displayTodos.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p className="font-bengali">{t('noTasksToday')}</p>
           </div>
         ) : (
-          todos.map(todo => (
+          displayTodos.map(todo => (
             <div
               key={todo.id}
               className={cn(
