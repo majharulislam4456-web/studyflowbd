@@ -203,7 +203,7 @@ export function ParentShareSettings() {
               >
                 <ExternalLink className="w-3 h-3" />
                 {isBn ? 'ম্যানুয়ালি পাঠান' : 'Send Manually'}
-              </ExternalLink>
+              </Button>
             </div>
           </div>
 
