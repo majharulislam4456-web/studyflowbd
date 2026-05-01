@@ -119,8 +119,8 @@ export function ParentShareSettings() {
       </h3>
       <p className="text-sm text-muted-foreground mb-4">
         {isBn
-          ? 'চালু করলে প্রতিদিন নির্দিষ্ট সময়ে আপনার অভিভাবকের WhatsApp-এ পড়াশোনার রিপোর্ট পাঠানো হবে।'
-          : 'When enabled, a daily study report will be sent to your parent\'s WhatsApp at the set time.'}
+          ? 'চালু করলে প্রতিদিন অটো WhatsApp রিপোর্ট যাবে। এছাড়াও যেকোনো সময় ম্যানুয়ালি লিংক কপি বা পাঠাতে পারবেন।'
+          : 'Auto WhatsApp report daily + manual link sharing anytime.'}
       </p>
 
       {shareCode && isActive ? (
