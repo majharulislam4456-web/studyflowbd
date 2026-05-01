@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Share2, Phone, Clock, MessageSquare, Power, PowerOff, Loader2 } from 'lucide-react';
+import { Share2, Phone, Clock, MessageSquare, Power, PowerOff, Loader2, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -173,8 +173,38 @@ export function ParentShareSettings() {
 
           {/* Preview link */}
           <div className="p-3 rounded-xl bg-muted/50 border border-border/50">
-            <p className="text-xs text-muted-foreground mb-1">{isBn ? 'অভিভাবক লিংক (WhatsApp-এ পাঠানো হবে)' : 'Parent link (sent via WhatsApp)'}</p>
+            <p className="text-xs text-muted-foreground mb-1">{isBn ? 'অভিভাবক লিংক' : 'Parent link'}</p>
             <p className="text-xs font-mono text-primary break-all">{shareLink}</p>
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(shareLink);
+                  toast({ title: isBn ? '✅ লিংক কপি হয়েছে!' : '✅ Link copied!' });
+                }}
+              >
+                <Copy className="w-3 h-3" />
+                {isBn ? 'লিংক কপি' : 'Copy Link'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => {
+                  const msg = encodeURIComponent(
+                    isBn
+                      ? `আমার পড়াশোনার রিপোর্ট দেখুন: ${shareLink}`
+                      : `Check my study report: ${shareLink}`
+                  );
+                  window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+                }}
+              >
+                <ExternalLink className="w-3 h-3" />
+                {isBn ? 'ম্যানুয়ালি পাঠান' : 'Send Manually'}
+              </ExternalLink>
+            </div>
           </div>
 
           <div className="flex gap-2">
