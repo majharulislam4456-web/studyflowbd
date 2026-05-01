@@ -61,7 +61,7 @@ export function GoalsView({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="stat-card p-4 text-center">
-          <div className="w-9 h-9 rounded-xl bg-primary/8 text-primary mx-auto mb-2 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary mx-auto mb-2 flex items-center justify-center">
             <Flag className="w-4 h-4" />
           </div>
           <p className="text-2xl font-bold text-foreground tabular-nums">{activeGoals.length}</p>
