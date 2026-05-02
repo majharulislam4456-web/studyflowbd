@@ -15,6 +15,7 @@ import { LoggerView } from '@/components/views/LoggerView';
 import { QuotesView } from '@/components/views/QuotesView';
 import { AnalyticsView } from '@/components/analytics/AnalyticsView';
 import { SettingsView } from '@/components/views/SettingsView';
+import { ProfileView } from '@/components/profile/ProfileView';
 import { TodosView } from '@/components/views/TodosView';
 import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { NotesView } from '@/components/views/NotesView';
@@ -145,6 +146,8 @@ const Index = () => {
         return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
       case 'settings':
         return <SettingsView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
+      case 'profile':
+        return <ProfileView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleThe
       default: return null;
     }
   };
