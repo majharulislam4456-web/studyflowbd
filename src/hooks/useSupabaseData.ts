@@ -222,14 +222,15 @@ export function useSupabaseData() {
 
   // SYLLABUSES
   const addSyllabus = async (syllabus: Omit<Syllabus, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return;
+    if (!user) return null;
     const { data, error } = await supabase
       .from('syllabuses')
       .insert({ ...syllabus, user_id: user.id } as any)
       .select()
       .single();
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return null; }
     if (data) setSyllabuses(prev => [data as Syllabus, ...prev]);
+    return data as Syllabus | null;
   };
 
   const updateSyllabus = async (id: string, updates: Partial<Syllabus>) => {
