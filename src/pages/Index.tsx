@@ -147,7 +147,7 @@ const Index = () => {
       case 'settings':
         return <SettingsView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       case 'profile':
-        return <ProfileView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleThe
+        return <ProfileView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       default: return null;
     }
   };
