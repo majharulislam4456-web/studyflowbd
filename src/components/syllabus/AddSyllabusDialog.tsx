@@ -16,9 +16,11 @@ import type { Subject } from '@/hooks/useSupabaseData';
 import { cn } from '@/lib/utils';
 
 interface AddSyllabusDialogProps {
-  onAdd: (syllabus: { name: string; name_bn: string | null; description: string | null; color: string }) => void;
+  onAdd: (
+    syllabus: { name: string; name_bn: string | null; description: string | null; color: string },
+    copySubjects?: { source: Subject; chapters: number }[]
+  ) => void | Promise<void>;
   existingSubjects?: Subject[];
-  onAddSubject?: (subject: Omit<Subject, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<any> | void;
 }
 
 const colors = [
@@ -30,7 +32,7 @@ const colors = [
   'hsl(340 75% 55%)',
 ];
 
-export function AddSyllabusDialog({ onAdd, existingSubjects = [], onAddSubject }: AddSyllabusDialogProps) {
+export function AddSyllabusDialog({ onAdd, existingSubjects = [] }: AddSyllabusDialogProps) {
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -63,31 +65,24 @@ export function AddSyllabusDialog({ onAdd, existingSubjects = [], onAddSubject }
     e.preventDefault();
     if (!name.trim()) return;
 
-    await onAdd({
-      name: name.trim(),
-      name_bn: nameBn.trim() || null,
-      description: description.trim() || null,
-      color: selectedColor,
-    });
-
-    // Note: parent assigns the new syllabus_id automatically via active tab on next add.
-    // Here we just create copies as standalone subjects under the new syllabus context once active.
-    // Since we don't get back the new syllabus id synchronously, copies are created without syllabus_id;
-    // SyllabusView's handleAddSubject attaches activeSyllabusId. Caller should handle activation.
-    if (onAddSubject) {
-      for (const id of Object.keys(picked)) {
+    const copyList = Object.keys(picked)
+      .map(id => {
         const src = uniqueSubjects.find(s => s.id === id);
-        if (!src) continue;
+        if (!src) return null;
         const total = Math.max(1, parseInt(picked[id] || '10', 10) || 10);
-        await onAddSubject({
-          name: src.name,
-          name_bn: src.name_bn,
-          total_chapters: total,
-          completed_chapters: 0,
-          color: src.color,
-        } as any);
-      }
-    }
+        return { source: src, chapters: total };
+      })
+      .filter(Boolean) as { source: Subject; chapters: number }[];
+
+    await onAdd(
+      {
+        name: name.trim(),
+        name_bn: nameBn.trim() || null,
+        description: description.trim() || null,
+        color: selectedColor,
+      },
+      copyList
+    );
 
     reset();
     setOpen(false);
@@ -153,7 +148,7 @@ export function AddSyllabusDialog({ onAdd, existingSubjects = [], onAddSubject }
             </div>
           </div>
 
-          {uniqueSubjects.length > 0 && onAddSubject && (
+          {uniqueSubjects.length > 0 && (
             <div className="space-y-2 pt-2 border-t border-border">
               <Label className="font-bengali">
                 {language === 'bn'
