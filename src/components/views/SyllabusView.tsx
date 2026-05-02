@@ -44,6 +44,27 @@ export function SyllabusView({
     addSubject({ ...subject, syllabus_id: activeSyllabusId } as any);
   };
 
+  const handleAddSyllabus = async (
+    syllabus: Omit<Syllabus, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
+    copySubjects?: { source: Subject; chapters: number }[]
+  ) => {
+    const created = await (addSyllabus as any)(syllabus);
+    const newId = created?.id;
+    if (newId) setActiveSyllabusId(newId);
+    if (newId && copySubjects && copySubjects.length > 0) {
+      for (const { source, chapters } of copySubjects) {
+        await (addSubject as any)({
+          name: source.name,
+          name_bn: source.name_bn,
+          total_chapters: chapters,
+          completed_chapters: 0,
+          color: source.color,
+          syllabus_id: newId,
+        });
+      }
+    }
+  };
+
   const prioritySubjects = filteredSubjects.filter(s => (s as any).priority > 0);
   const regularSubjects = filteredSubjects.filter(s => !((s as any).priority > 0));
   const activeSyllabus = syllabuses.find(s => s.id === activeSyllabusId);
@@ -64,7 +85,7 @@ export function SyllabusView({
           </p>
         </div>
         <div className="flex gap-2">
-          <AddSyllabusDialog onAdd={addSyllabus} />
+          <AddSyllabusDialog onAdd={handleAddSyllabus} existingSubjects={subjects} />
           <AddSubjectDialog onAdd={handleAddSubject} />
         </div>
       </div>
