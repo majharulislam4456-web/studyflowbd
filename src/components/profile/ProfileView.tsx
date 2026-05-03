@@ -1,26 +1,15 @@
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog';
 import { 
-  User, Settings, LogOut, Mail, Info, Shield, Moon, Sun, 
-  Languages, Lock, Upload, Flame, GraduationCap, Star, Heart
+  User, Mail, Shield, Flame, GraduationCap, Star, Heart, Calendar, Trophy, Clock, Target
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { AboutApp } from '@/components/about/AboutApp';
-import { AvatarSelector, getAvatarDisplay } from './AvatarSelector';
-import { ThemeColorSelector, initializeThemeColor } from './ThemeColorSelector';
+import { getAvatarDisplay } from './AvatarSelector';
+import { initializeThemeColor } from './ThemeColorSelector';
 import type { Profile, StudySession } from '@/hooks/useSupabaseData';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { calculateStreak } from '@/utils/streak';
-import logoImg from '@/assets/logo.png';
 
 interface ProfileViewProps {
   profile: Profile | null;
@@ -40,50 +29,14 @@ const DIVISION_LABELS: Record<string, string> = {
   'science': 'বিজ্ঞান', 'arts': 'মানবিক', 'commerce': 'ব্যবসায় শিক্ষা',
 };
 
-export function ProfileView({ profile, sessions, onUpdateProfile, isDark, toggleTheme }: ProfileViewProps) {
-  const { user, signOut } = useAuth();
-  const { t, language, setLanguage } = useLanguage();
-  const { toast } = useToast();
-  const [editOpen, setEditOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [securityOpen, setSecurityOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(profile?.display_name || '');
-  const [dream, setDream] = useState((profile as any)?.dream || '');
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function ProfileView({ profile, sessions }: ProfileViewProps) {
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  const isBn = language === 'bn';
 
   useState(() => {
-    if ((profile as any)?.theme_color) {
-      initializeThemeColor((profile as any).theme_color);
-    }
+    if ((profile as any)?.theme_color) initializeThemeColor((profile as any).theme_color);
   });
-
-  const handleSave = () => {
-    onUpdateProfile({ display_name: displayName.trim() || null, dream: dream.trim() || null } as any);
-    setEditOpen(false);
-  };
-
-  const handleAvatarSelect = (avatarUrl: string) => onUpdateProfile({ avatar_url: avatarUrl });
-  const handleThemeColorSelect = (colorId: string) => onUpdateProfile({ theme_color: colorId } as any);
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user.id}/avatar.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      onUpdateProfile({ avatar_url: publicUrl });
-      toast({ title: t('saved') });
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const getInitials = () => {
     if (profile?.display_name) return profile.display_name.slice(0, 2).toUpperCase();
@@ -98,324 +51,173 @@ export function ProfileView({ profile, sessions, onUpdateProfile, isDark, toggle
   const profileDream = (profile as any)?.dream;
   const needsDivision = ['9', '10', '11', '12'].includes(studentClass);
 
-  const renderAvatar = (size: 'sm' | 'lg' = 'lg') => {
-    const sizeClass = size === 'lg' ? 'w-24 h-24' : 'w-16 h-16';
-    const iconSize = size === 'lg' ? 'w-12 h-12' : 'w-8 h-8';
-    const textSize = size === 'lg' ? 'text-3xl' : 'text-xl';
+  // Stats
+  const totalMinutes = sessions.reduce((s, x) => s + (x.duration_minutes || 0), 0);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const totalSessions = sessions.length;
+  const joinDate = profile?.created_at ? new Date(profile.created_at) : null;
+  const memberDays = joinDate ? Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
+  const renderAvatar = () => {
     if (avatarDisplay?.type === 'icon') {
       const Icon = avatarDisplay.icon;
       return (
-        <div className={cn(sizeClass, "rounded-full flex items-center justify-center ring-4 ring-primary/20", avatarDisplay.color)}>
-          <Icon className={cn(iconSize, "text-white")} />
+        <div className={cn("w-28 h-28 rounded-full flex items-center justify-center ring-4 ring-primary/30 shadow-xl", avatarDisplay.color)}>
+          <Icon className="w-14 h-14 text-white" />
         </div>
       );
     }
-
     return (
-      <Avatar className={cn(sizeClass, "ring-4 ring-primary/20")}>
+      <Avatar className="w-28 h-28 ring-4 ring-primary/30 shadow-xl">
         <AvatarImage src={avatarDisplay?.url || undefined} />
-        <AvatarFallback className={cn("bg-primary/10 text-primary font-semibold", textSize)}>
+        <AvatarFallback className="bg-primary/10 text-primary font-bold text-4xl">
           {getInitials()}
         </AvatarFallback>
       </Avatar>
     );
   };
 
-  const menuItems = [
-    { icon: Settings, label: t('settings'), onClick: () => setEditOpen(true), color: 'text-foreground' },
-    { icon: Languages, label: language === 'bn' ? 'English' : 'বাংলা', onClick: () => setLanguage(language === 'bn' ? 'en' : 'bn'), color: 'text-foreground' },
-    { icon: isDark ? Sun : Moon, label: isDark ? t('lightMode') : t('darkMode'), onClick: toggleTheme, color: 'text-foreground' },
-    { icon: Lock, label: t('security'), onClick: () => setSecurityOpen(true), color: 'text-foreground' },
-    { icon: Info, label: t('aboutApp'), onClick: () => setAboutOpen(true), color: 'text-primary' },
-    { icon: LogOut, label: t('logout'), onClick: signOut, color: 'text-destructive' },
-  ];
-
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <User className="w-8 h-8 text-primary" />
-          {t('profile')}
-        </h1>
-        <p className="text-muted-foreground mt-1 font-bengali">
-          {language === 'bn' ? 'আপনার অ্যাকাউন্ট সেটিংস' : 'Your account settings'}
-        </p>
+    <div className="page-container animate-fade-in">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">
+            <div className="p-2 rounded-xl bg-primary/10">
+              <User className="w-5 h-5 text-primary" />
+            </div>
+            {isBn ? 'প্রোফাইল' : 'Profile'}
+          </h1>
+          <p className="page-subtitle">
+            {isBn ? 'আপনার ব্যক্তিগত তথ্য ও পরিসংখ্যান' : 'Your personal information and stats'}
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-lg space-y-6">
-        {/* Profile Card */}
-        <div className="glass-card p-6 bg-gradient-to-br from-primary/5 to-accent/5">
-          <div className="flex items-center gap-5 mb-6">
-            {renderAvatar('lg')}
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-foreground">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Hero Card */}
+        <div className="lg:col-span-2 glass-card p-8 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            {renderAvatar()}
+            <div className="flex-1 text-center sm:text-left">
+              <h2 className="text-3xl font-bold text-foreground tracking-tight">
                 {profile?.display_name || user?.email?.split('@')[0]}
               </h2>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <Shield className="w-4 h-4 text-success" />
-                <span className="text-xs text-success font-bengali">
-                  {language === 'bn' ? 'ভেরিফাইড অ্যাকাউন্ট' : 'Verified Account'}
-                </span>
+              <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 text-muted-foreground">
+                <Mail className="w-4 h-4" />
+                <span className="text-sm">{user?.email}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            {/* Class */}
-            <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              <GraduationCap className="w-5 h-5 mx-auto mb-1 text-primary" />
-              <p className="text-sm font-bold text-foreground font-bengali">
-                {studentClass ? (CLASS_LABELS[studentClass] || studentClass) : '—'}
-              </p>
-              <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'ক্লাস' : 'Class'}
-              </p>
-            </div>
-
-            {/* Streak / Division */}
-            <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              {needsDivision && division ? (
-                <>
-                  <Star className="w-5 h-5 mx-auto mb-1 text-accent" />
-                  <p className="text-sm font-bold text-foreground font-bengali">
-                    {DIVISION_LABELS[division] || division}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-bengali">
-                    {language === 'bn' ? 'বিভাগ' : 'Division'}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <Flame className="w-5 h-5 mx-auto mb-1 text-destructive" />
-                  <p className="text-sm font-bold text-foreground">
-                    {currentStreak} {language === 'bn' ? 'দিন' : 'days'}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-bengali">
-                    {language === 'bn' ? 'স্ট্রিক 🔥' : 'Streak 🔥'}
-                  </p>
-                </>
-              )}
-            </div>
-
-            {/* Dream */}
-            <div className="text-center p-3 rounded-xl bg-background/60 border border-border/50">
-              <Heart className="w-5 h-5 mx-auto mb-1 text-destructive" />
-              <p className="text-sm font-bold text-foreground font-bengali truncate">
-                {profileDream || '—'}
-              </p>
-              <p className="text-[10px] text-muted-foreground font-bengali">
-                {language === 'bn' ? 'ড্রিম' : 'Dream'}
-              </p>
-            </div>
-          </div>
-
-          {/* Active days if division shown in middle */}
-          {needsDivision && division && (
-            <div className="mt-3 text-center p-2 rounded-lg bg-gradient-to-r from-destructive/10 to-accent/10 border border-destructive/20">
-              <div className="flex items-center justify-center gap-2">
-                <Flame className="w-4 h-4 text-destructive" />
-                <span className="text-sm font-bold font-bengali">
-                  {currentStreak} {language === 'bn' ? 'দিন স্ট্রিক 🔥' : 'day streak 🔥'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Menu Items */}
-        <div className="glass-card overflow-hidden">
-          {menuItems.map((item, index) => (
-            <button key={index} onClick={item.onClick}
-              className={cn(
-                "w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-all duration-200",
-                index !== menuItems.length - 1 && "border-b border-border"
-              )}
-            >
-              <div className={cn("p-2 rounded-lg", item.color === 'text-destructive' ? 'bg-destructive/10' : 'bg-muted')}>
-                <item.icon className={cn("w-5 h-5", item.color)} />
-              </div>
-              <p className={cn("font-medium font-bengali flex-1 text-left", item.color)}>{item.label}</p>
-            </button>
-          ))}
-        </div>
-
-        {/* App Info */}
-        <div className="glass-card p-4 bg-gradient-to-r from-primary/5 to-transparent">
-          <div className="flex items-center gap-3 mb-3">
-            <img src={logoImg} alt="Study Tracker" className="w-10 h-10 rounded-xl object-cover" />
-            <div>
-              <span className="text-sm font-bold text-foreground">Study Tracker</span>
-              <p className="text-[10px] text-muted-foreground font-bengali">স্টাডি ট্র্যাকার</p>
-            </div>
-          </div>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>{t('version')} 5.0</p>
-            <p className="font-bengali">{t('createdBy')}: মাজহারুল ইসলাম</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Edit Profile Dialog */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-bengali">{t('settings')}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            <div className="flex flex-col items-center gap-4">
-              {renderAvatar('lg')}
-              <div className="flex gap-2">
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                  <Upload className="w-4 h-4 mr-1" />
-                  {uploading ? t('loading') : t('uploadPhoto')}
-                </Button>
-                <AvatarSelector currentAvatar={profile?.avatar_url} onSelect={handleAvatarSelect} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="displayName" className="font-bengali">{t('name')}</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder={language === 'bn' ? 'আপনার নাম লিখুন' : 'Enter your name'} className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dream" className="font-bengali flex items-center gap-2">
-                <Heart className="w-4 h-4 text-destructive" />
-                {language === 'bn' ? 'তোমার ড্রিম কি?' : 'What is your dream?'}
-              </Label>
-              <Input id="dream" value={dream} onChange={(e) => setDream(e.target.value)}
-                placeholder={language === 'bn' ? 'যেমন: ডাক্তার, ইঞ্জিনিয়ার, বিসিএস ক্যাডার...' : 'e.g. Doctor, Engineer, BCS Cadre...'}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="font-bengali">{t('email')}</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={user?.email || ''} disabled className="pl-10 bg-muted" />
-              </div>
-            </div>
-
-            <ThemeColorSelector currentColor={(profile as any)?.theme_color || 'teal'} onSelect={handleThemeColorSelect} />
-
-            <Button onClick={handleSave} className="w-full" variant="gradient">
-              <span className="font-bengali">{t('save')}</span>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Security Dialog */}
-      <Dialog open={securityOpen} onOpenChange={setSecurityOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-bengali flex items-center gap-2">
-              <Shield className="w-5 h-5" />
-              {t('security')}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="p-4 rounded-xl bg-success/10 border border-success/20">
-              <div className="flex items-center gap-3">
-                <Shield className="w-8 h-8 text-success" />
-                <div>
-                  <p className="font-medium text-success">
-                    {language === 'bn' ? 'অ্যাকাউন্ট সুরক্ষিত' : 'Account Secure'}
-                  </p>
-                  <p className="text-sm text-muted-foreground font-bengali">
-                    {language === 'bn' ? 'আপনার অ্যাকাউন্ট RLS দ্বারা সুরক্ষিত' : 'Your account is protected by RLS'}
-                  </p>
+              <div className="flex items-center justify-center sm:justify-start gap-3 mt-4 flex-wrap">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 border border-success/20">
+                  <Shield className="w-3.5 h-3.5 text-success" />
+                  <span className="text-xs font-medium text-success font-bengali">
+                    {isBn ? 'ভেরিফাইড' : 'Verified'}
+                  </span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                  <Calendar className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-medium text-primary font-bengali">
+                    {memberDays} {isBn ? 'দিন সদস্য' : 'days member'}
+                  </span>
                 </div>
               </div>
             </div>
-
-            <PasswordChangeSection language={language} />
-
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-muted-foreground" />
-                <span className="font-bengali">{t('twoFactorAuth')}</span>
-              </div>
-              <Button variant="outline" size="sm" disabled>
-                {language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
-              </Button>
-            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
 
-      <AboutApp open={aboutOpen} onOpenChange={setAboutOpen} />
+        {/* Streak Card */}
+        <div className="glass-card p-6 bg-gradient-to-br from-destructive/10 to-accent/5 flex flex-col justify-center items-center text-center">
+          <Flame className="w-10 h-10 text-destructive mb-2" />
+          <p className="text-4xl font-bold text-foreground">{currentStreak}</p>
+          <p className="text-sm text-muted-foreground font-bengali mt-1">
+            {isBn ? 'দিনের স্ট্রিক 🔥' : 'Day Streak 🔥'}
+          </p>
+        </div>
+      </div>
+
+      {/* Personal Info Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <InfoCard
+          icon={GraduationCap}
+          label={isBn ? 'ক্লাস' : 'Class'}
+          value={studentClass ? (CLASS_LABELS[studentClass] || studentClass) : '—'}
+          color="text-primary"
+          bg="bg-primary/10"
+        />
+        <InfoCard
+          icon={Star}
+          label={isBn ? 'বিভাগ' : 'Division'}
+          value={needsDivision && division ? (DIVISION_LABELS[division] || division) : '—'}
+          color="text-accent-foreground"
+          bg="bg-accent/20"
+        />
+        <InfoCard
+          icon={Heart}
+          label={isBn ? 'স্বপ্ন' : 'Dream'}
+          value={profileDream || '—'}
+          color="text-destructive"
+          bg="bg-destructive/10"
+        />
+        <InfoCard
+          icon={Trophy}
+          label={isBn ? 'মোট সেশন' : 'Total Sessions'}
+          value={totalSessions.toString()}
+          color="text-success"
+          bg="bg-success/10"
+        />
+      </div>
+
+      {/* Study Stats */}
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Target className="w-5 h-5 text-primary" />
+          {isBn ? 'অধ্যয়ন পরিসংখ্যান' : 'Study Statistics'}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard
+            icon={Clock}
+            label={isBn ? 'মোট সময়' : 'Total Time'}
+            value={`${totalHours}h ${totalMinutes % 60}m`}
+            gradient="from-primary/20 to-primary/5"
+          />
+          <StatCard
+            icon={Flame}
+            label={isBn ? 'সর্বোচ্চ স্ট্রিক' : 'Best Streak'}
+            value={`${currentStreak} ${isBn ? 'দিন' : 'days'}`}
+            gradient="from-destructive/20 to-destructive/5"
+          />
+          <StatCard
+            icon={Trophy}
+            label={isBn ? 'গড় সেশন' : 'Avg Session'}
+            value={totalSessions > 0 ? `${Math.round(totalMinutes / totalSessions)}m` : '0m'}
+            gradient="from-success/20 to-success/5"
+          />
+        </div>
+      </div>
     </div>
   );
 }
 
-function PasswordChangeSection({ language }: { language: string }) {
-  const [isChanging, setIsChanging] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      toast({ title: language === 'bn' ? 'পাসওয়ার্ড মিলছে না' : 'Passwords do not match', variant: 'destructive' });
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast({ title: language === 'bn' ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' : 'Password must be at least 6 characters', variant: 'destructive' });
-      return;
-    }
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      toast({ title: language === 'bn' ? '✅ পাসওয়ার্ড পরিবর্তন হয়েছে!' : '✅ Password changed!' });
-      setIsChanging(false);
-      setNewPassword(''); setConfirmPassword('');
-    } catch (err: any) {
-      toast({ title: err.message || 'Error', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isChanging) {
-    return (
-      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-        <div className="flex items-center gap-3">
-          <Lock className="w-5 h-5 text-muted-foreground" />
-          <span className="font-bengali">{language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Change Password'}</span>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setIsChanging(true)}>
-          {language === 'bn' ? 'পরিবর্তন' : 'Change'}
-        </Button>
-      </div>
-    );
-  }
-
+function InfoCard({ icon: Icon, label, value, color, bg }: { icon: any; label: string; value: string; color: string; bg: string; }) {
   return (
-    <div className="p-4 rounded-xl bg-muted/30 border border-border space-y-3 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-primary" />
-          <span className="text-sm font-semibold font-bengali">{language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Change Password'}</span>
-        </div>
-        <Button variant="ghost" size="sm" onClick={() => setIsChanging(false)}>✕</Button>
+    <div className="glass-card p-4 hover:scale-[1.02] transition-transform">
+      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-3", bg)}>
+        <Icon className={cn("w-5 h-5", color)} />
       </div>
-      <Input type="password" placeholder={language === 'bn' ? 'নতুন পাসওয়ার্ড' : 'New password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} />
-      <Input type="password" placeholder={language === 'bn' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-      <Button onClick={handleChangePassword} className="w-full" disabled={loading || !newPassword || !confirmPassword}>
-        {loading ? (language === 'bn' ? 'পরিবর্তন হচ্ছে...' : 'Changing...') : (language === 'bn' ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Update Password')}
-      </Button>
+      <p className="text-xs text-muted-foreground font-bengali mb-1">{label}</p>
+      <p className="font-semibold text-foreground font-bengali truncate">{value}</p>
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, gradient }: { icon: any; label: string; value: string; gradient: string; }) {
+  return (
+    <div className={cn("glass-card p-5 bg-gradient-to-br", gradient)}>
+      <div className="flex items-center justify-between mb-2">
+        <Icon className="w-5 h-5 text-foreground/60" />
+      </div>
+      <p className="text-2xl font-bold text-foreground">{value}</p>
+      <p className="text-sm text-muted-foreground font-bengali mt-1">{label}</p>
     </div>
   );
 }
