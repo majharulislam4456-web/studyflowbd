@@ -52,7 +52,7 @@ export function ProfileView({ profile, sessions }: ProfileViewProps) {
   const needsDivision = ['9', '10', '11', '12'].includes(studentClass);
 
   // Stats
-  const totalMinutes = sessions.reduce((s, x) => s + (x.duration_minutes || 0), 0);
+  const totalMinutes = sessions.reduce((s, x) => s + (x.duration || 0), 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const totalSessions = sessions.length;
   const joinDate = profile?.created_at ? new Date(profile.created_at) : null;
