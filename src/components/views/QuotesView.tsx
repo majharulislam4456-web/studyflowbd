@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
 import { QuoteCard } from '@/components/quotes/QuoteCard';
 import { AddQuoteDialog } from '@/components/quotes/AddQuoteDialog';
@@ -44,7 +44,19 @@ export function QuotesView({
 }: QuotesViewProps) {
   const { language } = useLanguage();
   const [editQuote, setEditQuote] = useState<Quote | null>(null);
-  
+  const seededRef = useRef(false);
+
+  // Seed default Bengali quotes once for new users so they can edit/delete them
+  useEffect(() => {
+    if (seededRef.current) return;
+    if (quotes.length === 0) {
+      seededRef.current = true;
+      defaultBengaliQuotes.forEach((q) => {
+        addQuote({ text: q.text, author: q.author, is_bengali: true });
+      });
+    }
+  }, [quotes.length, addQuote]);
+
   const bengaliQuotes = quotes.filter(q => q.is_bengali);
   const englishQuotes = quotes.filter(q => !q.is_bengali);
   const isBn = language === 'bn';
@@ -65,30 +77,13 @@ export function QuotesView({
         <AddQuoteDialog onAdd={addQuote} />
       </div>
 
-      {/* Default Bengali Motivational Quotes */}
-      {quotes.length === 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground font-bengali">
-            <BookOpen className="w-5 h-5 text-primary" />
-            {isBn ? '📚 অনুপ্রেরণামূলক উক্তি' : '📚 Motivational Quotes'}
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {defaultBengaliQuotes.map((q, index) => (
-              <div key={index} className={`stagger-${(index % 5) + 1}`}>
-                <div className="glass-card p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <p className="text-foreground font-bengali leading-relaxed italic">"{q.text}"</p>
-                  <p className="text-sm text-primary mt-3 font-bengali font-medium">— {q.author}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Bengali Quotes */}
       {bengaliQuotes.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground font-bengali">বাংলা উক্তি</h2>
+          <h2 className="text-xl font-semibold text-foreground font-bengali flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-primary" />
+            বাংলা উক্তি
+          </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {bengaliQuotes.map((quote, index) => (
               <div key={quote.id} className={`stagger-${(index % 5) + 1}`}>
