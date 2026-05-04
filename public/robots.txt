@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /parent/
 
-Sitemap: https://studytracker10.lovable.app/sitemap.xml
+Sitemap: https://studytracker-bd.lovable.app/sitemap.xml
