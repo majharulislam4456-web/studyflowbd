@@ -21,6 +21,7 @@ import { ExamReminderView } from '@/components/reminders/ExamReminderView';
 import { NotesView } from '@/components/views/NotesView';
 import { TimetableView } from '@/components/views/TimetableView';
 import { CalendarView } from '@/components/views/CalendarView';
+import { AtomView } from '@/components/atom/AtomView';
 import { FloatingPomodoroTimer } from '@/components/pomodoro/FloatingPomodoroTimer';
 import { FloatingStopwatch } from '@/components/logger/FloatingStopwatch';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
@@ -144,6 +145,8 @@ const Index = () => {
         return <TimetableView routines={routines} subjects={subjects} addRoutine={addRoutine} deleteRoutine={deleteRoutine} />;
       case 'calendar':
         return <CalendarView sessions={sessions} subjects={subjects} routines={routines} examReminders={[]} />;
+      case 'atom':
+        return <AtomView />;
       case 'settings':
         return <SettingsView profile={profile} sessions={sessions} onUpdateProfile={updateProfile} isDark={isDark} toggleTheme={toggleTheme} />;
       case 'profile':
