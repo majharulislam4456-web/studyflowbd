@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, Settings, BellRing, FileText, CalendarDays, Calendar, ListTodo, User, Atom } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Timer, Target, PenTool, Sparkles, BarChart3, Moon, Sun, ChevronLeft, Settings, BellRing, FileText, CalendarDays, Calendar, ListTodo, User, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +27,7 @@ const navItems = [
   { id: 'reminders', label: 'Reminders', labelBn: 'রিমাইন্ডার', icon: BellRing },
   { id: 'timetable', label: 'Timetable', labelBn: 'রুটিন', icon: CalendarDays },
   { id: 'calendar', label: 'Calendar', labelBn: 'ক্যালেন্ডার', icon: Calendar },
-  { id: 'atom', label: 'Atom', labelBn: 'পরমাণু', icon: Atom },
+  { id: 'tips', label: 'Tips', labelBn: 'টিপস ও রিসোর্স', icon: Lightbulb },
   { id: 'quotes', label: 'Motivation', labelBn: 'অনুপ্রেরণা', icon: Sparkles },
 ];
 
