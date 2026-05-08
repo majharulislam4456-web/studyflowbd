@@ -30,6 +30,9 @@ import { Loader2 } from 'lucide-react';
 import { useGlobalStopwatch } from '@/contexts/StopwatchContext';
 import { applyDailyTheme } from '@/utils/dailyTheme';
 import { supabase } from '@/integrations/supabase/client';
+import { AnnouncementBanner } from '@/components/AnnouncementBanner';
+import { useAppSettings } from '@/hooks/useAppSettings';
+import { applyFestivalTheme } from '@/lib/festivalThemes';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -42,6 +45,11 @@ const Index = () => {
   const [examReminders, setExamReminders] = useState<{ id: string; title: string; title_bn: string | null; exam_date: string }[]>([]);
 
   useEffect(() => { applyDailyTheme(); }, []);
+
+  const { settings: appSettings } = useAppSettings();
+  useEffect(() => {
+    if (appSettings?.active_theme) applyFestivalTheme(appSettings.active_theme);
+  }, [appSettings?.active_theme]);
 
   useEffect(() => {
     if (!user) return;
@@ -160,7 +168,10 @@ const Index = () => {
       <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab} isDark={isDark} toggleTheme={toggleTheme} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} profile={profile} />
       <main className={cn("flex-1 min-h-screen", "pb-24 md:pb-0")}>
         <MobileHeader isDark={isDark} toggleTheme={toggleTheme} setActiveTab={setActiveTab} />
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">{renderView()}</div>
+        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+          <AnnouncementBanner />
+          {renderView()}
+        </div>
       </main>
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
       {pomodoro.isMinimized && (pomodoro.isRunning || pomodoro.phase !== 'idle') && activeTab !== 'timer' && (

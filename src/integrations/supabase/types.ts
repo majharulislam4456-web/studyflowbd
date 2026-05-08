@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          active_theme: string
+          announcement_active: boolean
+          announcement_content: string | null
+          announcement_expires_at: string | null
+          announcement_link: string | null
+          announcement_title: string | null
+          features: Json
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active_theme?: string
+          announcement_active?: boolean
+          announcement_content?: string | null
+          announcement_expires_at?: string | null
+          announcement_link?: string | null
+          announcement_title?: string | null
+          features?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active_theme?: string
+          announcement_active?: boolean
+          announcement_content?: string | null
+          announcement_expires_at?: string | null
+          announcement_link?: string | null
+          announcement_title?: string | null
+          features?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       daily_tasks: {
         Row: {
           created_at: string
